@@ -6,8 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Vision;
 import frc.robot.util.ControllerInput;
 
 /**
@@ -25,8 +28,9 @@ public class RobotContainer {
 	XboxController xboxController = new XboxController(1);
 
 	ControllerInput controller = new ControllerInput(xboxController);
+	Vision visionSystem = new Vision(Constants.VisionConstants.ipAddress, Constants.VisionConstants.CameraRotations, Constants.VisionConstants.apriltagAngles); 
 
-	Swerve swerve =  new Swerve(controller);
+	Swerve swerve = new Swerve(controller, visionSystem);
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
