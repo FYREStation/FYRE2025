@@ -97,6 +97,13 @@ public final class Constants {
 
   	}
 
+	public static class ElevatorLiftConstants {
+		public static final int elevatorMotor1Port = null;
+		public static final int elevatorMotor2Port = null;
+		public static final int maxRotations = null;
+
+	}
+
 	public static class OperatorConstants {
 		public static final int driverControllerPort = 0;
 	}
@@ -113,4 +120,5 @@ public final class Constants {
 			apriltagAngles.put("tag4", 90);
 		}
 	}
+
 }
