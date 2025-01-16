@@ -98,9 +98,9 @@ public final class Constants {
   	}
 
 	public static class ElevatorLiftConstants {
-		public static final int elevatorMotor1Port = null;
-		public static final int elevatorMotor2Port = null;
-		public static final int maxRotations = null;
+		public static final int elevatorMotor1Port = -1;
+		public static final int elevatorMotor2Port = -1;
+		public static final int maxRotations = -1;
 
 	}
 
