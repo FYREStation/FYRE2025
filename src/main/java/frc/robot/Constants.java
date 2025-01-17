@@ -98,9 +98,19 @@ public final class Constants {
   	}
 
 	public static class ElevatorLiftConstants {
-		public static final int elevatorMotor1Port = null;
-		public static final int elevatorMotor2Port = null;
-		public static final int maxRotations = null;
+		public static final int elevatorMotor1Port = -1234567890;
+		public static final int elevatorMotor2Port = -123456789;
+		public static final double maxRotations = -1234567890;
+		public static final double staticGain = -1234567890;
+		public static final double gravityGain = -1234567890;
+		public static final double velocityGain = -1234567890;
+		public static final int bottomLimitSwitchPort = -1234567890;
+		public static final int topLimitSwitchPort = -1234567890;
+		public static final double kP = -1234567890;
+		public static final double kI = -1234567890;
+		public static final double kD = -1234567890;
+		public static final double maxAcceleration = -1234567890;
+		public static final double maxVelocity = -1234567890;
 
 	}
 

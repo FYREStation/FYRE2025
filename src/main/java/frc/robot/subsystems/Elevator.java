@@ -4,35 +4,40 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import frc.robot.Constants.ElevatorLiftConstants;
 
 /** The elevator subsystem to be used by any elevator commands. */
-public class Elevator extends ProfiledPIDSubsystem {
+public class Elevator extends ProfiledPIDController {
 
     // The CIM which will be the "leader" for the elevator lift.
-    private final CANSparkMax elevatorMotor1 = new CANSparkMax(
+    private final SparkMax elevatorMotor1 = new SparkMax(
         ElevatorLiftConstants.elevatorMotor1Port, 
-        CANSparkLowLevel.MotorType.kBrushless //needs to be updated
+        SparkLowLevel.MotorType.kBrushless //needs to be updated
     );
 
+    private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
+
     // The other CIM on the elevator lift which will follow the main motor.
-    private final CANSparkMax elevatorMotor2 = new CANSparkMax(
+    private final SparkMax elevatorMotor2 = new SparkMax(
         ElevatorLiftConstants.elevatorMotor2Port,
-        CANSparkLowLevel.MotorType.kBrushless //needs to be updated
+        SparkLowLevel.MotorType.kBrushless //needs to be updated
     );
+
+    private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
 
     private final ElevatorFeedforward ElevatorFeedforward = new ElevatorFeedforward(
         ElevatorLiftConstants.staticGain,
         ElevatorLiftConstants.gravityGain,
-        ElevatorLiftConstants.velocityGain,
+        ElevatorLiftConstants.velocityGain
     );
     //The encoder on one of the elevator cims
     private final RelativeEncoder elevatorEncoder1 = elevatorMotor1.getEncoder();
@@ -53,16 +58,16 @@ public class Elevator extends ProfiledPIDSubsystem {
 
     private double rotationsToTop = ElevatorLiftConstants.maxRotations;
 
-    private TrapezoidProfile topState = new TrapezoidProfile(
+    private TrapezoidProfile.State topState = new TrapezoidProfile.State(
         rotationsToTop,
-        0,
+        0
         );
     
     //put extra defaults here
     
-    private TrapezoidProfile bottomState = new TrapezoidProfile(
+    private TrapezoidProfile.State bottomState = new TrapezoidProfile.State(
         0,
-        0,
+        0
         );
 
     // Variable to control if the driver needs to manually ovveride the elevator
@@ -70,9 +75,9 @@ public class Elevator extends ProfiledPIDSubsystem {
 
     //Variables to keep track of if elevator can move up and down
 
-    private boolean canMoveUp = null;
+    private boolean canMoveUp = false;
     
-    private boolean canMoveDown = null;
+    private boolean canMoveDown = false;
 
     //variable to keep track if the elevator is currently calibratig
     private boolean isCalibrating = false;
@@ -80,29 +85,29 @@ public class Elevator extends ProfiledPIDSubsystem {
     // constructor
     public Elevator() {
         super(
-            new ProfiledPIDController(
-                ElevatorLiftConstants.kP,
-                ElevatorLiftConstants.kI,
-                ElevatorLiftConstants.kD,
-                new TrapezoidProfile.Constraints(
-                    ElevatorLiftConstants.maxVelocity,
-                    ElevatorLiftConstants.maxAcceleration
-                )
+            ElevatorLiftConstants.kP, 
+            ElevatorLiftConstants.kI, 
+            ElevatorLiftConstants.kD, 
+            new TrapezoidProfile.Constraints(
+                ElevatorLiftConstants.maxVelocity, 
+                ElevatorLiftConstants.maxAcceleration
             )
         );
-        setupMotors();
+
+        setUpMotors();
+        
     }
 
     @ovveride  
-    public void periodic() {
+    public void periodic() { //Vibhav to Caden::: Check If this is the correct way to check if the controller is at it's goal
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(super.getController().atGoal() || manualOverride || isCalibrating)) {
+        if (!(super.atGoal() || manualOverride || isCalibrating)) { 
             // set the setpoint to the controller
             elevatorMotor1.set(
-                super.getController().calculate(
-                    getEncoderDistances()
-                    super.getController().getGoal()
+                super.calculate(
+                    getEncoderDistances(),
+                    getGoal().position
                 )
             );
         }
@@ -110,7 +115,9 @@ public class Elevator extends ProfiledPIDSubsystem {
     //sets up the motors at the beginning of the program
 
     private void setUpMotors() {
-        elevatorMotor2.follow(elevatorMotor1, true);
+        
+
+        elevatorMotor2Config.follow(0); //Vibhav to Caden::: Check if this is the correct way to follow the leader motor
 
         resetEncoders();
     }
@@ -120,13 +127,26 @@ public class Elevator extends ProfiledPIDSubsystem {
     public void goToTop() {
         setGoal(topState);
         enable();
+    }
     
     public void goToBottom() {
         setGoal(bottomState);
         enable();
     }
 
+    public double getEncoderDistances() {
+        return (elevatorEncoder1.getPosition() + elevatorEncoder2.getPosition()) / 2;
+
+    }
+
+    private void resetEncoders() {
+        elevatorEncoder1.setPosition(0.0);
+        elevatorEncoder2.setPosition(0.0);
+    }
+
+}
+
+
     //runs motors down
 
     
-}
