@@ -104,11 +104,18 @@ public class Swerve extends SubsystemBase{
         ChassisSpeeds speeds;
 
         switch (status) {
-            case ALIGN_TAG:
-                speeds = visionSystem.getTagDrive(0); 
+            case ALIGN_TAG: // lines the robot up with the tag
+                speeds = visionSystem.alignTagSpeeds(0, null); 
                 break;
-            case LOCKON:
-                // TODO: lockon goes here once done
+            case LOCKON: // allows the robot to move freely by user input but remains facing the tag
+                ChassisSpeeds controllerSpeeds = controllerChassisSpeeds();
+                ChassisSpeeds lockonSpeeds = visionSystem.lockonTagSpeeds(0, null);
+                speeds = new ChassisSpeeds(
+                    controllerSpeeds.vxMetersPerSecond,
+                    controllerSpeeds.vyMetersPerSecond,
+                    lockonSpeeds.omegaRadiansPerSecond
+                );
+                break;
             default: // if all else fails - revert to drive controls
                 speeds = controllerChassisSpeeds();
                 break;
@@ -120,7 +127,6 @@ public class Swerve extends SubsystemBase{
     private void setupCheck() {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
-            if (i == 1) continue; // don't mess with bob - remove this when we get him fixed
             if (Math.abs(swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]) > 1.5) return;
         }
         setupComplete = true;
@@ -195,7 +201,6 @@ public class Swerve extends SubsystemBase{
             REVLibError error = swerveEncoders[i].setPosition(relativeZero);
 
             // set the swerve pid to try to reset to zero
-            if (i == 1) continue; // ignore bob - remove this when he's fixed
             swervePID[i].setReference(
                 DriverConstants.absoluteOffsets[i],
                 SparkMax.ControlType.kPosition
@@ -294,10 +299,6 @@ public class Swerve extends SubsystemBase{
             double currentAngle = swerveEncoders[i].getPosition();
             double targetAngle = targetState.angle.getDegrees();
             SwerveAngleSpeed absoluteTarget = getAbsoluteTarget(targetAngle, currentAngle);
-            
-            //System.out.printf("%f, %f, %f\n", currentAngle, targetAngle, absoluteTarget);
-
-            //System.out.println("Driving");
 
             if (rotate) {
                 swervePID[i].setReference(absoluteTarget.targetAngle, SparkMax.ControlType.kPosition);
@@ -331,8 +332,6 @@ public class Swerve extends SubsystemBase{
      * @param currentAngle - the current position of the module
      * @return absoluteTarget - the absolute angle the module needs to approach
      */
-
-    
     private SwerveAngleSpeed getAbsoluteTarget(double targetAngle, double currentAngle) {
 
         targetAngle += 180;
@@ -354,11 +353,11 @@ public class Swerve extends SubsystemBase{
             multiplier = -1;
         }
 
-        SwerveAngleSpeed returnThing = new SwerveAngleSpeed();
-        returnThing.multiplier = multiplier;
-        returnThing.targetAngle = currentAngle + angleDiff;
-
-        return returnThing;
+        SwerveAngleSpeed absoluteTarget = new SwerveAngleSpeed();
+        absoluteTarget.multiplier = multiplier;
+        absoluteTarget.targetAngle = currentAngle + angleDiff;
+        
+        return absoluteTarget;
     }
 
 }
