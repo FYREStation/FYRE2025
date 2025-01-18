@@ -2,7 +2,9 @@ package frc.robot.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -178,21 +180,61 @@ public class CameraWebsocketClient {
         }
     }
 
+    /**
+     * Saves the array of colors passed in to be saved on the server
+
+     * @param colors - the array of colors that will be sent over to the server
+     * @return success - whether or not the command was successful or not
+     */
+    public boolean saveColors(Color[] colors) {
+        String outgoingString = "sp -values";
+
+        JsonArray colorArray = new JsonArray();
+        for (Color color : colors) {
+            JsonObject colorObject = new JsonObject();
+            colorObject.add("red", new JsonPrimitive(color.red));
+            colorObject.add("green", new JsonPrimitive(color.green));
+            colorObject.add("blue", new JsonPrimitive(color.blue));
+            colorObject.add("difference", new JsonPrimitive(color.difference));
+            colorObject.add("blur", new JsonPrimitive(color.blur));
+            
+            colorArray.add(colorObject);
+        }
+
+        // TODO: do some error check for this
+        sendMessage(outgoingString + colorArray.toString());
+
+        // TODO: after error checks, return true or false based on the success of the command
+        return true;
+    }
+
+    /**
+     * Switches the color that the server will look for when doing piece detection
+ 
+     * @param index - the index in the color array 
+     * @return
+     */
+    public boolean switchColors(int index) {
+        sendMessage("sc -new_color=" + index);
+
+        // TODO: error checks and retun success
+        return true;
+    }
+
     public Piece getPiece() {
         try {
             sendMessage("fp");
             String newMessage = getLatestReply();
-
+            return getPieceFromString(newMessage);
         } catch (Exception e) {
             e.printStackTrace();
             if (setupConnection()) {
                 sendMessage("fp");
                 String newMessage = getLatestReply();
-
+                return getPieceFromString(newMessage);
             }
+            return null;
         }
-
-        return new Piece();
     }
 
     public List<Apriltag> getApriltags() {
@@ -208,6 +250,28 @@ public class CameraWebsocketClient {
                 return getApriltagsFromString(newMessage);
             }
             return new ArrayList<>();
+        }
+    }
+
+    private Piece getPieceFromString(String pMessage) {
+        if (pMessage == null) return null;
+
+        try {
+            JsonObject json = new Gson().fromJson(pMessage, JsonObject.class);
+            Piece piece = new Piece();
+
+            if (json != null && json.size() > 0) {
+                piece.distance = json.get("distance").getAsDouble();
+                piece.angle = json.get("angle").getAsDouble();
+                piece.center = new double[] {
+                    json.get("center").getAsJsonArray().get(0).getAsDouble(),
+                    json.get("center").getAsJsonArray().get(1).getAsDouble()
+                };
+                return piece;
+            } else return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
