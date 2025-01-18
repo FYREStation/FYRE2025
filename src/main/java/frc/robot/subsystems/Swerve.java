@@ -17,10 +17,14 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,6 +35,9 @@ import frc.robot.util.ControllerInput.VisionStatus;
 public class Swerve extends SubsystemBase{
 
     private final ControllerInput controllerInput;
+
+    private final Vision visionSystem; 
+    private final AHRS gyroAhrs;
 
     private final SparkMax[] swerveMotors = new SparkMax[4];
     private final SparkMaxConfig[] swerveConfig = new SparkMaxConfig[4];
@@ -44,6 +51,9 @@ public class Swerve extends SubsystemBase{
 
     private final SparkClosedLoopController[] swervePID = new SparkClosedLoopController[4];
 
+    private final SwerveDrivePoseEstimator poseEstimator;
+
+    private Pose2d currentPose;
 
     private final PIDController turnPID = new PIDController(
         0.02,
@@ -61,9 +71,6 @@ public class Swerve extends SubsystemBase{
 
     double lastMotorSpeeds[] = new double[4];
     double lastMotorSetTimes[] = new double[4];
-
-    private final Vision visionSystem; 
-    private final AHRS gyroAhrs;
 
     private double turnTarget = 0;
 
@@ -87,6 +94,13 @@ public class Swerve extends SubsystemBase{
         // reset the gyro
         gyroAhrs.reset();
 
+        poseEstimator = new SwerveDrivePoseEstimator(
+            getSwerveDriveKinematics(),
+            gyroAhrs.getRotation2d(),
+            getSwerveModulePositions(),
+            getPose()
+        );
+
         // sets up the motors
         setupMotors();
 
@@ -100,6 +114,9 @@ public class Swerve extends SubsystemBase{
     }
 
     private ChassisSpeeds chooseDriveMode() {
+
+        currentPose = poseEstimator.update(gyroAhrs.getRotation2d(), getSwerveModulePositions());
+
         VisionStatus status = controllerInput.visionStatus();
         ChassisSpeeds speeds;
 
@@ -212,15 +229,17 @@ public class Swerve extends SubsystemBase{
 
         }
 
-        turnPID.disableContinuousInput();
+        turnPID.enableContinuousInput(-Math.PI, Math.PI);
         turnPID.setSetpoint(0);
     }
 
     public SwerveDriveKinematics getSwerveDriveKinematics() {return swerveDriveKinematics;}
 
-    public ChassisSpeeds getRobotState() {return swerveDriveKinematics.toChassisSpeeds(getSwerveModuleState());}
+    public ChassisSpeeds getRobotState() {return swerveDriveKinematics.toChassisSpeeds(getSwerveModuleStates());}
 
     public double getAngle() {return gyroAhrs.getAngle();}
+
+    public Pose2d getPose() {return currentPose;} 
 
     public void resetGyro() {
         gyroAhrs.reset();
@@ -233,6 +252,11 @@ public class Swerve extends SubsystemBase{
         }
     }
 
+    public void resetOdometry() {
+        resetEncoders();
+        resetGyro();
+    }
+
     double doubleMod(double x, double y) {
         // x mod y behaving the same way as Math.floorMod but with doubles
         return (x - Math.floor(x / y) * y);
@@ -242,15 +266,30 @@ public class Swerve extends SubsystemBase{
         return 360 - (swerveEncodersAbsolute[moduleNumber].getPosition() * 360);
     }
 
-    public SwerveModuleState[] getSwerveModuleState() {
+    public SwerveModuleState[] getSwerveModuleStates() {
         SwerveModuleState[] swerveModuleState = new SwerveModuleState[4];
         for (int i = 0; i < 4; i++) {
             SwerveModuleState moduleState = new SwerveModuleState(
-                    (driveMotors[i].getEncoder().getVelocity() / 60d) * DriverConstants.metersPerRotation,
-                    Rotation2d.fromDegrees(getAbsolutePosition(i)));
+                (driveMotors[i].getEncoder().getVelocity() / 60d) * DriverConstants.metersPerRotation,
+                Rotation2d.fromDegrees(getAbsolutePosition(i))
+            );
             swerveModuleState[i] = moduleState;
         }
+
         return swerveModuleState;
+    }
+
+    private SwerveModulePosition[] getSwerveModulePositions() {
+        SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
+        for (int i = 0; i < 4; i++) {
+            SwerveModulePosition modulePosition = new SwerveModulePosition(
+                swerveEncodersAbsolute[i].getPosition() * 0.12065 * Math.PI, // multiply the rotations of the wheel by the circumfrence to get distance in meters
+                new Rotation2d(swerveEncoders[i].getPosition())
+            );
+            swerveModulePositions[i] = modulePosition;
+        }
+
+        return swerveModulePositions;
     }
 
     public ChassisSpeeds controllerChassisSpeeds() {
@@ -360,4 +399,20 @@ public class Swerve extends SubsystemBase{
         return absoluteTarget;
     }
 
+// =============== AUTO STUFF ==================== //
+
+    private final PIDController xController = new PIDController(10, 0, 0);
+    private final PIDController yController = new PIDController(10, 0, 0);
+
+    private void followTrajectory(SwerveSample sample) {
+        Pose2d pose = getPose();
+
+        ChassisSpeeds speeds = new ChassisSpeeds(
+            sample.vy + xController.calculate(pose.getX(), sample.x),
+            sample.vx + yController.calculate(pose.getY(), sample.y),
+            sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading)
+        );
+
+        swerveDrive(speeds);
+    }
 }
