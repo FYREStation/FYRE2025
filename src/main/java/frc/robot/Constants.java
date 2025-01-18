@@ -1,11 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
+/*
+Copyright (c) FIRST and other WPILib contributors.
+Open Source Software; you can modify and share it under the terms of
+the WPILib BSD license file in the root directory of this project.
+*/
 package frc.robot;
 
 import java.util.HashMap;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -112,6 +112,7 @@ public final class Constants {
 		public static final double maxAcceleration = -1234567890;
 		public static final double maxVelocity = -1234567890;
 		public static final double elvevatorThrottle = -1234567890;
+		public static final double leadercanID = -1234567890;
 
 	}
 

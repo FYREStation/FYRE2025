@@ -9,8 +9,8 @@ public class ElevatorLift extends Command {
 
     // The elevator subsystem
     private Elevator elevator;
-
     // The state of the calibration sequence
+
     private boolean isCalibrating = false;
 
     // sets the elevator calibation states
@@ -25,7 +25,7 @@ public class ElevatorLift extends Command {
      */
     public ElevatorLift(Elevator subsystem) {
         this.elevator = subsystem;
-        addRequirements(subsystem);
+        addRequirements(elevator);
     }
 
     /**
