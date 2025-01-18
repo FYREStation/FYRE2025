@@ -33,7 +33,6 @@ public class RobotContainer {
 
 	Swerve swerve = new Swerve(controller, visionSystem);
 
-	AutoFactory autoFactory;
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -42,9 +41,7 @@ public class RobotContainer {
 		// Configure the trigger bindings
 		configureBindings();
 
-		autoFactory = new AutoFactory(
-			swerve.getPose(),
-			swerve, null, false, controller)
+		
 	}
 
 	/**

@@ -252,9 +252,11 @@ public class Swerve extends SubsystemBase{
         }
     }
 
-    public void resetOdometry() {
+    public void resetOdometry(Pose2d pose) {
         resetEncoders();
         resetGyro();
+
+        currentPose = pose;
     }
 
     double doubleMod(double x, double y) {
@@ -404,7 +406,7 @@ public class Swerve extends SubsystemBase{
     private final PIDController xController = new PIDController(10, 0, 0);
     private final PIDController yController = new PIDController(10, 0, 0);
 
-    private void followTrajectory(SwerveSample sample) {
+    public void followTrajectory(SwerveSample sample) {
         Pose2d pose = getPose();
 
         ChassisSpeeds speeds = new ChassisSpeeds(
