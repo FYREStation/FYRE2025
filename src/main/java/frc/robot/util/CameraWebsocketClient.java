@@ -57,6 +57,12 @@ public class CameraWebsocketClient {
         public String fullString;
     }
 
+    public static class Piece {
+        public double distance;
+        public double angle; // radians
+        public double[] center;
+    }
+
     public CameraWebsocketClient() {
         TIMEOUT = 5000;
     }
@@ -170,6 +176,23 @@ public class CameraWebsocketClient {
             e.printStackTrace();
             return new Info();
         }
+    }
+
+    public Piece getPiece() {
+        try {
+            sendMessage("fp");
+            String newMessage = getLatestReply();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (setupConnection()) {
+                sendMessage("fp");
+                String newMessage = getLatestReply();
+
+            }
+        }
+
+        return new Piece();
     }
 
     public List<Apriltag> getApriltags() {
