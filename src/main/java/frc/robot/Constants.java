@@ -116,6 +116,13 @@ public final class Constants {
 
 	}
 
+	public static class IntakeConstants{
+		public static final int intakeWheelPort = -1234567890;
+		public static final int intakeActuationPort = -1234567890;
+		public static final double rotationsToBottom = -1234567890;
+		public static final int intakeEncoderA = -1234567890;
+	}
+
 	public static class OperatorConstants {
 		public static final int driverControllerPort = 0;
 	}
