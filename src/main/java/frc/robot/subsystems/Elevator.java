@@ -11,7 +11,6 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants.ElevatorLiftConstants;
 
@@ -34,7 +33,7 @@ public class Elevator extends ProfiledPIDController {
 
     private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
 
-    private final ElevatorFeedforward ElevatorFeedforward = new ElevatorFeedforward(
+    private final ElevatorFeedforward elevatorFeedForward = new ElevatorFeedforward(
         ElevatorLiftConstants.staticGain,
         ElevatorLiftConstants.gravityGain,
         ElevatorLiftConstants.velocityGain
@@ -45,7 +44,7 @@ public class Elevator extends ProfiledPIDController {
     private final RelativeEncoder elevatorEncoder2 = elevatorMotor2.getEncoder();
 
     // The bottom limit switch for the elevator lift.
-    private final DigitalInput bottomLimitSwith = new DigitalInput(
+    private final DigitalInput bottomLimitSwitch = new DigitalInput(
         ElevatorLiftConstants.bottomLimitSwitchPort
     );
 
@@ -126,12 +125,10 @@ public class Elevator extends ProfiledPIDController {
 
     public void goToTop() {
         setGoal(topState);
-        enable();
     }
     
     public void goToBottom() {
         setGoal(bottomState);
-        enable();
     }
 
     public double getEncoderDistances() {
@@ -144,7 +141,153 @@ public class Elevator extends ProfiledPIDController {
         elevatorEncoder2.setPosition(0.0);
     }
 
+    public void runMotorForward() {
+        if (canMoveUp) {
+            elevatorMotor1.set(ElevatorLiftConstants.elvevatorThrottle);
+        } else {
+            elevatorMotor1.stopMotor();
+        }
+    }
+
+    public void runMotorBackward() {
+        if (canMoveDown) {
+            elevatorMotor1.set(-ElevatorLiftConstants.elvevatorThrottle);
+        } else {
+            elevatorMotor1.stopMotor();
+        }
+    }
+
+    public void stopMotor() {
+        elevatorMotor1.stopMotor();
+    }
+
+        /**
+     * Returns the state of the botom limit switch on the elevator
+     * This will return true if it is being triggered, and false if not.
+
+     * @return switch value - the value of the limit switch
+     */
+    public boolean getBottomSwitch() {
+        return bottomLimitSwitch.get();
+    }
+
+    /**
+     * Returns the state of the top limit switch on the elevator
+     * This will return true if it is being triggered, and false if not.
+
+     * @return switch value - the value of the limit switch
+     */
+    public boolean getTopSwitch() {
+        return topLimitSwitch.get();
+    }
+
+    /**
+     * Returns the top state of the elevator.
+
+     * @return topState - the top state of the elevator
+     */
+    public TrapezoidProfile.State getUpState() {
+        return topState;
+    }
+
+    /**
+     * Returns the bottoms state of the elevator.
+
+     * @return bottomState - the bottom state of the elevator
+     */
+    public TrapezoidProfile.State getDownState() {
+        return bottomState;
+
+    }
+
+    /**
+     * Calibrates the elevator by running the motor from the bottom position to the top,
+     * and measuring the encoder values from that point.
+     */
+    public boolean calibrateStep1() {
+        // ensures that the encoders are at the bottom of the elevator
+        if (!getBottomSwitch()) {
+            elevatorMotor1.set(-0.1);
+            return false;
+        }
+        elevatorMotor1.stopMotor();
+
+        // resets the encoder values at the bottom
+        resetEncoders();
+        return true;
+    }
+
+    /**
+     * The second step of the elevator calibration.
+     * Causes the elevator to go all the way up to the top
+
+     * @return boolean - whether or not the step has been completed
+     */
+    public boolean calibrateStep2() {
+        // runs the motors to the top of the elevator
+        if (!getTopSwitch()) {
+            elevatorMotor1.set(0.1);
+            return false;
+        }
+        elevatorMotor1.stopMotor();
+
+        // saves the rotational value at the top
+        rotationsToTop = getEncoderDistances();
+        return true;
+    }
+
+    /**
+     * The third step of the elevator calibration.
+     * Causes the elevator to go back down.
+
+     * @return boolean - whether this step has completed or not
+     */
+    public boolean calibrateStep3() {
+        // lowers the elevator back down
+        if (!getBottomSwitch()) {
+            elevatorMotor1.set(-0.1);
+            return false;
+        }
+        elevatorMotor1.stopMotor();
+        return true;
+    }
+
+    public void setCalibrating(boolean isCalibrating) {
+        this.isCalibrating = isCalibrating;
+    }
+
+    /**
+     * Toggles the manaul ovrride control of the elevator.
+     */
+    public void toggleManualOverride() {
+        manualOverride = !manualOverride;
+    }
+
+    /**
+     * This will take in the output, and a set point,
+     * and calculates the amount the motor needs to spin based on this input.
+     */
+    protected void useOutput(double output, TrapezoidProfile.State setpoint) {
+        // Calculate the feedforward from the sepoint
+        double feedforward = elevatorFeedForward.calculate(setpoint.position, setpoint.velocity);
+
+        // Add the feedforward to the PID output to get the motor output
+        elevatorMotor1.setVoltage(output + feedforward);
+    }
+
+
+    /**
+     * Method to be used by the PID controller under the hood,
+     * this is not used in our code but it is essential to PID.
+     * DO NOT DELETE THIS METHOD
+     */
+    protected double getMeasurement() {
+        // possibly add an offset here? 
+        return getEncoderDistances();
+    }
 }
+
+
 
 
     //runs motors down

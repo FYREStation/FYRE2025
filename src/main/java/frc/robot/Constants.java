@@ -111,6 +111,7 @@ public final class Constants {
 		public static final double kD = -1234567890;
 		public static final double maxAcceleration = -1234567890;
 		public static final double maxVelocity = -1234567890;
+		public static final double elvevatorThrottle = -1234567890;
 
 	}
 
