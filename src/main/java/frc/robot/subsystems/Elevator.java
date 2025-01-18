@@ -76,9 +76,9 @@ public class Elevator extends SubsystemBase {
 
     //Variables to keep track of if elevator can move up and down
 
-    private boolean canMoveUp = false;
+    private boolean canMoveUp = true; //Needs to be updated in runtime somehow
     
-    private boolean canMoveDown = false;
+    private boolean canMoveDown = false; //Needs to be updated in runtime somehow
 
     //variable to keep track if the elevator is currently calibratig
     private boolean isCalibrating = false;
