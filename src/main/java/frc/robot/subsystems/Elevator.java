@@ -76,9 +76,6 @@ public class Elevator extends SubsystemBase {
 
     //Variables to keep track of if elevator can move up and down
 
-    private boolean canMoveUp = true; //Needs to be updated in runtime somehow
-    
-    private boolean canMoveDown = false; //Needs to be updated in runtime somehow
 
     //variable to keep track if the elevator is currently calibratig
     private boolean isCalibrating = false;
@@ -143,8 +140,8 @@ public class Elevator extends SubsystemBase {
         elevatorEncoder2.setPosition(0.0);
     }
 
-    public void runMotorForward() {
-        if (canMoveUp) {
+    public void runMotorForward() { //failsafes removed
+        if (true) {
             elevatorMotor1.set(ElevatorLiftConstants.elvevatorThrottle);
         } else {
             elevatorMotor1.stopMotor();
@@ -152,7 +149,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public void runMotorBackward() {
-        if (canMoveDown) {
+        if (true) {
             elevatorMotor1.set(-ElevatorLiftConstants.elvevatorThrottle);
         } else {
             elevatorMotor1.stopMotor();
