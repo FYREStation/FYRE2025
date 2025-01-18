@@ -10,12 +10,16 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.ProfiledPIDSubsystem;
 import frc.robot.Constants.ElevatorLiftConstants;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 
 /** The elevator subsystem to be used by any elevator commands. */
-public class Elevator extends ProfiledPIDController {
+public class Elevator extends SubsystemBase {
 
     // The CIM which will be the "leader" for the elevator lift.
     private final SparkMax elevatorMotor1 = new SparkMax(
@@ -81,17 +85,18 @@ public class Elevator extends ProfiledPIDController {
     //variable to keep track if the elevator is currently calibratig
     private boolean isCalibrating = false;
 
+    private final ProfiledPIDController controller =
+    new ProfiledPIDController(
+        ElevatorLiftConstants.kP,
+        ElevatorLiftConstants.kI,
+        ElevatorLiftConstants.kD,
+        new TrapezoidProfile.Constraints(
+          ElevatorLiftConstants.maxVelocity,
+          ElevatorLiftConstants.maxAcceleration));
+
+
     // constructor
     public Elevator() {
-        super(
-            ElevatorLiftConstants.kP, 
-            ElevatorLiftConstants.kI, 
-            ElevatorLiftConstants.kD, 
-            new TrapezoidProfile.Constraints(
-                ElevatorLiftConstants.maxVelocity, 
-                ElevatorLiftConstants.maxAcceleration
-            )
-        );
 
         setUpMotors();
         
@@ -100,12 +105,12 @@ public class Elevator extends ProfiledPIDController {
     public void periodic() { //Vibhav to Caden::: Check If this is the correct way to check if the controller is at it's goal
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(super.atGoal() || manualOverride || isCalibrating)) { 
+        if (!(controller.atGoal() || manualOverride || isCalibrating)) { 
             // set the setpoint to the controller
             elevatorMotor1.set(
-                super.calculate(
+                controller.calculate(
                     getEncoderDistances(),
-                    getGoal().position
+                    controller.getGoal().position
                 )
             );
         }
@@ -123,11 +128,11 @@ public class Elevator extends ProfiledPIDController {
     //sets the goal to the top state of the elevator
 
     public void goToTop() {
-        setGoal(topState);
+        controller.setGoal(topState);
     }
     
     public void goToBottom() {
-        setGoal(bottomState);
+        controller.setGoal(bottomState);
     }
 
     public double getEncoderDistances() {
