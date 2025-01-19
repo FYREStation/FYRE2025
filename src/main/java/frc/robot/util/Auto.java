@@ -25,6 +25,22 @@ public class Auto {
         );
     }
 
+    // runs the dummy figure8 routine
+    public AutoRoutine figure8() {
+        AutoRoutine figure8 = autoFactory.newRoutine("figure8");
+
+        AutoTrajectory figure8Trajectory = figure8.trajectory("Figure8");
+
+        figure8.active().onTrue(
+            Commands.sequence(
+                figure8Trajectory.resetOdometry(),
+                figure8Trajectory.cmd()
+            )
+        );
+
+        return figure8;
+    }
+
     // routines need to be loaded at start time - not runtime before we're about to use it
     // loading routines takes time so don't do it when enabled
     public AutoRoutine dummyRoutine() {
