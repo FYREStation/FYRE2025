@@ -25,6 +25,23 @@ public class Auto {
         );
     }
 
+    
+    // runs the dummy minifigure8 routine
+    public AutoRoutine miniFigure8() {
+        AutoRoutine figure8 = autoFactory.newRoutine("miniFigure8");
+
+        AutoTrajectory figure8Trajectory = figure8.trajectory("MiniFigure8");
+
+        figure8.active().onTrue(
+            Commands.sequence(
+                figure8Trajectory.resetOdometry(),
+                figure8Trajectory.cmd()
+            )
+        );
+
+        return figure8;
+    }
+
     // runs the dummy figure8 routine
     public AutoRoutine figure8() {
         AutoRoutine figure8 = autoFactory.newRoutine("figure8");

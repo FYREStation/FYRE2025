@@ -26,6 +26,7 @@ public class ControllerInput extends SubsystemBase {
 
     public ControllerInput(XboxController controller) {
         this.controller = controller;
+        this.visionStatus = VisionStatus.NONE;
     }
 
     @Override

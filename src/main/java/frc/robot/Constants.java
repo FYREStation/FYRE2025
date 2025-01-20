@@ -67,10 +67,9 @@ public final class Constants {
 			//158,
 			//32,
 			//346
-			321.06, 360, 350.59, 14.87
+			258.38, 144.33, 351.57, 261.83
 		};
 
-		// TODO: change to meters possibly??
 		public static final Translation2d frontLeft = new Translation2d(0.27305, -0.27305);
 		public static final Translation2d frontRight= new Translation2d(0.27305, 0.27305);
 		public static final Translation2d backLeft = new Translation2d(-0.27305, -0.27305);

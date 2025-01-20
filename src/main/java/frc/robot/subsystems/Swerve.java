@@ -89,11 +89,16 @@ public class Swerve extends SubsystemBase{
         this.controllerInput = controller;
         this.visionSystem = visionSystem;
 
+        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
+
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
         // reset the gyro
         gyroAhrs.reset();
 
+        // sets up the motors
+        setupMotors();
+        
         poseEstimator = new SwerveDrivePoseEstimator(
             getSwerveDriveKinematics(),
             gyroAhrs.getRotation2d(),
@@ -101,14 +106,12 @@ public class Swerve extends SubsystemBase{
             getPose()
         );
 
-        // sets up the motors
-        setupMotors();
-
     }
 
     @Override
     public void periodic() {
-        if (setupComplete) {
+        if (true) {
+            System.out.println("trying to drive");
             swerveDrive(chooseDriveMode());
         } else setupCheck();
     }
@@ -144,7 +147,11 @@ public class Swerve extends SubsystemBase{
     private void setupCheck() {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
-            if (Math.abs(swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]) > 1.5) return;
+            if (Math.abs(swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]) > 1.5) 
+            {
+                System.out.println(i + ": " + (swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]));
+                return;
+            }
         }
         setupComplete = true;
         resetEncoders();
@@ -153,6 +160,7 @@ public class Swerve extends SubsystemBase{
     }
 
     private void setupMotors() {
+        System.out.println("setting up motors");
 
         // if this needs to loop more than 4 times, something is very wrong
         for (int i = 0; i < 4; i++) {
@@ -170,6 +178,10 @@ public class Swerve extends SubsystemBase{
             swerveEncoders[i] = swerveMotors[i].getEncoder();
             swerveEncodersAbsolute[i] = swerveMotors[i].getAbsoluteEncoder();
 
+            swerveConfig[i] = new SparkMaxConfig();
+            driveConfig[i] = new SparkMaxConfig();
+
+            swervePID[i] = swerveMotors[i].getClosedLoopController();
 
             swerveConfig[i]
                 .inverted(true)
@@ -252,6 +264,13 @@ public class Swerve extends SubsystemBase{
         }
     }
 
+    public void printModuleStatus() {
+        for (int i = 0; i < 4; i++) {
+            System.out.println(i + ": " + getAbsolutePosition(i));
+        }
+    }
+
+
     public void resetOdometry(Pose2d pose) {
         resetEncoders();
         resetGyro();
@@ -282,6 +301,8 @@ public class Swerve extends SubsystemBase{
     }
 
     private SwerveModulePosition[] getSwerveModulePositions() {
+        System.out.println("getting swerve module postions");
+
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             SwerveModulePosition modulePosition = new SwerveModulePosition(
