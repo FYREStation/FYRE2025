@@ -63,6 +63,7 @@ public class CameraWebsocketClient {
         public double distance;
         public double angle; // radians
         public double[] center;
+        public double pieceAngle; // radians
     }
 
     public CameraWebsocketClient() {
@@ -267,6 +268,7 @@ public class CameraWebsocketClient {
                     json.get("center").getAsJsonArray().get(0).getAsDouble(),
                     json.get("center").getAsJsonArray().get(1).getAsDouble()
                 };
+                piece.pieceAngle = json.get("piece_angle").getAsDouble();
                 return piece;
             } else return null;
         } catch (Exception e) {

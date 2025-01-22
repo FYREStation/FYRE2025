@@ -156,6 +156,36 @@ public class Vision {
         );
     }
 
+    public ChassisSpeeds getPieceDrive(int camIndex){
+        CameraWebsocketClient cam = camClientList.get(camIndex);
+        CameraWebsocketClient.Piece piece = cam.getPiece();
+        
+        if(piece == null) {
+            return null;
+        }
+
+        double turnSpeed = turnPID.calculate(piece.angle);
+        double moveSpeed = movePID.calculate(piece.distance);
+
+        double moveDirection = Math.tan(piece.angle + 0.25 * piece.pieceAngle); // The constant part is a guess
+
+        if (moveDirection == 0) {
+            return new ChassisSpeeds(0, moveSpeed, turnSpeed);
+        }
+
+        if (Math.abs(moveDirection) > 1000){
+            return new ChassisSpeeds(moveSpeed * Math.signum(moveDirection), 0, turnSpeed);
+        }
+        double xMove = moveDirection/(moveDirection + 1/moveDirection) * moveSpeed;
+        double yMove = (1/moveDirection)/(moveDirection + 1/moveDirection) * moveSpeed;
+        
+        return new ChassisSpeeds(
+            DriverConstants.highDriveSpeed * xMove,
+            DriverConstants.highDriveSpeed * yMove,
+            turnSpeed
+        );
+    }
+
     private Apriltag decideTag(int camIndex) {
         CameraWebsocketClient cam = camClientList.get(camIndex);
         List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
