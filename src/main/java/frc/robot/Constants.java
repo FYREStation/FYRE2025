@@ -52,8 +52,8 @@ public final class Constants {
 
 		public static final int frontLeftEncoder = 0;
 		public static final int frontRightEncoder = 1;
-		public static final int backLeftEncoder = 4;
-		public static final int backRightEncoder = 3;
+		public static final int backLeftEncoder = 3;
+		public static final int backRightEncoder = 4;
 
 		public static final int[] encoders = {
 			frontLeftEncoder,
@@ -63,11 +63,10 @@ public final class Constants {
 		};
 
 		public static final double[] absoluteOffsets = {
-			//51,
-			//158,
-			//32,
-			//346
-			258.38, 144.33, 351.57, 261.83
+			320.33,
+			102.85,
+			350.68,
+			12.84
 		};
 
 		public static final Translation2d frontLeft = new Translation2d(0.27305, -0.27305);
@@ -82,7 +81,7 @@ public final class Constants {
 
 		public static final double highDriveSpeed = 0.5;// 7.26;
 		public static final double standardDriveSpeed = (14/50)/12.8;
-		public static final double speedModifier = 1.0;
+		public static final double speedModifier = 0.55;
 
 		public static final double firstStageRatio = (14/50) / 12.8;
 		public static final double inchesPerRotation = Math.PI;

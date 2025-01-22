@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -26,8 +25,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
@@ -47,7 +48,7 @@ public class Swerve extends SubsystemBase{
 
     private final RelativeEncoder[] swerveEncoders = new RelativeEncoder[4];
 
-    private final SparkAbsoluteEncoder[] swerveEncodersAbsolute = new SparkAbsoluteEncoder[4];
+    private final DutyCycleEncoder[] swerveEncodersAbsolute = new DutyCycleEncoder[4];
 
     private final SparkClosedLoopController[] swervePID = new SparkClosedLoopController[4];
 
@@ -110,8 +111,7 @@ public class Swerve extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (true) {
-            System.out.println("trying to drive");
+        if (setupComplete) {
             swerveDrive(chooseDriveMode());
         } else setupCheck();
     }
@@ -149,7 +149,6 @@ public class Swerve extends SubsystemBase{
         for (int i = 0; i < 4; i++) {
             if (Math.abs(swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]) > 1.5) 
             {
-                System.out.println(i + ": " + (swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]));
                 return;
             }
         }
@@ -176,7 +175,7 @@ public class Swerve extends SubsystemBase{
             );
             
             swerveEncoders[i] = swerveMotors[i].getEncoder();
-            swerveEncodersAbsolute[i] = swerveMotors[i].getAbsoluteEncoder();
+            swerveEncodersAbsolute[i] = new DutyCycleEncoder(Constants.DriverConstants.encoders[i]);
 
             swerveConfig[i] = new SparkMaxConfig();
             driveConfig[i] = new SparkMaxConfig();
@@ -196,7 +195,7 @@ public class Swerve extends SubsystemBase{
 
             swerveConfig[i].encoder
                 .positionConversionFactor(360 / 12.8)
-                .positionConversionFactor(1);
+                .velocityConversionFactor(360 / 12.8);
 
             driveConfig[i].encoder
                 .positionConversionFactor(1)
@@ -266,7 +265,7 @@ public class Swerve extends SubsystemBase{
 
     public void printModuleStatus() {
         for (int i = 0; i < 4; i++) {
-            System.out.println(i + ": " + getAbsolutePosition(i));
+            System.out.println(i + ": " + swerveEncoders[i].getPosition());//getAbsolutePosition(i));
         }
     }
 
@@ -284,7 +283,7 @@ public class Swerve extends SubsystemBase{
     }
 
     public double getAbsolutePosition(int moduleNumber) {
-        return 360 - (swerveEncodersAbsolute[moduleNumber].getPosition() * 360);
+        return 360 - (swerveEncodersAbsolute[moduleNumber].get() * 360);
     }
 
     public SwerveModuleState[] getSwerveModuleStates() {
@@ -301,12 +300,10 @@ public class Swerve extends SubsystemBase{
     }
 
     private SwerveModulePosition[] getSwerveModulePositions() {
-        System.out.println("getting swerve module postions");
-
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             SwerveModulePosition modulePosition = new SwerveModulePosition(
-                swerveEncodersAbsolute[i].getPosition() * 0.12065 * Math.PI, // multiply the rotations of the wheel by the circumfrence to get distance in meters
+                swerveEncodersAbsolute[i].get() * 0.12065 * Math.PI, // multiply the rotations of the wheel by the circumfrence to get distance in meters
                 new Rotation2d(swerveEncoders[i].getPosition())
             );
             swerveModulePositions[i] = modulePosition;
@@ -397,7 +394,6 @@ public class Swerve extends SubsystemBase{
     private SwerveAngleSpeed getAbsoluteTarget(double targetAngle, double currentAngle) {
 
         targetAngle += 180;
-        int multiplier = 1;
 
         double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
 
@@ -407,19 +403,36 @@ public class Swerve extends SubsystemBase{
             angleDiff += 360;
         }
 
-        if (angleDiff < -90){
-            angleDiff += 180;
-            multiplier = -1;
-        } else if (angleDiff > 90){
-            angleDiff -= 180;
-            multiplier = -1;
-        }
+        SwerveAngleSpeed speed = new SwerveAngleSpeed();
+        speed.targetAngle = currentAngle + angleDiff;
+        speed.multiplier = 1;
 
-        SwerveAngleSpeed absoluteTarget = new SwerveAngleSpeed();
-        absoluteTarget.multiplier = multiplier;
-        absoluteTarget.targetAngle = currentAngle + angleDiff;
+        return speed;
+
+        // targetAngle += 180;
+        // int multiplier = 1;
+
+        // double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
+
+        // if (angleDiff > 180) {
+        //     angleDiff -= 360;
+        // } else if (angleDiff < -180) {
+        //     angleDiff += 360;
+        // }
+
+        // if (angleDiff < -90){
+        //     angleDiff += 180;
+        //     multiplier = -1;
+        // } else if (angleDiff > 90){
+        //     angleDiff -= 180;
+        //     multiplier = -1;
+        // }
+
+        // SwerveAngleSpeed absoluteTarget = new SwerveAngleSpeed();
+        // absoluteTarget.multiplier = multiplier;
+        // absoluteTarget.targetAngle = currentAngle + angleDiff;
         
-        return absoluteTarget;
+        // return absoluteTarget;
     }
 
 // =============== AUTO STUFF ==================== //
