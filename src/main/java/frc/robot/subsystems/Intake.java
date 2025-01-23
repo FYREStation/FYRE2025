@@ -51,8 +51,21 @@ public class Intake extends SubsystemBase {
     private void setUpMotors() {
         intakeEncoderActuation.setPosition(0);
         intakeEncoderWheels.setPosition(0);
-        
-        
-        
+    }
+
+    public void goup(double speed) {
+        if (canintakeAscend) {
+            intakeActuation.set(speed);
+        } else {
+            intakeActuation.set(0);
+        }
+    }
+
+    public void godown(double speed) {
+        if (canintakeDecend) {
+            intakeActuation.set(-speed);
+        } else {
+            intakeActuation.set(0);
+        }
     }
 }
