@@ -68,4 +68,7 @@ public class Intake extends SubsystemBase {
             intakeActuation.set(0);
         }
     }
+    public void intakeCoral(double speed) {
+        intakeWheels.set(speed);
+    }
 }
