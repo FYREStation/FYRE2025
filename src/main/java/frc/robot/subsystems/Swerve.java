@@ -330,7 +330,6 @@ public class Swerve extends SubsystemBase{
                 DriverConstants.highDriveSpeed * controllerInput.y(),
                 turnSpeed,
                 Rotation2d.fromDegrees(getAngle())
-                //Rotation2d.fromDegrees(0)
             );
 
             return chassisSpeeds;
@@ -357,6 +356,7 @@ public class Swerve extends SubsystemBase{
             SwerveModuleState targetState = moduleState[i];
             double currentAngle = swerveEncoders[i].getPosition();
             double targetAngle = targetState.angle.getDegrees();
+            System.out.println(targetAngle);
             SwerveAngleSpeed absoluteTarget = getAbsoluteTarget(targetAngle, currentAngle);
 
             if (rotate) {
@@ -393,7 +393,7 @@ public class Swerve extends SubsystemBase{
      */
     private SwerveAngleSpeed getAbsoluteTarget(double targetAngle, double currentAngle) {
 
-        targetAngle += 180;
+        //targetAngle += 180;
 
         double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
 
@@ -439,6 +439,7 @@ public class Swerve extends SubsystemBase{
 
     private final PIDController xController = new PIDController(10, 0, 0);
     private final PIDController yController = new PIDController(10, 0, 0);
+    private final PIDController headingController = new PIDController(7.5, 0, 0);
 
     public void followTrajectory(SwerveSample sample) {
         Pose2d pose = getPose();
@@ -446,7 +447,7 @@ public class Swerve extends SubsystemBase{
         ChassisSpeeds speeds = new ChassisSpeeds(
             sample.vy + xController.calculate(pose.getX(), sample.x),
             sample.vx + yController.calculate(pose.getY(), sample.y),
-            sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading)
+            sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
         );
 
         swerveDrive(speeds);

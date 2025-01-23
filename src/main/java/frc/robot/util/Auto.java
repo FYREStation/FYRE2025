@@ -28,9 +28,9 @@ public class Auto {
     
     // runs the dummy minifigure8 routine
     public AutoRoutine miniFigure8() {
-        AutoRoutine figure8 = autoFactory.newRoutine("miniFigure8");
+        AutoRoutine figure8 = autoFactory.newRoutine("simpleMini8");
 
-        AutoTrajectory figure8Trajectory = figure8.trajectory("MiniFigure8");
+        AutoTrajectory figure8Trajectory = figure8.trajectory("SimpleMini8");
 
         figure8.active().onTrue(
             Commands.sequence(

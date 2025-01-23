@@ -81,7 +81,7 @@ public final class Constants {
 
 		public static final double highDriveSpeed = 0.5;// 7.26;
 		public static final double standardDriveSpeed = (14/50)/12.8;
-		public static final double speedModifier = 0.55;
+		public static final double speedModifier = 1;
 
 		public static final double firstStageRatio = (14/50) / 12.8;
 		public static final double inchesPerRotation = Math.PI;
