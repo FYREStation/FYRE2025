@@ -25,7 +25,7 @@ public class ElevatorLift extends Command {
      */
     public ElevatorLift(Elevator subsystem) {
         this.elevator = subsystem;
-        addRequirements(elevator);
+        addRequirements(subsystem);
     }
 
     /**
