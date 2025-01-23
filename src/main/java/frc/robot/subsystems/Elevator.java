@@ -78,7 +78,7 @@ public class Elevator extends SubsystemBase {
 
     private boolean canMoveUp = true; //Needs to be updated in runtime somehow
     
-    private boolean canMoveDown = false; //Needs to be updated in runtime somehow
+    private boolean canMoveDown = true; //Needs to be updated in runtime somehow
 
     //variable to keep track if the elevator is currently calibratig
     private boolean isCalibrating = false;
@@ -95,7 +95,8 @@ public class Elevator extends SubsystemBase {
 
     // constructor
     public Elevator() {
-
+        elevatorMotor1.configure(elevatorMotor1Config, null, null);
+        elevatorMotor2.configure(elevatorMotor2Config, null, null);
         setUpMotors();
         
     }
