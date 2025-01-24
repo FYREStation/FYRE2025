@@ -90,7 +90,7 @@ public class Swerve extends SubsystemBase{
         this.controllerInput = controller;
         this.visionSystem = visionSystem;
 
-        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
+        this.currentPose = new Pose2d(2.55, 5.1, new Rotation2d(0));
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
@@ -101,24 +101,25 @@ public class Swerve extends SubsystemBase{
         setupMotors();
         
         poseEstimator = new SwerveDrivePoseEstimator(
-            getSwerveDriveKinematics(),
+            swerveDriveKinematics,
             gyroAhrs.getRotation2d(),
             getSwerveModulePositions(),
-            getPose()
+            currentPose 
         );
 
     }
 
     @Override
     public void periodic() {
+
+        currentPose = poseEstimator.update(Rotation2d.fromDegrees(gyroAhrs.getAngle()), getSwerveModulePositions());
+
         if (setupComplete) {
-            swerveDrive(chooseDriveMode());
+            //swerveDrive(chooseDriveMode());
         } else setupCheck();
     }
 
     private ChassisSpeeds chooseDriveMode() {
-
-        currentPose = poseEstimator.update(gyroAhrs.getRotation2d(), getSwerveModulePositions());
 
         VisionStatus status = controllerInput.visionStatus();
         ChassisSpeeds speeds;
@@ -198,8 +199,8 @@ public class Swerve extends SubsystemBase{
                 .velocityConversionFactor(360 / 12.8);
 
             driveConfig[i].encoder
-                .positionConversionFactor(1)
-                .velocityConversionFactor(1);
+                .positionConversionFactor(1/8.14)
+                .velocityConversionFactor(1/8.14);
 
 
             swerveConfig[i].closedLoop
@@ -290,7 +291,7 @@ public class Swerve extends SubsystemBase{
         SwerveModuleState[] swerveModuleState = new SwerveModuleState[4];
         for (int i = 0; i < 4; i++) {
             SwerveModuleState moduleState = new SwerveModuleState(
-                (driveMotors[i].getEncoder().getVelocity() / 60d) * DriverConstants.metersPerRotation,
+                driveMotors[i].getEncoder().getVelocity() * DriverConstants.metersPerRotation,
                 Rotation2d.fromDegrees(getAbsolutePosition(i))
             );
             swerveModuleState[i] = moduleState;
@@ -303,8 +304,8 @@ public class Swerve extends SubsystemBase{
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
             SwerveModulePosition modulePosition = new SwerveModulePosition(
-                swerveEncodersAbsolute[i].get() * 0.12065 * Math.PI, // multiply the rotations of the wheel by the circumfrence to get distance in meters
-                new Rotation2d(swerveEncoders[i].getPosition())
+                driveMotors[i].getEncoder().getPosition() * DriverConstants.metersPerRotation,
+                Rotation2d.fromDegrees(swerveEncoders[i].getPosition())
             );
             swerveModulePositions[i] = modulePosition;
         }
@@ -356,7 +357,6 @@ public class Swerve extends SubsystemBase{
             SwerveModuleState targetState = moduleState[i];
             double currentAngle = swerveEncoders[i].getPosition();
             double targetAngle = targetState.angle.getDegrees();
-            System.out.println(targetAngle);
             SwerveAngleSpeed absoluteTarget = getAbsoluteTarget(targetAngle, currentAngle);
 
             if (rotate) {
