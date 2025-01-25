@@ -113,8 +113,8 @@ public class Swerve extends SubsystemBase{
     public void periodic() {
 
         // I don't know if this step is nessecary so look at this while testing :D
-        poseEstimator.update(Rotation2d.fromDegrees(gyroAhrs.getAngle()), getSwerveModulePositions());
-        currentPose = poseEstimator.getEstimatedPosition();
+        currentPose = poseEstimator.update(Rotation2d.fromDegrees(gyroAhrs.getAngle()), getSwerveModulePositions());
+        //currentPose = poseEstimator.getEstimatedPosition();
 
         if (setupComplete) {
             //swerveDrive(chooseDriveMode());
@@ -275,8 +275,8 @@ public class Swerve extends SubsystemBase{
     public void resetOdometry(Pose2d pose) {
         //resetEncoders();
 
-        gyroAhrs.reset();
-        gyroAhrs.setAngleAdjustment(pose.getRotation().getDegrees());
+        //gyroAhrs.reset();
+        //gyroAhrs.setAngleAdjustment(pose.getRotation().getDegrees());
 
         currentPose = pose;
         poseEstimator.resetPose(pose);
@@ -449,9 +449,9 @@ public class Swerve extends SubsystemBase{
         Pose2d pose = getPose();
 
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            sample.vy + xController.calculate(pose.getX(), sample.x),
-            sample.vx + yController.calculate(pose.getY(), sample.y),
-            sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
+            sample.vx, //+ xController.calculate(pose.getX(), sample.x),
+            sample.vy, //+ yController.calculate(pose.getY(), sample.y),
+            sample.omega,// + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
             Rotation2d.fromDegrees(getAngle())
         );
 
