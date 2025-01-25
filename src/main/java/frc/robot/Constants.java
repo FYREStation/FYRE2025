@@ -123,6 +123,20 @@ public final class Constants {
 		public static final int intakeEncoderA = -1234567890;
 	}
 
+	public static class ArmConstants {
+		public static final int armPort = -1234567890;
+		public static final double staticGain = -1234567890;
+		public static final double gravityGain = -1234567890;
+		public static final double velocityGain = -1234567890;
+		public static final double kP = -1234567890;
+		public static final double kI = -1234567890;
+		public static final double kD = -1234567890;
+		public static final double maxRotations = -1234567890;
+		public static final double maxVelocity = -1234567890;
+		public static final double maxAcceleration = -1234567890;
+
+	}
+
 	public static class OperatorConstants {
 		public static final int driverControllerPort = 0;
 	}
