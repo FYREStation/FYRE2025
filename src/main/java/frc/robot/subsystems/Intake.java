@@ -53,7 +53,7 @@ public class Intake extends SubsystemBase {
         intakeEncoderWheels.setPosition(0);
     }
 
-    public void goUp(double speed) {
+    public void goup(double speed) {
         if (canintakeAscend) {
             intakeActuation.set(speed);
         } else {
@@ -61,7 +61,7 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    public void goDown(double speed) {
+    public void godown(double speed) {
         if (canintakeDecend) {
             intakeActuation.set(-speed);
         } else {
