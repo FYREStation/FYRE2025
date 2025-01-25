@@ -333,7 +333,7 @@ public class Swerve extends SubsystemBase{
         ChassisSpeeds chassisSpeeds;
 
         if (controllerInput.fieldRelative()){
-                chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 DriverConstants.highDriveSpeed * controllerInput.x(),
                 DriverConstants.highDriveSpeed * controllerInput.y(),
                 turnSpeed,
