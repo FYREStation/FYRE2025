@@ -28,9 +28,9 @@ public class Intake extends SubsystemBase {
 
     private double rotationsToBottom = IntakeConstants.rotationsToBottom;
 
-    public boolean canintakeDecend = true;
+    public boolean canintakeDecend = true; //may need to be changed to false in code
 
-    public boolean canintakeAscend = true;
+    public boolean canintakeAscend = true; //may need to be changed to false in code
 
     private final RelativeEncoder intakeEncoderActuation = intakeActuation.getEncoder();
 
