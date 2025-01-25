@@ -30,10 +30,10 @@ public class Intakething extends Command {
     int speed = 5;
     int wheelSpeed = 5;
     public Command intakeUp = Commands.runOnce(() -> {
-        intake.goUp(speed);
+        intake.goup(speed);
     });
     public Command intakeDown = Commands.runOnce(() -> {
-        intake.goDown(speed);
+        intake.godown(speed);
     });
     public Command intakeCoral = Commands.runOnce(() -> {
         intake.intakeCoral(wheelSpeed);;
