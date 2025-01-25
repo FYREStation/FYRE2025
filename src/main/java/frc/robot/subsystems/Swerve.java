@@ -25,6 +25,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,6 +36,10 @@ import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
 
 public class Swerve extends SubsystemBase{
+
+    // used to publish changes to AdvantageScope for swerve visualization
+    private final StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
+    .getStructArrayTopic("/SwerveStates", SwerveModuleState.struct).publish();;
 
     private final ControllerInput controllerInput;
 
@@ -358,6 +364,9 @@ public class Swerve extends SubsystemBase{
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleState, DriverConstants.highDriveSpeed);
 
+        // used to push swerve module states to AdvantageScope
+        publisher.set(moduleState);
+
         for (int i = 0; i < 4; i++) {
             SwerveModuleState targetState = moduleState[i];
             double currentAngle = swerveEncoders[i].getPosition();
@@ -449,9 +458,9 @@ public class Swerve extends SubsystemBase{
         Pose2d pose = getPose();
 
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            sample.vy + xController.calculate(pose.getX(), sample.x),
-            sample.vx + yController.calculate(pose.getY(), sample.y),
-            sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
+            sample.vx /*+ xController.calculate(pose.getX(), sample.x)*/,
+            sample.vy /*+ yController.calculate(pose.getY(), sample.y)*/,
+            sample.omega /*+ turnPID.calculate(pose.getRotation().getRadians(), sample.heading)*/,
             Rotation2d.fromDegrees(getAngle())
         );
 
