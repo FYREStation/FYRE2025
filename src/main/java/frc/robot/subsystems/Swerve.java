@@ -112,7 +112,9 @@ public class Swerve extends SubsystemBase{
     @Override
     public void periodic() {
 
-        currentPose = poseEstimator.update(Rotation2d.fromDegrees(gyroAhrs.getAngle()), getSwerveModulePositions());
+        // I don't know if this step is nessecary so look at this while testing :D
+        poseEstimator.update(Rotation2d.fromDegrees(gyroAhrs.getAngle()), getSwerveModulePositions());
+        currentPose = poseEstimator.getEstimatedPosition();
 
         if (setupComplete) {
             //swerveDrive(chooseDriveMode());
@@ -148,8 +150,7 @@ public class Swerve extends SubsystemBase{
     private void setupCheck() {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
-            if (Math.abs(swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]) > 1.5) 
-            {
+            if (Math.abs(swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]) > 1.5) {
                 return;
             }
         }
@@ -257,7 +258,7 @@ public class Swerve extends SubsystemBase{
         gyroAhrs.reset();
         turnTarget = 0;
     }
-
+// ?ju
     public void resetEncoders() {
         for (int i = 0; i < 4; i++) {
             swerveEncoders[i].setPosition(0);
@@ -266,16 +267,20 @@ public class Swerve extends SubsystemBase{
 
     public void printModuleStatus() {
         for (int i = 0; i < 4; i++) {
-            System.out.println(i + ": " + swerveEncoders[i].getPosition());//getAbsolutePosition(i));
+            System.out.println(i + ": " + swerveEncoders[i].getPosition());
         }
     }
 
 
     public void resetOdometry(Pose2d pose) {
         resetEncoders();
-        resetGyro();
+
+        gyroAhrs.reset();
+        gyroAhrs.setAngleAdjustment(pose.getRotation().getDegrees());
 
         currentPose = pose;
+        poseEstimator.resetPose(pose);
+
     }
 
     double doubleMod(double x, double y) {
