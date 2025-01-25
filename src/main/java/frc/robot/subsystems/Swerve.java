@@ -57,7 +57,7 @@ public class Swerve extends SubsystemBase{
     private Pose2d currentPose;
 
     private final PIDController turnPID = new PIDController(
-        0.02,
+        7.52,
         0.01,
         0.00,
         0.02
@@ -258,7 +258,7 @@ public class Swerve extends SubsystemBase{
         gyroAhrs.reset();
         turnTarget = 0;
     }
-// ?ju
+
     public void resetEncoders() {
         for (int i = 0; i < 4; i++) {
             swerveEncoders[i].setPosition(0);
@@ -273,7 +273,7 @@ public class Swerve extends SubsystemBase{
 
 
     public void resetOdometry(Pose2d pose) {
-        resetEncoders();
+        //resetEncoders();
 
         gyroAhrs.reset();
         gyroAhrs.setAngleAdjustment(pose.getRotation().getDegrees());
@@ -330,23 +330,23 @@ public class Swerve extends SubsystemBase{
             turnTarget = getAngle();
         }
 
+        ChassisSpeeds chassisSpeeds;
+
         if (controllerInput.fieldRelative()){
-                ChassisSpeeds chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 DriverConstants.highDriveSpeed * controllerInput.x(),
                 DriverConstants.highDriveSpeed * controllerInput.y(),
                 turnSpeed,
                 Rotation2d.fromDegrees(getAngle())
             );
-
-            return chassisSpeeds;
+        } else {
+            // If we are not in field relative mode, we are in robot relative mode, so dont do the field thing
+            chassisSpeeds = new ChassisSpeeds(
+                DriverConstants.highDriveSpeed * controllerInput.x(),
+                DriverConstants.highDriveSpeed * controllerInput.y(),
+                turnSpeed
+            );
         }
-
-        // If we are not in field relative mode, we are in robot relative mode, so dont do the field thing
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(
-            DriverConstants.highDriveSpeed * controllerInput.x(),
-            DriverConstants.highDriveSpeed * controllerInput.y(),
-            turnSpeed
-        );
 
         return chassisSpeeds;
     }
@@ -444,15 +444,15 @@ public class Swerve extends SubsystemBase{
 
     private final PIDController xController = new PIDController(10, 0, 0);
     private final PIDController yController = new PIDController(10, 0, 0);
-    private final PIDController headingController = new PIDController(7.5, 0, 0);
 
     public void followTrajectory(SwerveSample sample) {
         Pose2d pose = getPose();
 
-        ChassisSpeeds speeds = new ChassisSpeeds(
+        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             sample.vy + xController.calculate(pose.getX(), sample.x),
             sample.vx + yController.calculate(pose.getY(), sample.y),
-            sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading)
+            sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
+            Rotation2d.fromDegrees(getAngle())
         );
 
         swerveDrive(speeds);
