@@ -113,7 +113,7 @@ public class Swerve extends SubsystemBase{
     public void periodic() {
 
         // I don't know if this step is nessecary so look at this while testing :D
-        currentPose = poseEstimator.update(Rotation2d.fromDegrees(gyroAhrs.getAngle()), getSwerveModulePositions());
+        currentPose = poseEstimator.update(gyroAhrs.getRotation2d(), getSwerveModulePositions());
         //currentPose = poseEstimator.getEstimatedPosition();
 
         if (setupComplete) {
@@ -354,7 +354,7 @@ public class Swerve extends SubsystemBase{
     public void swerveDrive(ChassisSpeeds chassisSpeeds) {
 
         SwerveModuleState[] moduleState = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        boolean rotate = chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0 || chassisSpeeds.omegaRadiansPerSecond != 0;
+        boolean rotate = true;//chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0 || chassisSpeeds.omegaRadiansPerSecond != 0;
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleState, DriverConstants.highDriveSpeed);
 
