@@ -3,7 +3,6 @@ package frc.robot.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -14,6 +13,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A websocket client to interface with Astrolabe's server running on a(n) RPI(s).
+ */
 public class CameraWebsocketClient {
     private String ip = "ws://10.42.0.118:50000";
     private WebSocket webSocket;
@@ -22,6 +24,7 @@ public class CameraWebsocketClient {
     private CountDownLatch messageLatch = new CountDownLatch(1);
     private final int TIMEOUT;
 
+    /** Simple class representing a color object. */
     public static class Color {
         public double red;
         public double green;
@@ -30,6 +33,7 @@ public class CameraWebsocketClient {
         public double blur;
     }
 
+    /** Simple class that contains information that Astrolabe returns. */
     public static class Info {
         public String cameraName;
         public String identifier;
@@ -47,6 +51,7 @@ public class CameraWebsocketClient {
         public String fullString;
     }
 
+    /** Simple class that represents an Apriltag. */
     public static class Apriltag {
         public String tagId;
         public double[] position;
@@ -66,8 +71,13 @@ public class CameraWebsocketClient {
         this.ip = ip;
     }
 
+    /**
+     * Attempts a connection to the websocket server.
+
+     * @return isConnected - whether or not there was a successful connection
+     */
     public boolean setupConnection() {
-        try{
+        try {
             HttpClient client = HttpClient.newHttpClient();
             webSocket = client.newWebSocketBuilder()
                     .buildAsync(URI.create(ip), new WebSocketListener(this))
@@ -79,14 +89,26 @@ public class CameraWebsocketClient {
         return isConnected();
     }
 
+    /**
+     * Returns the status of the websocked connection.
+
+     * @return boolean - whether or not the websocket is connected
+     */
     public boolean isConnected() {
-        return webSocket != null && webSocket.isOutputClosed() == false && webSocket.isInputClosed() == false;
+        return webSocket != null
+            && webSocket.isOutputClosed() == false
+            && webSocket.isInputClosed() == false;
     }
 
     public void sendMessage(String message) {
         webSocket.sendText(message, true);
     }
 
+    /**
+     * The callback for when a new message is received.
+
+     * @param newMessage - the message from the server
+     */
     public void onMessage(String newMessage) {
         System.out.println("Received message: " + newMessage);
         this.latestReply = newMessage;
@@ -97,6 +119,11 @@ public class CameraWebsocketClient {
         return latestReply;
     }
 
+    /**
+     * Tries to get the next response from the websocket server.
+
+     * @return latestReply - the response from the server
+     */
     public String getLatestReply() {
         try {
             messageLatch.await(TIMEOUT, TimeUnit.MILLISECONDS); // Wait for up to 5 seconds
@@ -108,7 +135,7 @@ public class CameraWebsocketClient {
 
     public void clear() {
         latestReply = "";
-      }
+    }
 
     public JsonObject decodeJson(String jsonString) {
         Gson gson = new Gson();
@@ -123,6 +150,11 @@ public class CameraWebsocketClient {
         this.rotation = rotation;
     }
 
+    /**
+     * Requests info from the websocket server and returns it's reply.
+
+     * @return Info - the info that the server returned
+     */
     public Info getInfo() {
         try {
             sendMessage("info");
@@ -133,6 +165,12 @@ public class CameraWebsocketClient {
         }
     }
 
+    /**
+     * Parses a string as a Json object and returns it as an Info object.
+
+     * @param pMessage - the stringified json to parse
+     * @return info - the Info object that was represented in the json string
+     */
     private Info getInfoFromString(String pMessage) {
         if (pMessage == null){
             return null;
@@ -172,6 +210,11 @@ public class CameraWebsocketClient {
         }
     }
 
+    /**
+     * Makes a request to the websocket server for apriltag information and returns its response.
+
+     * @return aprilTags - a list of Apriltags that we got from the server
+     */
     public List<Apriltag> getApriltags() {
         try {
             sendMessage("fa");
@@ -189,7 +232,7 @@ public class CameraWebsocketClient {
     }
 
     private List<Apriltag> getApriltagsFromString(String pMessage) {
-        if (pMessage == null){
+        if (pMessage == null) {
             return null;
         }
         try {

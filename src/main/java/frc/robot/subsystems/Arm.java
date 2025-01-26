@@ -1,19 +1,21 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.robot.Constants.ElevatorLiftConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorLiftConstants;
 
 
+/**
+ * All of the interfaces for the phyiscal elevator.
+ */
 public class Arm extends SubsystemBase {
     // The CIM which will be the "leader" for the arm.
     private final SparkMax armMotor = new SparkMax(
@@ -33,22 +35,23 @@ public class Arm extends SubsystemBase {
 
     private double rotationsToTop = ArmConstants.maxRotations;
 
-    private TrapezoidProfile.State topState = new TrapezoidProfile.State( // Caden, may need to use something other than trapazoid
+    // Caden, may need to use something other than trapazoid
+    private TrapezoidProfile.State topState = new TrapezoidProfile.State(
         rotationsToTop,
         0
-        );
+    );
     
     //put extra defaults here
     
     private TrapezoidProfile.State bottomState = new TrapezoidProfile.State(
         0,
         0
-        );
+    );
 
-        private boolean manualOverride = false;
-        private boolean canMoveUp = true;
-        private boolean canMoveDown = true;
-        private boolean isCalibrating = false;
+    private boolean manualOverride = false;
+    private boolean canMoveUp = true;
+    private boolean canMoveDown = true;
+    private boolean isCalibrating = false;
 
     private final ProfiledPIDController armController = new ProfiledPIDController(
         ArmConstants.kP,
@@ -62,7 +65,7 @@ public class Arm extends SubsystemBase {
 
     public Arm() {
         armMotor.configure(armMotorConfig, null, null);
-        setUpMotors();
+        //setUpMotors();
     }
 
     
