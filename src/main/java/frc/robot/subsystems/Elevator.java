@@ -55,7 +55,7 @@ public class Elevator extends SubsystemBase {
         ElevatorLiftConstants.topLimitSwitchPort
     );
 
-    //the variable that will be used to calculate the maxiumum rotations tot hte top of the elevator
+    //the variable that will be used to calculate the maxiumum rotations ot hte top of the elevator
 
     private double rotationsToTop = ElevatorLiftConstants.maxRotations;
 
