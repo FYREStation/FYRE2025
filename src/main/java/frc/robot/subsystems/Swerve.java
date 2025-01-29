@@ -90,7 +90,7 @@ public class Swerve extends SubsystemBase{
         this.controllerInput = controller;
         this.visionSystem = visionSystem;
 
-        this.currentPose = new Pose2d(2.55, 5.1, new Rotation2d(0));
+        this.currentPose = new Pose2d(1.8, 6.3, new Rotation2d(0));
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
