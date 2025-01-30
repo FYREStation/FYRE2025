@@ -4,17 +4,15 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.armFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ElevatorLiftConstants;
-
 
 /**
- * All of the interfaces for the phyiscal elevator.
+ * All of the interfaces for the phyiscal arm.
  */
 public class Arm extends SubsystemBase {
     // The CIM which will be the "leader" for the arm.
@@ -27,7 +25,7 @@ public class Arm extends SubsystemBase {
 
     private final RelativeEncoder armEncoder = armMotor.getEncoder();
 
-    private final ElevatorFeedforward armFeedForward = new ElevatorFeedforward(
+    private final armFeedforward armFeedForward = new armFeedforward(
         ArmConstants.staticGain,
         ArmConstants.gravityGain,
         ArmConstants.velocityGain
@@ -93,7 +91,7 @@ public class Arm extends SubsystemBase {
         controller.setGoal(topState);
     }
     
-    //sets the goal to the bottom state of the elevator
+    //sets the goal to the bottom state of the arm
     public void goToBottom() {
         controller.setGoal(bottomState);
     }
@@ -113,9 +111,9 @@ public class Arm extends SubsystemBase {
     }
 
     /**
-     * Returns the bottoms state of the elevator.
+     * Returns the bottoms state of the arm.
 
-     * @return bottomState - the bottom state of the elevator
+     * @return bottomState - the bottom state of the arm
      */
     public TrapezoidProfile.State getDownState() {
         return bottomState;
@@ -123,11 +121,11 @@ public class Arm extends SubsystemBase {
     }
 
     /**
-     * Calibrates the elevator by running the motor from the bottom position to the top,
+     * Calibrates the arm by running the motor from the bottom position to the top,
      * and measuring the encoder values from that point.
      */
     public boolean calibrateStep1() {
-        // ensures that the encoders are at the bottom of the elevator
+        // ensures that the encoders are at the bottom of the arm
         if (!getBottomSwitch()) {
             armMotor.set(-0.1);
             return false;
@@ -140,13 +138,13 @@ public class Arm extends SubsystemBase {
     }
 
     /**
-     * The second step of the elevator calibration.
-     * Causes the elevator to go all the way up to the top
+     * The second step of the arm calibration.
+     * Causes the arm to go all the way up to the top
 
      * @return boolean - whether or not the step has been completed
      */
     public boolean calibrateStep2() {
-        // runs the motors to the top of the elevator
+        // runs the motors to the top of the arm
         if (!getTopSwitch()) {
             armMotor.set(0.1);
             return false;
@@ -159,13 +157,13 @@ public class Arm extends SubsystemBase {
     }
 
     /**
-     * The third step of the elevator calibration.
-     * Causes the elevator to go back down.
+     * The third step of the arm calibration.
+     * Causes the arm to go back down.
 
      * @return boolean - whether this step has completed or not
      */
     public boolean calibrateStep3() {
-        // lowers the elevator back down
+        // lowers the arm back down
         if (!getBottomSwitch()) {
             armMotor.set(-0.1);
             return false;
@@ -179,7 +177,7 @@ public class Arm extends SubsystemBase {
     }
 
     /**
-     * Toggles the manaul ovrride control of the elevator.
+     * Toggles the manaul ovrride control of the arm.
      */
     public void toggleManualOverride() {
         manualOverride = !manualOverride;
@@ -191,7 +189,7 @@ public class Arm extends SubsystemBase {
      */
     protected void useOutput(double output, TrapezoidProfile.State setpoint) {
         // Calculate the feedforward from the sepoint
-        double feedforward = elevatorFeedForward.calculate(setpoint.position, setpoint.velocity);
+        double feedforward = armFeedForward.calculate(setpoint.position, setpoint.velocity);
 
         // Add the feedforward to the PID output to get the motor output
         armMotor.setVoltage(output + feedforward);
