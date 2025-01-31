@@ -74,24 +74,24 @@ public final class Constants {
 		public static final Translation2d backLeft = new Translation2d(-0.27305, -0.27305);
 		public static final Translation2d backRight = new Translation2d(-0.27305, 0.27305);
 
-		public static final double swerveP = 0.010;
-		public static final double swerveI = 0.00;
-		public static final double swerveD = 0.00;
-		public static final double swerveFF = 0.0;
+		public static final double swerveP = 0.032;
+		public static final double swerveI = 0.0;
+		public static final double swerveD = 0.015;
+		public static final double swerveFF = 0;
 
-		public static final double highDriveSpeed = 7.26;
+		public static final double highDriveSpeed = 1;//7.26;
 		public static final double standardDriveSpeed = (14/50)/12.8;
-		public static final double speedModifier = 1;
+		public static final double speedModifier = 0.25;
 
 		public static final double firstStageRatio = (14/50) / 12.8;
 		public static final double inchesPerRotation = Math.PI * 4;
 		public static final double metersPerRotation = Units.inchesToMeters(inchesPerRotation);
 
     	public static final SimpleMotorFeedforward[] driveFeedForward = {
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18),
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18),
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18),
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18)};
+            new SimpleMotorFeedforward(0.153, 2.12, 0.40),
+            new SimpleMotorFeedforward(0.153, 2.12, 0.40),
+            new SimpleMotorFeedforward(0.153, 2.12, 0.40),
+            new SimpleMotorFeedforward(0.153, 2.12, 0.40)};
 
   	}
 

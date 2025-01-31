@@ -112,12 +112,14 @@ public class Swerve extends SubsystemBase{
     @Override
     public void periodic() {
 
+        //printModuleStatus();
+
         // I don't know if this step is nessecary so look at this while testing :D
         currentPose = poseEstimator.update(gyroAhrs.getRotation2d(), getSwerveModulePositions());
         //currentPose = poseEstimator.getEstimatedPosition();
 
         if (setupComplete) {
-            //swerveDrive(chooseDriveMode());
+            swerveDrive(chooseDriveMode());
         } else setupCheck();
     }
 
@@ -267,7 +269,7 @@ public class Swerve extends SubsystemBase{
 
     public void printModuleStatus() {
         for (int i = 0; i < 4; i++) {
-            System.out.println(i + ": " + swerveEncoders[i].getPosition());
+            System.out.println(i + ": " + getAbsolutePosition(i));
         }
     }
 
@@ -326,7 +328,7 @@ public class Swerve extends SubsystemBase{
             if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
             turnSpeed = 0;
         } else  {
-            turnSpeed = controllerInput.theta(); // code orange multiplies this by 6
+            turnSpeed = controllerInput.theta() * 6; // code orange multiplies this by 6
             turnTarget = getAngle();
         }
 
@@ -354,7 +356,7 @@ public class Swerve extends SubsystemBase{
     public void swerveDrive(ChassisSpeeds chassisSpeeds) {
 
         SwerveModuleState[] moduleState = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        boolean rotate = true;//chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0 || chassisSpeeds.omegaRadiansPerSecond != 0;
+        boolean rotate = chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0 || chassisSpeeds.omegaRadiansPerSecond != 0;
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleState, DriverConstants.highDriveSpeed);
 
