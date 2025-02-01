@@ -10,8 +10,17 @@ import frc.robot.subsystems.Intake;
 public class IntakeControl extends Command {
 
     //PLACEHOLDER VALUES
-    int speed = 5;
-    int wheelSpeed = 5;
+    /**
+     * Rotates the intake at the given speed for the given ammount of seconds.
+
+     * @param seconds - the amount of seconds to run the intake
+     * @param time - the amount of time the intake has been running 
+     * @param speed - the speed to rotate the actuation
+     * @param wheelSpeed - the speed to rotate flywheels
+     */
+    //PLACEHOLDER VALUES
+    int speed = -1234567890;
+    int wheelSpeed = -1234567890;
 
     private Intake intake;
 
@@ -22,26 +31,13 @@ public class IntakeControl extends Command {
      */
     public IntakeControl(Intake subsystem) {
         this.intake = subsystem;
-        addRequirements(intake);
+        addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
 
     }
-
-
-    // TODO: what is this javadoc????
-    /**
-     * Rotates the intake at the given speed for the given ammount of seconds.
-
-     * @param seconds - the amount of seconds to run the intake
-     * @param time - the amount of time the intake has been running 
-     * @param speed - the speed to rotate the actuation
-     * @param wheelSpeed - the speed to rotate flywheels
-     */
-    
-
 
     public Command intakeUp = Commands.runOnce(() -> {
         intake.goUp(speed);
