@@ -1,4 +1,4 @@
-package main.java.frc.robot.subsystems;
+package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -22,6 +22,10 @@ public class Claw extends SubsystemBase {
         ClawConstants.clawMotorPort, 
         SparkLowLevel.MotorType.kBrushed
     );
+    private final SparkMax clawWheelMotor = new SparkMax(
+        ClawConstants.clawWheelMotorPort, 
+        SparkLowLevel.MotorType.kBrushed
+    );
 
     private double rotationsToBottom = ClawConstants.rotationsToBottom;
 
@@ -29,6 +33,9 @@ public class Claw extends SubsystemBase {
 
     private final SparkMaxConfig clawMotorConfig = new SparkMaxConfig();
 
+    private final RelativeEncoder clawWheelEncoder = clawMotor.getEncoder();
+
+    private final SparkMaxConfig clawWheelMotorConfig = new SparkMaxConfig();
     /**
      * Constructs the claw subsystem and initializes the motor and encoder.
      */
@@ -37,36 +44,38 @@ public class Claw extends SubsystemBase {
 
         clawMotor.configure(
             clawMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        clawWheelMotor.configure(
+            clawWheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     private void setUpMotor() {
         clawEncoder.setPosition(0);
+        // clawWheelEncoder.setPosition(0);  // This position doesn't really matter at all ¯\_(ツ)_/¯ If i'm wrong, uncomment :)
     }
 
-    /**
-     * Moves the Claw up at a given speed.
-
-     * @param speed - the speed at which to raise the Claw
-     */
-    public void goIn(double speed) {
+    /* Actuates the claw at a given speed (pinches) */
+    public void pinch(double speed) {
         clawMotor.set(speed);
     }
 
-    /**
-     * Moves the intake down at a given speed.
-
-     * @param speed - the speed at which to lower the intake
-     */
-    public void goOut(double speed) {
+    /* Actuates the claw at a given speed (releases) */
+    public void release(double speed) {
         clawMotor.set(-speed);
     }
-
-    /**
-     * Runs the intake wheels at the given speed.
-
-     * @param speed - the speed at which to run the wheels
-     */
+    
     public void stopClaw() {
         clawMotor.set(0);
+    }
+    /* Runs the intake wheels at the given speed.*/
+    public void intake(double speed) {
+        clawWheelMotor.set(speed);
+    }
+
+    public void output(double speed) {
+        clawWheelMotor.set(-speed);
+    }
+
+    public void stopWheels() {
+        clawWheelMotor.set(0);
     }
 }
