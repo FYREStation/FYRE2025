@@ -143,6 +143,11 @@ public final class Constants {
 		public static final double rotationsToBottom = -1234567890;
 	}
 
+	public static class ClimberConstants {
+		public static final int climberMotorPort = -1234567890;
+		public static final double rotationsToBottom = -1234567890;
+	}
+
 	public static class OperatorConstants {
 		public static final int driverControllerPort = 0;
 	}
