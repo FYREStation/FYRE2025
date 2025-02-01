@@ -137,6 +137,11 @@ public final class Constants {
 
 	}
 
+	public static class ClawConstants {
+		public static final int clawMotorPort = -1234567890;
+		public static final double rotationsToBottom = -1234567890;
+	}
+
 	public static class OperatorConstants {
 		public static final int driverControllerPort = 0;
 	}
