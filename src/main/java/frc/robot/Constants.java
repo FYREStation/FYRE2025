@@ -81,18 +81,19 @@ public final class Constants {
 
 		public static final double highDriveSpeed = 1;//7.26;
 		public static final double standardDriveSpeed = (14/50)/12.8;
-		public static final double speedModifier = 0.25;
+		public static final double speedModifier = 0.75;
 
 		public static final double firstStageRatio = (14/50) / 12.8;
 		public static final double inchesPerRotation = Math.PI * 4;
 		public static final double metersPerRotation = Units.inchesToMeters(inchesPerRotation);
 
     	public static final SimpleMotorFeedforward[] driveFeedForward = {
-            new SimpleMotorFeedforward(0.153, 2.12, 0.40),
-            new SimpleMotorFeedforward(0.153, 2.12, 0.40),
-            new SimpleMotorFeedforward(0.153, 2.12, 0.40),
-            new SimpleMotorFeedforward(0.153, 2.12, 0.40)};
-
+			// TODO: change ks to higher value to possibly overcome slow velocity motor "kickback"
+			new SimpleMotorFeedforward(.18, 3.12, 0.18),
+            new SimpleMotorFeedforward(.18, 3.12, 0.18),
+            new SimpleMotorFeedforward(.18, 3.12, 0.18),
+            new SimpleMotorFeedforward(.18, 3.12, 0.18)
+		};
   	}
 
 	public static class ElevatorLiftConstants {

@@ -221,7 +221,7 @@ public class Swerve extends SubsystemBase{
                 .primaryEncoderPositionPeriodMs(20);
 
             driveConfig[i].signals
-                .primaryEncoderPositionPeriodMs(100);
+                .primaryEncoderPositionPeriodMs(50);
 
             // save config into the sparks
             swerveMotors[i].configure(swerveConfig[i], ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -328,7 +328,7 @@ public class Swerve extends SubsystemBase{
             if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
             turnSpeed = 0;
         } else  {
-            turnSpeed = controllerInput.theta() * 6; // code orange multiplies this by 6
+            turnSpeed = controllerInput.theta() * 2;
             turnTarget = getAngle();
         }
 
@@ -336,16 +336,16 @@ public class Swerve extends SubsystemBase{
 
         if (controllerInput.fieldRelative()){
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                DriverConstants.highDriveSpeed * controllerInput.x(),
                 DriverConstants.highDriveSpeed * controllerInput.y(),
+                -DriverConstants.highDriveSpeed * controllerInput.x(),
                 turnSpeed,
                 Rotation2d.fromDegrees(getAngle())
             );
         } else {
             // If we are not in field relative mode, we are in robot relative mode, so dont do the field thing
             chassisSpeeds = new ChassisSpeeds(
-                DriverConstants.highDriveSpeed * controllerInput.x(),
                 DriverConstants.highDriveSpeed * controllerInput.y(),
+                -DriverConstants.highDriveSpeed * controllerInput.x(),
                 turnSpeed
             );
         }
@@ -370,7 +370,8 @@ public class Swerve extends SubsystemBase{
                 swervePID[i].setReference(absoluteTarget.targetAngle, SparkMax.ControlType.kPosition);
             }
 
-            setMotorSpeed(i, absoluteTarget.multiplier * targetState.speedMetersPerSecond * DriverConstants.speedModifier);
+            setMotorSpeed(i, absoluteTarget.multiplier * targetState.speedMetersPerSecond * DriverConstants.speedModifier
+                * (controllerInput.nos() ? 2.25 : 1));
             // driveMotors[i].set(
             //     controllerInput.getMagnitude() 
             //     * (controllerInput.nos() ? DriverConstants.highDriveSpeed : DriverConstants.standardDriveSpeed)
@@ -386,7 +387,7 @@ public class Swerve extends SubsystemBase{
             ? 0
             : (velocity - lastMotorSpeeds[module]) / (time - lastMotorSetTimes[module]);
 
-        double ffv = DriverConstants.driveFeedForward[module].calculateWithVelocities(velocity, acceleration);
+        double ffv = DriverConstants.driveFeedForward[module].calculateWithVelocities(velocity, 0);
         driveMotors[module].setVoltage(ffv);
         lastMotorSpeeds[module] = velocity;
         lastMotorSetTimes[module] = time;
@@ -451,9 +452,9 @@ public class Swerve extends SubsystemBase{
         Pose2d pose = getPose();
 
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            sample.vx, //+ xController.calculate(pose.getX(), sample.x),
-            sample.vy, //+ yController.calculate(pose.getY(), sample.y),
-            sample.omega,// + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
+            sample.vx + xController.calculate(pose.getX(), sample.x),
+            sample.vy + yController.calculate(pose.getY(), sample.y),
+            sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
             Rotation2d.fromDegrees(getAngle())
         );
 
