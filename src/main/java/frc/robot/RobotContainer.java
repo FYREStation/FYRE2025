@@ -4,13 +4,18 @@
 
 package frc.robot;
 
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
+import frc.robot.util.Auto;
 import frc.robot.util.ControllerInput;
 
 /**
@@ -30,14 +35,34 @@ public class RobotContainer {
 	ControllerInput controller = new ControllerInput(xboxController);
 	Vision visionSystem = new Vision(Constants.VisionConstants.ipAddress, Constants.VisionConstants.CameraRotations, Constants.VisionConstants.apriltagAngles); 
 
-	Swerve swerve = new Swerve(controller, visionSystem);
+	public Swerve swerve = new Swerve(controller, visionSystem);
+
+
+	Auto auto = new Auto(swerve);
+
+	final AutoChooser autoChooser;
+
 
 	/**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
 	public RobotContainer() {
+
+		autoChooser = new AutoChooser();
+
+		autoChooser.addRoutine("Figure8", auto::figure8);
+		autoChooser.addRoutine("MiniFigure8", auto::miniFigure8);
+
+		SmartDashboard.putData(autoChooser);
+
+		//autoChooser.select("MiniFigure8");
+
+		RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+
 		// Configure the trigger bindings
 		configureBindings();
+
+		
 	}
 
 	/**
@@ -63,7 +88,7 @@ public class RobotContainer {
 	 *
 	 * @return the command to run in autonomous
 	 */
-	// public Command getAutonomousCommand() {
+	//public Command getAutonomousCommand() {
 	// An example command will be run in autonomous
 	// return Autos.exampleAuto(m_exampleSubsystem);
 	// }

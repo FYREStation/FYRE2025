@@ -29,6 +29,7 @@ public class ControllerInput extends SubsystemBase {
 
     public ControllerInput(XboxController controller) {
         this.controller = controller;
+        this.visionStatus = VisionStatus.NONE;
     }
 
     @Override
@@ -59,9 +60,12 @@ public class ControllerInput extends SubsystemBase {
         // This is just a basic thing - we can make it more complex if we want for auto or smth
         alignWithTag = controller.getLeftBumperButton();
 
+        /*
         if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
         else if (controller.getLeftTriggerAxis() > 0.75) visionStatus = VisionStatus.LOCKON;
-        else visionStatus = VisionStatus.NONE;
+        else
+        */ 
+        visionStatus = VisionStatus.NONE;
     }
 
     public double getMagnitude() {return Math.sqrt(x * x + y * y);}

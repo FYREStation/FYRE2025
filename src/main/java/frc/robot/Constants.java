@@ -52,8 +52,8 @@ public final class Constants {
 
 		public static final int frontLeftEncoder = 0;
 		public static final int frontRightEncoder = 1;
-		public static final int backLeftEncoder = 4;
-		public static final int backRightEncoder = 3;
+		public static final int backLeftEncoder = 3;
+		public static final int backRightEncoder = 4;
 
 		public static final int[] encoders = {
 			frontLeftEncoder,
@@ -63,38 +63,37 @@ public final class Constants {
 		};
 
 		public static final double[] absoluteOffsets = {
-			//51,
-			//158,
-			//32,
-			//346
-			321.06, 360, 350.59, 14.87
+			320.33,
+			102.85,
+			350.68,
+			12.84
 		};
 
-		// TODO: change to meters possibly??
 		public static final Translation2d frontLeft = new Translation2d(0.27305, -0.27305);
 		public static final Translation2d frontRight= new Translation2d(0.27305, 0.27305);
 		public static final Translation2d backLeft = new Translation2d(-0.27305, -0.27305);
 		public static final Translation2d backRight = new Translation2d(-0.27305, 0.27305);
 
-		public static final double swerveP = 0.010;
-		public static final double swerveI = 0.00;
-		public static final double swerveD = 0.00;
-		public static final double swerveFF = 0.0;
+		public static final double swerveP = 0.032;
+		public static final double swerveI = 0.0;
+		public static final double swerveD = 0.015;
+		public static final double swerveFF = 0;
 
-		public static final double highDriveSpeed = 0.5;// 7.26;
+		public static final double highDriveSpeed = 1;//7.26;
 		public static final double standardDriveSpeed = (14/50)/12.8;
-		public static final double speedModifier = 1.0;
+		public static final double speedModifier = 0.75;
 
 		public static final double firstStageRatio = (14/50) / 12.8;
-		public static final double inchesPerRotation = Math.PI;
+		public static final double inchesPerRotation = Math.PI * 4;
 		public static final double metersPerRotation = Units.inchesToMeters(inchesPerRotation);
 
     	public static final SimpleMotorFeedforward[] driveFeedForward = {
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18),
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18),
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18),
-            new SimpleMotorFeedforward(0.153, 1.6, 0.18)};
-
+			// TODO: change ks to higher value to possibly overcome slow velocity motor "kickback"
+			new SimpleMotorFeedforward(.18, 3.12, 0.18),
+            new SimpleMotorFeedforward(.18, 3.12, 0.18),
+            new SimpleMotorFeedforward(.18, 3.12, 0.18),
+            new SimpleMotorFeedforward(.18, 3.12, 0.18)
+		};
   	}
 
 	public static class ElevatorLiftConstants {

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.concurrent.TimeUnit;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -28,6 +30,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    try {TimeUnit.MILLISECONDS.sleep(2000);} catch (InterruptedException e) {e.getStackTrace();}
   }
 
   /**
@@ -57,7 +61,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
+    try {TimeUnit.MILLISECONDS.sleep(2000);} catch (InterruptedException e) {e.getStackTrace();}
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -91,7 +95,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    m_robotContainer.swerve.printModuleStatus();
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override

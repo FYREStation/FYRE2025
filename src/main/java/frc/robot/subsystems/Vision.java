@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.DriverConstants;
@@ -109,11 +110,99 @@ public class Vision {
         return getZAngle(4);
     }
 
-    public ChassisSpeeds getTagDrive(int camIndex, String tagId) {
-        // This function returns the relative position of the tag to the camera in the camera's frame of reference.
+    /**
+     * Returns an INCOMPLETE ChassisSpeeds object - only the rotation unit - for locking on to a tag 
+
+     * @param camIndex - the index of the desired camera to use
+     * @param tagId - the apriltag ID to search for, null if no preference
+     * @return speeds - the ChassisSpeeds object for the rotation to take
+     */
+    public ChassisSpeeds lockonTagSpeeds(int camIndex, String tagId) {
+        Apriltag tag;
+        if (tagId != null) tag = decideTag(camIndex, tagId);
+        else tag = decideTag(camIndex);
+        if (tag == null) return null;
+
+        return new ChassisSpeeds(
+            0,
+            0,
+            turnPID.calculate(tag.horizontalAngle)
+        );
+    }
+
+    /**
+     * This function returns the relative position of the tag to the camera in the camera's frame of reference.
+
+     * @param camIndex - the index of the desired camera to use
+     * @param tagId - the apriltag ID to search for, null if no preference
+     * @return speeds - the ChassisSpeeds object for the robot to take
+     */
+    public ChassisSpeeds alignTagSpeeds(int camIndex, String tagId) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
 
+        Apriltag tag;
+        if (tagId != null) tag = decideTag(camIndex, tagId);
+        else tag = decideTag(camIndex);
+        if(tag == null) return null;
+
+        double turnSpeed = turnPID.calculate(tag.orientation[1]); // This seems to be fine it may need to be negative but idk
+        double moveSpeed = movePID.calculate(tag.distance); // I do not know if this is correct - it makes some sense but idk
+
+        // Look at this! Max is doing a weird normalization thing again!
+        double xMove = (tag.position[2] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
+        double yMove = (tag.position[0] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
+        
+        return new ChassisSpeeds(
+            DriverConstants.highDriveSpeed * xMove,
+            DriverConstants.highDriveSpeed * yMove,
+            turnSpeed
+        );
+    }
+
+    public ChassisSpeeds getPieceDrive(int camIndex){
+        CameraWebsocketClient cam = camClientList.get(camIndex);
+        CameraWebsocketClient.Piece piece = cam.getPiece();
+        
+        if(piece == null) {
+            return null;
+        }
+
+        double turnSpeed = turnPID.calculate(piece.angle);
+        double moveSpeed = movePID.calculate(piece.distance);
+
+        double moveDirection = Math.tan(piece.angle + 0.25 * piece.pieceAngle); // The constant part is a guess
+
+        if (moveDirection == 0) {
+            return new ChassisSpeeds(0, moveSpeed, turnSpeed);
+        }
+
+        if (Math.abs(moveDirection) > 1000){
+            return new ChassisSpeeds(moveSpeed * Math.signum(moveDirection), 0, turnSpeed);
+        }
+        double xMove = moveDirection/(moveDirection + 1/moveDirection) * moveSpeed;
+        double yMove = (1/moveDirection)/(moveDirection + 1/moveDirection) * moveSpeed;
+        
+        return new ChassisSpeeds(
+            DriverConstants.highDriveSpeed * xMove,
+            DriverConstants.highDriveSpeed * yMove,
+            turnSpeed
+        );
+    }
+
+    private Apriltag decideTag(int camIndex) {
+        CameraWebsocketClient cam = camClientList.get(camIndex);
+        List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
+        Apriltag tag = null;
+
+        if (tags.size() > 0) {
+            tag = tags.get(0);
+        }
+
+        return tag;
+    }
+
+    private Apriltag decideTag(int camIndex, String tagId) {
         CameraWebsocketClient cam = camClientList.get(camIndex);
         List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
         Apriltag tag = null;
@@ -123,55 +212,9 @@ public class Vision {
                 break;
             }
         }
-        if(tag == null) {
-            return null;
-        }
 
-        double turnSpeed = turnPID.calculate(tag.orientation[1]); // This seems to be fine it may need to be negative but idk
-        double moveSpeed = movePID.calculate(tag.distance); // I do not know if this is correct - it makes some sense but idk
-
-        // Look at this! Max is doing a weird normalization thing again!
-        double xMove = (tag.position[2] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        double yMove = (tag.position[0] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        
-        return new ChassisSpeeds(
-            DriverConstants.highDriveSpeed * xMove,
-            DriverConstants.highDriveSpeed * yMove,
-            turnSpeed
-        );
-
+        return tag;
     }
-
-    public ChassisSpeeds getTagDrive(int camIndex) {
-        // This function returns the relative position of the tag to the camera in the camera's frame of reference.
-        // The position is returned as a 3 element array of doubles in the form [x, y, z]
-        // The position is in meters.
-
-        CameraWebsocketClient cam = camClientList.get(camIndex);
-        List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
-        Apriltag tag = null;
-        if (tags.size() > 0) {
-            tag = tags.get(0);
-        }
-        if(tag == null) {
-            return null;
-        }
-
-        double turnSpeed = turnPID.calculate(tag.orientation[1]); // This seems to be fine it may need to be negative but idk
-        double moveSpeed = movePID.calculate(tag.distance); // I do not know if this is correct - it makes some sense but idk
-
-        // Look at this! Max is doing a weird normalization thing again!
-        double xMove = (tag.position[2] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        double yMove = (tag.position[0] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        
-        return new ChassisSpeeds(
-            DriverConstants.highDriveSpeed * xMove,
-            DriverConstants.highDriveSpeed * yMove,
-            turnSpeed
-        );
-
-    }
-
 
     public Info getInfo() {
         return camClientList.get(0).getInfo();
@@ -190,7 +233,7 @@ public class Vision {
         Vision robotInterface = new Vision("ws://10.42.0.118", cameraRotation, apriltagAngles);
 
         while (true) {
-            robotInterface.getTagDrive(0, "13");
+            robotInterface.alignTagSpeeds(0, "13");
             //System.out.println(Interface.getZAngle());
         }
     }
