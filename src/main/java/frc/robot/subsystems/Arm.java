@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.controller.armFeedforward;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -25,7 +27,7 @@ public class Arm extends SubsystemBase {
 
     private final RelativeEncoder armEncoder = armMotor.getEncoder();
 
-    private final armFeedforward armFeedForward = new armFeedforward(
+    private final ArmFeedforward armFeedForward = new ArmFeedforward(
         ArmConstants.staticGain,
         ArmConstants.gravityGain,
         ArmConstants.velocityGain
@@ -49,7 +51,6 @@ public class Arm extends SubsystemBase {
     private boolean manualOverride = false;
     private boolean canMoveUp = true;
     private boolean canMoveDown = true;
-    private boolean isCalibrating = false;
 
     private final ProfiledPIDController armController = new ProfiledPIDController(
         ArmConstants.kP,
@@ -61,23 +62,25 @@ public class Arm extends SubsystemBase {
         )
     );
 
+    /**
+     * Constructs a new Arm object and configures it's motors.
+     */
     public Arm() {
         setUpMotors();
-        armMotor.configure(armMotorConfig, 
-        ResetMode.kResetSafeParameters, 
-        PersistMode.kNoPersistParameters);    
+        armMotor.configure(
+            armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);    
     }
 
     @Override
     public void periodic() {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(controller.atGoal() || manualOverride || isCalibrating)) { 
+        if (!(armController.atGoal() || manualOverride)) { 
             // set the setpoint to the controller
             armMotor.set(
-                controller.calculate(
+                armController.calculate(
                     getEncoderDistances(),
-                    controller.getGoal().position
+                    armController.getGoal().position
                 )
             );
         }
@@ -88,21 +91,25 @@ public class Arm extends SubsystemBase {
     }
 
     public void goToTop() {
-        controller.setGoal(topState);
+        armController.setGoal(topState);
     }
     
     //sets the goal to the bottom state of the arm
     public void goToBottom() {
-        controller.setGoal(bottomState);
+        armController.setGoal(bottomState);
+    }
+
+    public void stopMotor() {
+        armMotor.stopMotor();
     }
 
     public double getEncoderDistances() {
-        return (armMotor.getEncoder().getPosition());
+        return (armEncoder.getPosition());
 
     }
 
     private void resetEncoders() {
-        armMotor.setPosition(0.0);
+        armEncoder.setPosition(0.0);
   
     }
 
@@ -118,62 +125,6 @@ public class Arm extends SubsystemBase {
     public TrapezoidProfile.State getDownState() {
         return bottomState;
 
-    }
-
-    /**
-     * Calibrates the arm by running the motor from the bottom position to the top,
-     * and measuring the encoder values from that point.
-     */
-    public boolean calibrateStep1() {
-        // ensures that the encoders are at the bottom of the arm
-        if (!getBottomSwitch()) {
-            armMotor.set(-0.1);
-            return false;
-        }
-        armMotor.stopMotor();
-
-        // resets the encoder values at the bottom
-        resetEncoders();
-        return true;
-    }
-
-    /**
-     * The second step of the arm calibration.
-     * Causes the arm to go all the way up to the top
-
-     * @return boolean - whether or not the step has been completed
-     */
-    public boolean calibrateStep2() {
-        // runs the motors to the top of the arm
-        if (!getTopSwitch()) {
-            armMotor.set(0.1);
-            return false;
-        }
-        armMotor.stopMotor();
-
-        // saves the rotational value at the top
-        rotationsToTop = getEncoderDistances();
-        return true;
-    }
-
-    /**
-     * The third step of the arm calibration.
-     * Causes the arm to go back down.
-
-     * @return boolean - whether this step has completed or not
-     */
-    public boolean calibrateStep3() {
-        // lowers the arm back down
-        if (!getBottomSwitch()) {
-            armMotor.set(-0.1);
-            return false;
-        }
-        armMotor.stopMotor();
-        return true;
-    }
-
-    public void setCalibrating(boolean isCalibrating) {
-        this.isCalibrating = isCalibrating;
     }
 
     /**

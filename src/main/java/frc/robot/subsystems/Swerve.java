@@ -1,12 +1,6 @@
 package frc.robot.subsystems;
 
-import java.util.concurrent.TimeUnit;
-
-
-////////////////////////////////////////////////////////////////////////////////////////
-// TODO: I AM NOT TOUCHING THIS FILE ON PURPOSE TO ENSURE NO MERGE CONFLICT WITH AUTO //
-////////////////////////////////////////////////////////////////////////////////////////
-
+import choreo.trajectory.SwerveSample;
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -20,8 +14,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
-import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -37,8 +29,12 @@ import frc.robot.Constants;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
+import java.util.concurrent.TimeUnit;
 
-public class Swerve extends SubsystemBase{
+/**
+ * The physical subsystem that controls the drivetrain.
+ */
+public class Swerve extends SubsystemBase {
 
     private final ControllerInput controllerInput;
 
@@ -75,8 +71,8 @@ public class Swerve extends SubsystemBase{
         DriverConstants.backRight
     );
 
-    double lastMotorSpeeds[] = new double[4];
-    double lastMotorSetTimes[] = new double[4];
+    double[] lastMotorSpeeds = new double[4];
+    double[] lastMotorSetTimes = new double[4];
 
     private double turnTarget = 0;
 
@@ -84,17 +80,25 @@ public class Swerve extends SubsystemBase{
 
     boolean setupComplete = false;
 
+    /** Represents a speed and angle for a swerve module. */
     public class SwerveAngleSpeed {
         double targetAngle;
         int multiplier;
     }
 
+    /**
+     * Constructs a swerve subsystem with the given controller and vision systems.
+
+     * @param controller - the controller object that will be used to control the drive system
+     * @param visionSystem - the vision system that will be used to control the drivetrain
+     */
     public Swerve(ControllerInput controller, Vision visionSystem) {
 
         // assign constructor variables
         this.controllerInput = controller;
         this.visionSystem = visionSystem;
 
+        // TODO: change this dynamically depending on the starting pose of the robot
         this.currentPose = new Pose2d(1.8, 6.3, new Rotation2d(0));
 
         // define the gyro
@@ -105,6 +109,7 @@ public class Swerve extends SubsystemBase{
         // sets up the motors
         setupMotors();
         
+        // define pose estimator
         poseEstimator = new SwerveDrivePoseEstimator(
             swerveDriveKinematics,
             gyroAhrs.getRotation2d(),
@@ -119,9 +124,7 @@ public class Swerve extends SubsystemBase{
 
         //printModuleStatus();
 
-        // I don't know if this step is nessecary so look at this while testing :D
         currentPose = poseEstimator.update(gyroAhrs.getRotation2d(), getSwerveModulePositions());
-        //currentPose = poseEstimator.getEstimatedPosition();
 
         if (setupComplete) {
             swerveDrive(chooseDriveMode());
@@ -138,7 +141,7 @@ public class Swerve extends SubsystemBase{
                 speeds = visionSystem.alignTagSpeeds(0, null); 
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
-                ChassisSpeeds controllerSpeeds = controllerChassisSpeeds();
+                ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(turnPID, getAngle());
                 ChassisSpeeds lockonSpeeds = visionSystem.lockonTagSpeeds(0, null);
                 speeds = new ChassisSpeeds(
                     controllerSpeeds.vxMetersPerSecond,
@@ -147,7 +150,7 @@ public class Swerve extends SubsystemBase{
                 );
                 break;
             default: // if all else fails - revert to drive controls
-                speeds = controllerChassisSpeeds();
+                speeds = controllerInput.controllerChassisSpeeds(turnPID, getAngle());
                 break;
         }
 
@@ -157,7 +160,9 @@ public class Swerve extends SubsystemBase{
     private void setupCheck() {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
-            if (Math.abs(swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]) > 1.5) {
+            if (Math.abs(
+                    swerveEncoders[i].getPosition() - DriverConstants.absoluteOffsets[i]
+                ) > 1.5) {
                 return;
             }
         }
@@ -207,8 +212,8 @@ public class Swerve extends SubsystemBase{
                 .velocityConversionFactor(360 / 12.8);
 
             driveConfig[i].encoder
-                .positionConversionFactor(1/8.14)
-                .velocityConversionFactor(1/8.14);
+                .positionConversionFactor(1 / 8.14)
+                .velocityConversionFactor(1 / 8.14);
 
 
             swerveConfig[i].closedLoop
@@ -229,8 +234,10 @@ public class Swerve extends SubsystemBase{
                 .primaryEncoderPositionPeriodMs(50);
 
             // save config into the sparks
-            swerveMotors[i].configure(swerveConfig[i], ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-            driveMotors[i].configure(driveConfig[i], ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            swerveMotors[i].configure(
+                swerveConfig[i], ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            driveMotors[i].configure(
+                driveConfig[i], ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
             double relativeZero = getAbsolutePosition(i);
@@ -299,6 +306,11 @@ public class Swerve extends SubsystemBase{
         return 360 - (swerveEncodersAbsolute[moduleNumber].get() * 360);
     }
 
+    /**
+     * Get an array of SwerveModuleState objects for each swerve module in the drive.
+
+     * @return swerveModuleStates - the array of module states
+     */
     public SwerveModuleState[] getSwerveModuleStates() {
         SwerveModuleState[] swerveModuleState = new SwerveModuleState[4];
         for (int i = 0; i < 4; i++) {
@@ -312,6 +324,11 @@ public class Swerve extends SubsystemBase{
         return swerveModuleState;
     }
 
+    /**
+     * Get an array of SwerveModulePosition objects for each swerve module in the drive.
+
+     * @return swerveModulePositions - the array of module postions
+     */
     private SwerveModulePosition[] getSwerveModulePositions() {
         SwerveModulePosition[] swerveModulePositions = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
@@ -325,43 +342,18 @@ public class Swerve extends SubsystemBase{
         return swerveModulePositions;
     }
 
-    public ChassisSpeeds controllerChassisSpeeds() {
-        double turnSpeed = 0;
-        if (Math.abs(controllerInput.theta()) < 0.01) {
-            double error = turnTarget + getAngle();
-            turnPID.setSetpoint(0);
-            if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
-            turnSpeed = 0;
-        } else  {
-            turnSpeed = controllerInput.theta() * 2;
-            turnTarget = getAngle();
-        }
+    
+    /**
+     * Moves the robot using given ChassisSpeeds object.
 
-        ChassisSpeeds chassisSpeeds;
-
-        if (controllerInput.fieldRelative()){
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                DriverConstants.highDriveSpeed * controllerInput.y(),
-                -DriverConstants.highDriveSpeed * controllerInput.x(),
-                turnSpeed,
-                Rotation2d.fromDegrees(getAngle())
-            );
-        } else {
-            // If we are not in field relative mode, we are in robot relative mode, so dont do the field thing
-            chassisSpeeds = new ChassisSpeeds(
-                DriverConstants.highDriveSpeed * controllerInput.y(),
-                -DriverConstants.highDriveSpeed * controllerInput.x(),
-                turnSpeed
-            );
-        }
-
-        return chassisSpeeds;
-    }
-
+     * @param chassisSpeeds - the chassis speed that the robot should take
+     */
     public void swerveDrive(ChassisSpeeds chassisSpeeds) {
 
         SwerveModuleState[] moduleState = swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds);
-        boolean rotate = chassisSpeeds.vxMetersPerSecond != 0 || chassisSpeeds.vyMetersPerSecond != 0 || chassisSpeeds.omegaRadiansPerSecond != 0;
+        boolean rotate = chassisSpeeds.vxMetersPerSecond != 0 
+                        || chassisSpeeds.vyMetersPerSecond != 0 
+                        || chassisSpeeds.omegaRadiansPerSecond != 0;
 
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleState, DriverConstants.highDriveSpeed);
 
@@ -371,21 +363,25 @@ public class Swerve extends SubsystemBase{
             double targetAngle = targetState.angle.getDegrees();
             SwerveAngleSpeed absoluteTarget = getAbsoluteTarget(targetAngle, currentAngle);
 
-            if (rotate) {
-                swervePID[i].setReference(absoluteTarget.targetAngle, SparkMax.ControlType.kPosition);
-            }
+            if (rotate)
+                swervePID[i].setReference(
+                    absoluteTarget.targetAngle, SparkMax.ControlType.kPosition);
 
-            setMotorSpeed(i, absoluteTarget.multiplier * targetState.speedMetersPerSecond * DriverConstants.speedModifier
-                * (controllerInput.nos() ? 2.25 : 1));
-            // driveMotors[i].set(
-            //     controllerInput.getMagnitude() 
-            //     * (controllerInput.nos() ? DriverConstants.highDriveSpeed : DriverConstants.standardDriveSpeed)
-            //     * DriverConstants.speedModifier
-            // );
-
+            setMotorSpeed(i, 
+                absoluteTarget.multiplier
+                * targetState.speedMetersPerSecond
+                * DriverConstants.speedModifier
+                * (controllerInput.nos() ? 2.25 : 1)
+            );
         }
     }
 
+    /**
+     * Sets the velocity of the drive motor on the given swerve module using feedforward.
+
+     * @param module - the module to set the speed of
+     * @param velocity - the target speed to set the module of
+     */
     public void setMotorSpeed(int module, double velocity) {
         double time = Timer.getFPGATimestamp();
         double acceleration = time - lastMotorSetTimes[module] > 0.1
@@ -399,14 +395,13 @@ public class Swerve extends SubsystemBase{
     }
 
     /**
-     * Returns the absolute angle a module needs to approach
+     * Returns the absolute angle a module needs to approach.
+
      * @param targetAngle - the angle the module should be at
      * @param currentAngle - the current position of the module
      * @return absoluteTarget - the absolute angle the module needs to approach
      */
     private SwerveAngleSpeed getAbsoluteTarget(double targetAngle, double currentAngle) {
-
-        //targetAngle += 180;
 
         double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
 
@@ -448,11 +443,16 @@ public class Swerve extends SubsystemBase{
         // return absoluteTarget;
     }
 
-// =============== AUTO STUFF ==================== //
+    // =============== AUTO STUFF ==================== //
 
     private final PIDController xController = new PIDController(10, 0, 0);
     private final PIDController yController = new PIDController(10, 0, 0);
 
+    /**
+     * Compiles and drives a ChassisSpeeds object from a given SwerveSample along the trajectory.
+
+     * @param sample - the SwerveSample object that the robot should follow
+     */
     public void followTrajectory(SwerveSample sample) {
         Pose2d pose = getPose();
 

@@ -1,7 +1,11 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriverConstants;
 
 /**
  * A controller object to handle everything involving user input.
@@ -67,6 +71,44 @@ public class ControllerInput extends SubsystemBase {
         */ 
         visionStatus = VisionStatus.NONE;
     }
+
+    /**
+     * Uses controller input to return a ChassisSpeeds object.
+
+     * @return chassisSpeeds - the spped of the robot calclated by the controller
+     */
+    public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, double currentAngle) {
+        double turnSpeed = 0;
+        if (Math.abs(theta) < 0.01) {
+            double error = currentAngle;
+            turnPID.setSetpoint(0);
+            if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
+            turnSpeed = 0;
+        } else  {
+            turnSpeed = theta * 2;
+        }
+
+        ChassisSpeeds chassisSpeeds;
+
+        if (fieldRelative) {
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                DriverConstants.highDriveSpeed * y,
+                -DriverConstants.highDriveSpeed * x,
+                turnSpeed,
+                Rotation2d.fromDegrees(currentAngle)
+            );
+        } else {
+            // If we are not in field relative mode, we are in robot relative mode
+            chassisSpeeds = new ChassisSpeeds(
+                DriverConstants.highDriveSpeed * y,
+                -DriverConstants.highDriveSpeed * x,
+                turnSpeed
+            );
+        }
+
+        return chassisSpeeds;
+    }
+
 
     public double getMagnitude() {return Math.sqrt(x * x + y * y);}
     public double x() {return x;}
