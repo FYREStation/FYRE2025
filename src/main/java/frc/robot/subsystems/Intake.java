@@ -18,8 +18,9 @@ import frc.robot.Constants.IntakeConstants;
  * All of the interfaces for the physical intake.
  */
 public class Intake extends SubsystemBase {
+
     private final SparkMax intakeWheels = new SparkMax(
-        IntakeConstants.intakeWheelPort, 
+        11,//IntakeConstants.intakeWheelPort, 
         SparkLowLevel.MotorType.kBrushed
     );
 
@@ -35,7 +36,7 @@ public class Intake extends SubsystemBase {
 
     public boolean canintakeAscend = true; //may need to be changed to false in code
 
-    private final RelativeEncoder intakeEncoderActuation = intakeActuation.getEncoder();
+    private final Encoder intakeEncoderActuation = new Encoder(8, 9);
 
     private final RelativeEncoder intakeEncoderWheels = intakeWheels.getEncoder();
 
@@ -59,8 +60,13 @@ public class Intake extends SubsystemBase {
 
     }
 
+    @Override
+    public void periodic() {
+        // System.out.println(intakeEncoderActuation.get());
+    }
+
     private void setUpMotors() {
-        intakeEncoderActuation.setPosition(0);
+        intakeEncoderActuation.reset(); 
         intakeEncoderWheels.setPosition(0);
     }
 

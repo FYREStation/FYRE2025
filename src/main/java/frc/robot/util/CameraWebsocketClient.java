@@ -1,10 +1,5 @@
 package frc.robot.util;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -14,6 +9,11 @@ import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 /**
  * A websocket client to interface with Astrolabe's server running on a(n) RPI(s).
@@ -64,6 +64,7 @@ public class CameraWebsocketClient {
         public String fullString;
     }
 
+    /** Represents a information about a piece on the feild. */
     public static class Piece {
         public double distance;
         public double angle; // radians
@@ -248,10 +249,10 @@ public class CameraWebsocketClient {
     }
 
     /**
-     * Switches the color that the server will look for when doing piece detection
- 
+     * Switches the color that the server will look for when doing piece detection.
+
      * @param index - the index in the color array 
-     * @return
+     * @return boolean - whether the color was switched
      */
     public boolean switchColors(int index) {
         sendMessage("sc -new_color=" + index);
@@ -260,6 +261,11 @@ public class CameraWebsocketClient {
         return true;
     }
 
+    /**
+     * Requests information from the coprocessor and returns it as a Piece object.
+
+     * @return piece - information about the peice, if available 
+     */
     public Piece getPiece() {
         try {
             sendMessage("fp");
@@ -277,7 +283,7 @@ public class CameraWebsocketClient {
     }
 
 
-    /*
+    /**
      * Makes a request to the websocket server for apriltag information and returns its response.
 
      * @return aprilTags - a list of Apriltags that we got from the server

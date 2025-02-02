@@ -6,12 +6,18 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Swerve;
 
+/** Simple wrapper class to load routines. */
 public class Auto {
     
     Swerve swerve;
 
-	AutoFactory autoFactory;
+    AutoFactory autoFactory;
 
+    /**
+     * Constructs a new Auto object with a swerve object to use for path control.
+
+     * @param swerve - the swerve object to be used
+     */
     public Auto(Swerve swerve) {
 
         this.swerve = swerve;
