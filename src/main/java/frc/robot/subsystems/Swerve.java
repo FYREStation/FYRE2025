@@ -2,6 +2,11 @@ package frc.robot.subsystems;
 
 import java.util.concurrent.TimeUnit;
 
+
+////////////////////////////////////////////////////////////////////////////////////////
+// TODO: I AM NOT TOUCHING THIS FILE ON PURPOSE TO ENSURE NO MERGE CONFLICT WITH AUTO //
+////////////////////////////////////////////////////////////////////////////////////////
+
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;

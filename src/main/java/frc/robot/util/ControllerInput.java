@@ -3,9 +3,12 @@ package frc.robot.util;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * A controller object to handle everything involving user input.
+ */
 public class ControllerInput extends SubsystemBase {
 
-    // add more to this when we get more vision stuff going
+    /** Enumeration to represent what the robot should be doing with vision. */
     public enum VisionStatus {
         NONE,
         ALIGN_TAG,

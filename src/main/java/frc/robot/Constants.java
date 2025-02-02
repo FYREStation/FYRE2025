@@ -1,11 +1,11 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
+/*
+Copyright (c) FIRST and other WPILib contributors.
+Open Source Software; you can modify and share it under the terms of
+the WPILib BSD license file in the root directory of this project.
+*/
 package frc.robot;
 
 import java.util.HashMap;
-
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -97,10 +97,54 @@ public final class Constants {
   	}
 
 	public static class ElevatorLiftConstants {
-		public static final int elevatorMotor1Port = -1;
-		public static final int elevatorMotor2Port = -1;
-		public static final int maxRotations = -1;
+		public static final int elevatorMotor1Port = -1234567890;
+		public static final int elevatorMotor2Port = -123456789;
+		public static final double maxRotations = -1234567890;
+		public static final double staticGain = -1234567890;
+		public static final double gravityGain = -1234567890;
+		public static final double velocityGain = -1234567890;
+		public static final int bottomLimitSwitchPort = -1234567890;
+		public static final int topLimitSwitchPort = -1234567890;
+		public static final double kP = -1234567890;
+		public static final double kI = -1234567890;
+		public static final double kD = -1234567890;
+		public static final double maxAcceleration = -1234567890;
+		public static final double maxVelocity = -1234567890;
+		public static final double elvevatorThrottle = -1234567890;
+		public static final double leadercanID = -1234567890;
 
+	}
+
+	public static class IntakeConstants{
+		public static final int intakeWheelPort = -1234567890;
+		public static final int intakeActuationPort = -1234567890;
+		public static final double rotationsToBottom = -1234567890;
+		public static final int intakeEncoderA = -1234567890;
+	}
+
+	public static class ArmConstants {
+		public static final int armPort = -1234567890;
+		public static final double staticGain = -1234567890;
+		public static final double gravityGain = -1234567890;
+		public static final double velocityGain = -1234567890;
+		public static final double kP = -1234567890;
+		public static final double kI = -1234567890;
+		public static final double kD = -1234567890;
+		public static final double maxRotations = -1234567890;
+		public static final double maxVelocity = -1234567890;
+		public static final double maxAcceleration = -1234567890;
+
+	}
+
+	public static class ClawConstants {
+		public static final int clawMotorPort = -1234567890;
+		public static final int clawWheelMotorPort = -1234567890;
+		public static final double rotationsToBottom = -1234567890;
+	}
+
+	public static class ClimberConstants {
+		public static final int climberMotorPort = -1234567890;
+		public static final double rotationsToBottom = -1234567890;
 	}
 
 	public static class OperatorConstants {
