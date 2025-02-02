@@ -141,7 +141,7 @@ public class Swerve extends SubsystemBase {
                 speeds = visionSystem.alignTagSpeeds(0, null); 
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
-                ChassisSpeeds controllerSpeeds = controllerChassisSpeeds();
+                ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(turnPID, getAngle());
                 ChassisSpeeds lockonSpeeds = visionSystem.lockonTagSpeeds(0, null);
                 speeds = new ChassisSpeeds(
                     controllerSpeeds.vxMetersPerSecond,
@@ -150,7 +150,7 @@ public class Swerve extends SubsystemBase {
                 );
                 break;
             default: // if all else fails - revert to drive controls
-                speeds = controllerChassisSpeeds();
+                speeds = controllerInput.controllerChassisSpeeds(turnPID, getAngle());
                 break;
         }
 
@@ -342,44 +342,7 @@ public class Swerve extends SubsystemBase {
         return swerveModulePositions;
     }
 
-    /**
-     * Uses controller input to return a ChassisSpeeds object.
-
-     * @return chassisSpeeds - the spped of the robot calclated by the controller
-     */
-    public ChassisSpeeds controllerChassisSpeeds() {
-        double turnSpeed = 0;
-        if (Math.abs(controllerInput.theta()) < 0.01) {
-            double error = turnTarget + getAngle();
-            turnPID.setSetpoint(0);
-            if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
-            turnSpeed = 0;
-        } else  {
-            turnSpeed = controllerInput.theta() * 2;
-            turnTarget = getAngle();
-        }
-
-        ChassisSpeeds chassisSpeeds;
-
-        if (controllerInput.fieldRelative()){
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                DriverConstants.highDriveSpeed * controllerInput.y(),
-                -DriverConstants.highDriveSpeed * controllerInput.x(),
-                turnSpeed,
-                Rotation2d.fromDegrees(getAngle())
-            );
-        } else {
-            // If we are not in field relative mode, we are in robot relative mode
-            chassisSpeeds = new ChassisSpeeds(
-                DriverConstants.highDriveSpeed * controllerInput.y(),
-                -DriverConstants.highDriveSpeed * controllerInput.x(),
-                turnSpeed
-            );
-        }
-
-        return chassisSpeeds;
-    }
-
+    
     /**
      * Moves the robot using given ChassisSpeeds object.
 
