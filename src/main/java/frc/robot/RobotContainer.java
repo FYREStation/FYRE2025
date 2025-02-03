@@ -9,10 +9,13 @@ import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.IntakeControl;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
 import frc.robot.util.Auto;
@@ -28,44 +31,50 @@ import frc.robot.util.ControllerInput;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+	
+    Joystick joystick = new Joystick(OperatorConstants.driverControllerPort);
+    XboxController xboxController = new XboxController(1);
 
-	Joystick joystick = new Joystick(OperatorConstants.driverControllerPort);
-	XboxController xboxController = new XboxController(1);
+    ControllerInput controller = new ControllerInput(xboxController);
+    Vision visionSystem = new Vision(
+        Constants.VisionConstants.ipAddress, 
+        Constants.VisionConstants.CameraRotations, 
+        Constants.VisionConstants.apriltagAngles); 
 
-	ControllerInput controller = new ControllerInput(xboxController);
-	Vision visionSystem = new Vision(Constants.VisionConstants.ipAddress, Constants.VisionConstants.CameraRotations, Constants.VisionConstants.apriltagAngles); 
+    public Swerve swerve = new Swerve(controller, visionSystem);
 
-	public Swerve swerve = new Swerve(controller, visionSystem);
+    // public Intake intake = new Intake();
+    // public IntakeControl intakeControl = new IntakeControl(intake);
 
-
-	Auto auto = new Auto(swerve);
-
-	final AutoChooser autoChooser;
+    Auto auto = new Auto(swerve);
+    final AutoChooser autoChooser;
 
 
-	/**
+    /**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
 	 */
-	public RobotContainer() {
+    public RobotContainer() {
 
-		autoChooser = new AutoChooser();
+        // intake.setDefaultCommand(intakeControl);
 
-		autoChooser.addRoutine("Figure8", auto::figure8);
-		autoChooser.addRoutine("MiniFigure8", auto::miniFigure8);
+        autoChooser = new AutoChooser();
 
-		SmartDashboard.putData(autoChooser);
+        autoChooser.addRoutine("Figure8", auto::figure8);
+        autoChooser.addRoutine("MiniFigure8", auto::miniFigure8);
 
-		//autoChooser.select("MiniFigure8");
+        SmartDashboard.putData(autoChooser);
 
-		RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        //autoChooser.select("MiniFigure8");
 
-		// Configure the trigger bindings
-		configureBindings();
+        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+
+        // Configure the trigger bindings
+        configureBindings();
 
 		
 	}
 
-	/**
+    /**
 	 * Use this method to define your trigger->command mappings. Triggers can be
 	 * created via the
 	 * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
@@ -79,17 +88,17 @@ public class RobotContainer {
 	 * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
 	 * joysticks}.
 	 */
-	private void configureBindings() {
+    private void configureBindings() {
 
-	}
+    }
 
-	/**
+    /**
 	 * Use this to pass the autonomous command to the main {@link Robot} class.
 	 *
 	 * @return the command to run in autonomous
 	 */
-	//public Command getAutonomousCommand() {
-	// An example command will be run in autonomous
-	// return Autos.exampleAuto(m_exampleSubsystem);
-	// }
+    public Command getAutonomousCommand() {
+        // An example command will be run in autonomous
+        return autoChooser.selectedCommand();
+    }
 }
