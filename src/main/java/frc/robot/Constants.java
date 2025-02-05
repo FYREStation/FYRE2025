@@ -81,10 +81,10 @@ public final class Constants {
         public static final double swerveD = 0.015;
         public static final double swerveFF = 0;
 
-        public static final double highDriveSpeed = 7.26;
+        public static final double highDriveSpeed = 1;//7.26;
         public static final double speedModifier = 0.75;
 
-        public static final double inchesPerRotation = Math.PI * 4;
+        public static final double inchesPerRotation = Math.PI * 3.875;
         public static final double metersPerRotation = Units.inchesToMeters(inchesPerRotation);
 
         public static final SimpleMotorFeedforward[] driveFeedForward = {

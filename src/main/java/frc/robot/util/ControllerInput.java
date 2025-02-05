@@ -79,13 +79,13 @@ public class ControllerInput extends SubsystemBase {
      */
     public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, double currentAngle) {
         double turnSpeed = 0;
-        if (Math.abs(theta) < 0.01) {
+        if (false) {
             double error = currentAngle;
             turnPID.setSetpoint(0);
             if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
             turnSpeed = 0;
         } else  {
-            turnSpeed = theta * 2;
+            turnSpeed = turnPID.calculate(currentAngle, 0);
         }
 
         ChassisSpeeds chassisSpeeds;

@@ -2,6 +2,7 @@ package frc.robot.util;
 
 import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -127,6 +128,10 @@ public class SwerveModule {
         if (error.equals(REVLibError.kOk)) System.out.println("Swerve Module " + index + " is initialized!");
     }
 
+    public void setSwerveReference(double value) {
+        swervePID.setReference(value, ControlType.kPosition);
+    }
+
 
     public void setSwerveEncoder(double position) {
         swerveEncoder.setPosition(position);
@@ -174,6 +179,10 @@ public class SwerveModule {
             driveEncoder.getPosition() * DriverConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
+    }
+
+    public boolean setupCheck() {
+        return Math.abs(swerveEncoder.getPosition() - DriverConstants.absoluteOffsets[index]) > 1.5;
     }
 
     /**

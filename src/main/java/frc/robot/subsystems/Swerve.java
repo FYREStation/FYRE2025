@@ -50,9 +50,12 @@ public class Swerve extends SubsystemBase {
 
     private Pose2d currentPose;
 
+    private final PIDController xController = new PIDController(10, 0, 0);
+    private final PIDController yController = new PIDController(10, 0, 0);
+
     private final PIDController turnPID = new PIDController(
-        7.52,
-        0.01,
+        0.052,
+        0.00,
         0.00,
         0.02
     );
@@ -65,6 +68,8 @@ public class Swerve extends SubsystemBase {
     );
 
     private double turnTarget = 0;
+
+    private double startTime = Timer.getTimestamp();
 
     boolean setupComplete = false;
 
@@ -108,7 +113,13 @@ public class Swerve extends SubsystemBase {
 
         //printModuleStatus();
 
-        currentPose = poseEstimator.update(gyroAhrs.getRotation2d(), getSwerveModulePositions());
+        currentPose = poseEstimator.updateWithTime(
+            startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
+
+        System.out.println(currentPose.toString());
+        //System.out.println(gyroAhrs.getRotation2d().toString());
+
+        //System.out.println(swerveModules[0].getSwerveModulePosition());
 
         if (setupComplete) {
             swerveDrive(chooseDriveMode());
@@ -192,15 +203,14 @@ public class Swerve extends SubsystemBase {
     private void setupCheck() {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
-            if (Math.abs(
-                    swerveModules[i].getSwervePosition() - DriverConstants.absoluteOffsets[i]
-                ) > 1.5) {
+            if (swerveModules[i].setupCheck()) {
                 return;
             }
         }
         setupComplete = true;
+        System.out.println("----------\nSetup Complete!\n----------");
         setSwerveEncoders(0);
-        for (int i = 0; i < 4; i++) swervePID[i].setReference(0, ControlType.kPosition);
+        for (int i = 0; i < 4; i++) swerveModules[i].setSwerveReference(0);
         try {TimeUnit.MILLISECONDS.sleep(20);} catch (InterruptedException e) {e.getStackTrace();}
     }
 
@@ -254,8 +264,6 @@ public class Swerve extends SubsystemBase {
 
     // =============== AUTO STUFF ==================== //
 
-    private final PIDController xController = new PIDController(10, 0, 0);
-    private final PIDController yController = new PIDController(10, 0, 0);
 
     /**
      * Compiles and drives a ChassisSpeeds object from a given SwerveSample along the trajectory.
