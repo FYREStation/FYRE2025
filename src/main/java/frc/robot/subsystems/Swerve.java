@@ -86,12 +86,18 @@ public class Swerve extends SubsystemBase {
         this.visionSystem = visionSystem;
 
         // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(1.8, 6.3, new Rotation2d(0));
+        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
         // reset the gyro
         gyroAhrs.reset();
+        gyroAhrs.configureVelocity(
+            false,
+            true,
+            true,
+            true
+        );
 
         // sets up the motors
         setupModules();
@@ -137,7 +143,7 @@ public class Swerve extends SubsystemBase {
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
                 ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(
-                    turnPID, gyroAhrs.getAngle());
+                    turnPID, gyroAhrs.getRotation2d());
                 ChassisSpeeds lockonSpeeds = visionSystem.lockonTagSpeeds(0, null);
                 speeds = new ChassisSpeeds(
                     controllerSpeeds.vxMetersPerSecond,
@@ -146,7 +152,7 @@ public class Swerve extends SubsystemBase {
                 );
                 break;
             default: // if all else fails - revert to drive controls
-                speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getAngle());
+                speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
                 break;
         }
 
@@ -244,6 +250,7 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             swerveModules[i].printModuleStatus();
         }
+        System.out.println();
     }
 
     /**

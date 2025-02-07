@@ -75,7 +75,7 @@ public class SwerveModule {
 
         // configure the swerve motor
         swerveConfig
-            .inverted(true)
+            .inverted(false)
             .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(15);
 
@@ -150,11 +150,11 @@ public class SwerveModule {
     }
 
     public void printModuleStatus() {
-        System.out.printf("%d: %f", index, getAbsolutePosition());
+        System.out.printf("%d: %f\n", index, getAbsolutePosition());
     }
 
     public double getAbsolutePosition() {
-        return 360 - (swerveEncoderAbsolute.get() * 360);
+        return (swerveEncoderAbsolute.get() * 360);
     }
 
     /**
@@ -165,7 +165,7 @@ public class SwerveModule {
     public SwerveModuleState getSwerveModuleState() {
         return new SwerveModuleState(
             driveEncoder.getVelocity() * DriverConstants.metersPerRotation,
-            Rotation2d.fromDegrees(getAbsolutePosition())
+            Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }
 

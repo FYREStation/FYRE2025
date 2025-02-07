@@ -65,16 +65,16 @@ public final class Constants {
         };
 
         public static final double[] absoluteOffsets = {
-            320.33,
-            102.85,
-            350.68,
-            12.84
+            40.5,
+            256.0,
+            11.5,
+            344.5
         };
 
-        public static final Translation2d frontLeft = new Translation2d(0.27305, -0.27305);
-        public static final Translation2d frontRight = new Translation2d(0.27305, 0.27305);
-        public static final Translation2d backLeft = new Translation2d(-0.27305, -0.27305);
-        public static final Translation2d backRight = new Translation2d(-0.27305, 0.27305);
+        public static final Translation2d frontLeft = new Translation2d(0.27305, 0.27305);
+        public static final Translation2d frontRight = new Translation2d(0.27305, -0.27305);
+        public static final Translation2d backLeft = new Translation2d(-0.27305, 0.27305);
+        public static final Translation2d backRight = new Translation2d(-0.27305, -0.27305);
 
         public static final double swerveP = 0.032;
         public static final double swerveI = 0.0;

@@ -77,30 +77,30 @@ public class ControllerInput extends SubsystemBase {
 
      * @return chassisSpeeds - the spped of the robot calclated by the controller
      */
-    public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, double currentAngle) {
+    public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, Rotation2d currentAngle) {
         double turnSpeed = 0;
         if (false) {
-            double error = currentAngle;
-            turnPID.setSetpoint(0);
-            if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
-            turnSpeed = 0;
+            // double error = currentAngle;
+            // turnPID.setSetpoint(0);
+            // if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
+            // turnSpeed = 0;
         } else  {
-            turnSpeed = turnPID.calculate(currentAngle, 0);
+            turnSpeed = -theta * 2;//turnPID.calculate(currentAngle, 0);
         }
 
         ChassisSpeeds chassisSpeeds;
 
         if (fieldRelative) {
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                DriverConstants.highDriveSpeed * y,
+                -DriverConstants.highDriveSpeed * y,
                 -DriverConstants.highDriveSpeed * x,
                 turnSpeed,
-                Rotation2d.fromDegrees(currentAngle)
+                currentAngle
             );
         } else {
             // If we are not in field relative mode, we are in robot relative mode
             chassisSpeeds = new ChassisSpeeds(
-                DriverConstants.highDriveSpeed * y,
+                -DriverConstants.highDriveSpeed * y,
                 -DriverConstants.highDriveSpeed * x,
                 turnSpeed
             );
