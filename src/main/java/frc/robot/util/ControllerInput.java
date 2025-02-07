@@ -16,7 +16,8 @@ public class ControllerInput extends SubsystemBase {
     public enum VisionStatus {
         NONE,
         ALIGN_TAG,
-        LOCKON
+        LOCKON,
+        GET_CORAL
     }
 
     private double x, y, theta;
@@ -64,11 +65,12 @@ public class ControllerInput extends SubsystemBase {
         // This is just a basic thing - we can make it more complex if we want for auto or smth
         alignWithTag = controller.getLeftBumperButton();
 
-        /*
+        
         if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
         else if (controller.getLeftTriggerAxis() > 0.75) visionStatus = VisionStatus.LOCKON;
+        else if (controller.getButtonA()) visionStatus = VisionStatus.GET_CORAL;
         else
-        */ 
+        
         visionStatus = VisionStatus.NONE;
     }
 
