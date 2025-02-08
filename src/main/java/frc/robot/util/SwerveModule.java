@@ -193,23 +193,6 @@ public class SwerveModule {
      */
     public SwerveAngleSpeed getAbsoluteTarget(double targetAngle, double currentAngle) {
         
-        double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
-
-        if (angleDiff > 180) {
-            angleDiff -= 360;
-        } else if (angleDiff < -180) {
-            angleDiff += 360;
-        }
-
-        SwerveAngleSpeed speed = new SwerveAngleSpeed();
-        speed.targetAngle = currentAngle + angleDiff;
-        speed.multiplier = 1;
-
-        return speed;
-
-        // targetAngle += 180;
-        // int multiplier = 1;
-
         // double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
 
         // if (angleDiff > 180) {
@@ -218,19 +201,37 @@ public class SwerveModule {
         //     angleDiff += 360;
         // }
 
-        // if (angleDiff < -90){
-        //     angleDiff += 180;
-        //     multiplier = -1;
-        // } else if (angleDiff > 90){
-        //     angleDiff -= 180;
-        //     multiplier = -1;
-        // }
+        // SwerveAngleSpeed speed = new SwerveAngleSpeed();
+        // speed.targetAngle = currentAngle + angleDiff;
+        // speed.multiplier = 1;
 
-        // SwerveAngleSpeed absoluteTarget = new SwerveAngleSpeed();
-        // absoluteTarget.multiplier = multiplier;
-        // absoluteTarget.targetAngle = currentAngle + angleDiff;
+        // return speed;
+
+        // targetAngle += 180;
+
+        int multiplier = 1;
+
+        double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
+
+        if (angleDiff > 180) {
+            angleDiff -= 360;
+        } else if (angleDiff < -180) {
+            angleDiff += 360;
+        }
+
+        if (angleDiff < -90){
+            angleDiff += 180;
+            multiplier = -1;
+        } else if (angleDiff > 90){
+            angleDiff -= 180;
+            multiplier = -1;
+        }
+
+        SwerveAngleSpeed absoluteTarget = new SwerveAngleSpeed();
+        absoluteTarget.multiplier = multiplier;
+        absoluteTarget.targetAngle = currentAngle + angleDiff;
         
-        // return absoluteTarget;
+        return absoluteTarget;
     }
 
     /**
