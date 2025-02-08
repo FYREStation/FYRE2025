@@ -97,7 +97,7 @@ public class SwerveModule {
 
         // configure the drive motor
         driveConfig
-            .inverted(false)
+            .inverted(true)
             .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(30);
 

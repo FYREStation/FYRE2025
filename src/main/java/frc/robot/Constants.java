@@ -91,10 +91,10 @@ public final class Constants {
         public static final double xyI = 10;
         public static final double xyD = 10;
 
-        public static final double turnP = 0.053;
+        public static final double turnP = 0.064;
         public static final double turnI = 0.0;
-        public static final double turnD = 0.0;
-        public static final double turnR = 0.02;
+        public static final double turnD = 0.00005;
+        public static final double turnR = 0.002;
 
         public static final double driveKs = 0.18;
         public static final double driveKv = 3.12;
