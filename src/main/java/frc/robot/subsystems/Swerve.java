@@ -87,7 +87,7 @@ public class Swerve extends SubsystemBase {
             currentPose 
         );
 
-        turnPID.enableContinuousInput(-180, 180);
+        turnPID.enableContinuousInput(-Math.PI, Math.PI);
         turnPID.setSetpoint(0);
     }
 
