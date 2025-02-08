@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriverConstants;
 import frc.robot.util.CameraWebsocketClient;
 import frc.robot.util.CameraWebsocketClient.Apriltag;
 import frc.robot.util.CameraWebsocketClient.Info;
@@ -147,8 +147,8 @@ public class Vision {
         double yMove = (tag.position[0] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         
         return new ChassisSpeeds(
-            DriveConstants.highDriveSpeed * xMove,
-            DriveConstants.highDriveSpeed * yMove,
+            DriverConstants.highDriveSpeed * xMove,
+            DriverConstants.highDriveSpeed * yMove,
             turnSpeed
         );
     }
@@ -177,8 +177,8 @@ public class Vision {
         double yMove = (1/moveDirection)/(moveDirection + 1/moveDirection) * moveSpeed;
         
         return new ChassisSpeeds(
-            DriveConstants.highDriveSpeed * xMove,
-            DriveConstants.highDriveSpeed * yMove,
+            DriverConstants.highDriveSpeed * xMove,
+            DriverConstants.highDriveSpeed * yMove,
             turnSpeed
         );
     }

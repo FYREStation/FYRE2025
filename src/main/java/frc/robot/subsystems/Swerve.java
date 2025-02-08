@@ -1,6 +1,17 @@
 package frc.robot.subsystems;
 
 import choreo.trajectory.SwerveSample;
+import com.revrobotics.REVLibError;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.controller.PIDController;
@@ -11,9 +22,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants;
+import frc.robot.Constants.DriverConstants;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
 import frc.robot.util.SwerveModule;
@@ -31,20 +44,30 @@ public class Swerve extends SubsystemBase {
 
     private final SwerveModule[] swerveModules = new SwerveModule[4];
 
+    private final SparkClosedLoopController[] swervePID = new SparkClosedLoopController[4];
+
     private final SwerveDrivePoseEstimator poseEstimator;
+
     private Pose2d currentPose;
 
-    private final PIDController xController = new PIDController(
-        DriveConstants.xyP, DriveConstants.xyI, DriveConstants.xyD);
-    private final PIDController yController = new PIDController(
-        DriveConstants.xyP, DriveConstants.xyI, DriveConstants.xyD);
+    private final PIDController xController = new PIDController(10, 0, 0);
+    private final PIDController yController = new PIDController(10, 0, 0);
+
     private final PIDController turnPID = new PIDController(
-        DriveConstants.turnP, DriveConstants.turnI, DriveConstants.turnD, DriveConstants.turnR);
+        0.052,
+        0.00,
+        0.00,
+        0.02
+    );
 
     private final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(
-        DriveConstants.frontLeft, DriveConstants.frontRight,
-        DriveConstants.backLeft, DriveConstants.backRight
+        DriverConstants.frontLeft,
+        DriverConstants.frontRight,
+        DriverConstants.backLeft,
+        DriverConstants.backRight
     );
+
+    private double turnTarget = 0;
 
     private double startTime = Timer.getTimestamp();
 
@@ -99,6 +122,11 @@ public class Swerve extends SubsystemBase {
         currentPose = poseEstimator.updateWithTime(
             startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
 
+        System.out.println(currentPose.toString());
+        //System.out.println(gyroAhrs.getRotation2d().toString());
+
+        //System.out.println(swerveModules[0].getSwerveModulePosition());
+
         if (setupComplete) {
             swerveDrive(chooseDriveMode());
         } else setupCheck();
@@ -124,8 +152,7 @@ public class Swerve extends SubsystemBase {
                 );
                 break;
             case GET_CORAL:
-                speeds = visionSystem.getPieceDrive(0);
-                break;
+                speeds = visionSystem.getPieceDrive();
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
                 break;
@@ -146,7 +173,7 @@ public class Swerve extends SubsystemBase {
                         || chassisSpeeds.vyMetersPerSecond != 0 
                         || chassisSpeeds.omegaRadiansPerSecond != 0;
 
-        SwerveDriveKinematics.desaturateWheelSpeeds(moduleState, DriveConstants.highDriveSpeed);
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleState, DriverConstants.highDriveSpeed);
 
         for (int i = 0; i < 4; i++) {
             SwerveModuleState targetState = moduleState[i];
@@ -217,6 +244,7 @@ public class Swerve extends SubsystemBase {
 
     public void resetGyro() {
         gyroAhrs.reset();
+        turnTarget = 0;
     }
 
     /** Prints the states of all 4 swerve modules. */
