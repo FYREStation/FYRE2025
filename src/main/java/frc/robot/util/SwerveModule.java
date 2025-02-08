@@ -12,12 +12,11 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.DriveConstants;
 
 /** A wrapper class to encapsulate a swerve module. */
 public class SwerveModule {
@@ -56,15 +55,15 @@ public class SwerveModule {
         this.index = index;
 
         swerveMotor = new SparkMax(
-            DriverConstants.swerveMotorPorts[index], 
+            DriveConstants.swerveMotorPorts[index], 
             SparkLowLevel.MotorType.kBrushless
         );
         swerveEncoder = swerveMotor.getEncoder();
-        swerveEncoderAbsolute = new DutyCycleEncoder(DriverConstants.encoders[index]);
+        swerveEncoderAbsolute = new DutyCycleEncoder(DriveConstants.encoders[index]);
         swerveConfig = new SparkMaxConfig();
 
         driveMotor = new SparkMax(
-            DriverConstants.driveMotorPorts[index],
+            DriveConstants.driveMotorPorts[index],
             SparkLowLevel.MotorType.kBrushless
         );
         driveEncoder = driveMotor.getEncoder();
@@ -80,8 +79,8 @@ public class SwerveModule {
             .smartCurrentLimit(15);
 
         swerveConfig.encoder
-            .positionConversionFactor(360 / 12.8)
-            .velocityConversionFactor(360 / 12.8);
+            .positionConversionFactor(DriveConstants.swerveRotationToDegrees)
+            .velocityConversionFactor(DriveConstants.swerveRotationToDegrees);
 
         swerveConfig.signals
             .primaryEncoderPositionPeriodMs(20);
@@ -89,10 +88,10 @@ public class SwerveModule {
         swerveConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pidf(
-                DriverConstants.swerveP,
-                DriverConstants.swerveI,
-                DriverConstants.swerveD,
-                DriverConstants.swerveFF
+                DriveConstants.swerveP,
+                DriveConstants.swerveI,
+                DriveConstants.swerveD,
+                DriveConstants.swerveFF
             ).iZone(0)
             .outputRange(-1, 1);
 
@@ -103,8 +102,8 @@ public class SwerveModule {
             .smartCurrentLimit(30);
 
         driveConfig.encoder
-            .positionConversionFactor(1 / 8.14)
-            .velocityConversionFactor(1 / 8.14);
+            .positionConversionFactor(DriveConstants.driveMotorToWheel)
+            .velocityConversionFactor(DriveConstants.driveMotorToWheel);
 
         driveConfig.signals
             .primaryEncoderPositionPeriodMs(50);
@@ -121,7 +120,7 @@ public class SwerveModule {
         REVLibError error = swerveEncoder.setPosition(relativeZero);
 
         swervePID.setReference(
-            DriverConstants.absoluteOffsets[index],
+            DriveConstants.absoluteOffsets[index],
             SparkMax.ControlType.kPosition
         );
         
@@ -164,7 +163,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getSwerveModuleState() {
         return new SwerveModuleState(
-            driveEncoder.getVelocity() * DriverConstants.metersPerRotation,
+            driveEncoder.getVelocity() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }
@@ -176,13 +175,13 @@ public class SwerveModule {
      */
     public SwerveModulePosition getSwerveModulePosition() {
         return new SwerveModulePosition(
-            driveEncoder.getPosition() * DriverConstants.metersPerRotation,
+            driveEncoder.getPosition() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }
 
     public boolean setupCheck() {
-        return Math.abs(swerveEncoder.getPosition() - DriverConstants.absoluteOffsets[index]) > 1.5;
+        return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 1.5;
     }
 
     /**
@@ -254,8 +253,8 @@ public class SwerveModule {
         setMotorSpeed(
             absoluteTarget.multiplier
             * moduleState.speedMetersPerSecond
-            * DriverConstants.speedModifier
-            * (nos ? 2.25 : 1)
+            * DriveConstants.speedModifier
+            * (nos ? DriveConstants.nosBooster : 1)
         );
     }
     
@@ -271,7 +270,7 @@ public class SwerveModule {
             ? 0
             : (velocity - lastMotorSpeed) / (time - lastMotorSetTime);
 
-        double ffv = DriverConstants.driveFeedForward[index].calculateWithVelocities(velocity, 0);
+        double ffv = DriveConstants.driveFeedForward[index].calculateWithVelocities(velocity, 0);
         driveMotor.setVoltage(ffv);
         lastMotorSpeed = velocity;
         lastMotorSetTime = time;

@@ -26,7 +26,7 @@ import java.util.HashMap;
 public final class Constants {
 
     /** A set of constants related to the drivetrain. */
-    public static class DriverConstants {
+    public static class DriveConstants {
 
         public static final int frontLeftSwervePort = 1;
         public static final int frontRightSwervePort = 3;
@@ -71,15 +71,42 @@ public final class Constants {
             344.5
         };
 
-        public static final Translation2d frontLeft = new Translation2d(0.27305, 0.27305);
-        public static final Translation2d frontRight = new Translation2d(0.27305, -0.27305);
-        public static final Translation2d backLeft = new Translation2d(-0.27305, 0.27305);
-        public static final Translation2d backRight = new Translation2d(-0.27305, -0.27305);
+        public static final double metersFromRobotCenter = 0.27305;
+
+        public static final Translation2d frontLeft = new Translation2d(
+            metersFromRobotCenter, metersFromRobotCenter);
+        public static final Translation2d frontRight = new Translation2d(
+            metersFromRobotCenter, -metersFromRobotCenter);
+        public static final Translation2d backLeft = new Translation2d(
+            -metersFromRobotCenter, metersFromRobotCenter);
+        public static final Translation2d backRight = new Translation2d(
+            -metersFromRobotCenter, -metersFromRobotCenter);
 
         public static final double swerveP = 0.032;
         public static final double swerveI = 0.0;
         public static final double swerveD = 0.015;
         public static final double swerveFF = 0;
+
+        public static final double xyP = 10;
+        public static final double xyI = 10;
+        public static final double xyD = 10;
+
+        public static final double turnP = 0.053;
+        public static final double turnI = 0.0;
+        public static final double turnD = 0.0;
+        public static final double turnR = 0.02;
+
+        public static final double driveKs = 0.18;
+        public static final double driveKv = 3.12;
+        public static final double driveKa = 0.18;
+
+        public static final SimpleMotorFeedforward[] driveFeedForward = {
+            new SimpleMotorFeedforward(driveKs, driveKv, driveKa),
+            new SimpleMotorFeedforward(driveKs, driveKv, driveKa),
+            new SimpleMotorFeedforward(driveKs, driveKv, driveKa),
+            new SimpleMotorFeedforward(driveKs, driveKv, driveKa)
+        };
+
 
         public static final double highDriveSpeed = 1;//7.26;
         public static final double speedModifier = 0.75;
@@ -87,12 +114,10 @@ public final class Constants {
         public static final double inchesPerRotation = Math.PI * 3.875;
         public static final double metersPerRotation = Units.inchesToMeters(inchesPerRotation);
 
-        public static final SimpleMotorFeedforward[] driveFeedForward = {
-            new SimpleMotorFeedforward(.18, 3.12, 0.18),
-            new SimpleMotorFeedforward(.18, 3.12, 0.18),
-            new SimpleMotorFeedforward(.18, 3.12, 0.18),
-            new SimpleMotorFeedforward(.18, 3.12, 0.18)
-        };
+        public static final double swerveRotationToDegrees = 360 / 12.8;
+        public static final double driveMotorToWheel = 1 / 8.14;
+
+        public static final double nosBooster = 2.25;
     }
 
     /** A set of constants relating to the elevator. */

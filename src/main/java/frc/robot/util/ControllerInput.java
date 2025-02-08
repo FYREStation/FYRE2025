@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.DriveConstants;
 
 /**
  * A controller object to handle everything involving user input.
@@ -31,6 +31,9 @@ public class ControllerInput extends SubsystemBase {
     private VisionStatus visionStatus;
 
     private XboxController controller;
+
+    // the angle the robot should try to face
+    private double turnTarget = 0;
 
     public ControllerInput(XboxController controller) {
         this.controller = controller;
@@ -68,7 +71,7 @@ public class ControllerInput extends SubsystemBase {
         
         if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
         else if (controller.getLeftTriggerAxis() > 0.75) visionStatus = VisionStatus.LOCKON;
-        else if (controller.getButtonA()) visionStatus = VisionStatus.GET_CORAL;
+        else if (controller.getAButton()) visionStatus = VisionStatus.GET_CORAL;
         else
         
         visionStatus = VisionStatus.NONE;
@@ -81,29 +84,27 @@ public class ControllerInput extends SubsystemBase {
      */
     public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, Rotation2d currentAngle) {
         double turnSpeed = 0;
-        if (false) {
-            // double error = currentAngle;
-            // turnPID.setSetpoint(0);
-            // if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
-            // turnSpeed = 0;
-        } else  {
-            turnSpeed = -theta * 2;//turnPID.calculate(currentAngle, 0);
+
+        if (Math.abs(theta) > 0.05) {
+            turnTarget = currentAngle.getDegrees() + -theta * 2;
         }
+
+        turnSpeed = turnPID.calculate(currentAngle.getDegrees(), turnTarget);
 
         ChassisSpeeds chassisSpeeds;
 
         if (fieldRelative) {
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                -DriverConstants.highDriveSpeed * y,
-                -DriverConstants.highDriveSpeed * x,
+                -DriveConstants.highDriveSpeed * y,
+                -DriveConstants.highDriveSpeed * x,
                 turnSpeed,
                 currentAngle
             );
         } else {
             // If we are not in field relative mode, we are in robot relative mode
             chassisSpeeds = new ChassisSpeeds(
-                -DriverConstants.highDriveSpeed * y,
-                -DriverConstants.highDriveSpeed * x,
+                -DriveConstants.highDriveSpeed * y,
+                -DriveConstants.highDriveSpeed * x,
                 turnSpeed
             );
         }
