@@ -152,7 +152,7 @@ public class Swerve extends SubsystemBase {
                 );
                 break;
             case GET_CORAL:
-                speeds = visionSystem.getPieceDrive();
+                speeds = visionSystem.getPieceDrive(0);
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
                 break;

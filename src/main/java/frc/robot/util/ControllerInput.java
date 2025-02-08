@@ -68,7 +68,7 @@ public class ControllerInput extends SubsystemBase {
         
         if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
         else if (controller.getLeftTriggerAxis() > 0.75) visionStatus = VisionStatus.LOCKON;
-        else if (controller.getButtonA()) visionStatus = VisionStatus.GET_CORAL;
+        else if (controller.getAButton()) visionStatus = VisionStatus.GET_CORAL;
         else
         
         visionStatus = VisionStatus.NONE;
