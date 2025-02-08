@@ -50,6 +50,10 @@ public class Swerve extends SubsystemBase {
 
     private Pose2d currentPose;
 
+    private double accelX;
+    private double accelY;
+    private double accelZ;
+
     private final PIDController turnPID = new PIDController(
         7.52,
         0.01,
@@ -273,5 +277,14 @@ public class Swerve extends SubsystemBase {
         );
 
         swerveDrive(speeds);
+    }
+
+    public double[] getAcceleration() {
+        double acceX = gyroAhrs.getWorldLinearAccelX();
+        double accelY = gyroAhrs.getWorldLinearAccelY();
+        double accelZ = gyroAhrs.getWorldLinearAccelZ();
+        return new double[]{acceX, accelY, accelZ};
+
+
     }
 }
