@@ -1,31 +1,34 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.util.CameraWebsocketClient;
 import frc.robot.util.CameraWebsocketClient.Apriltag;
 import frc.robot.util.CameraWebsocketClient.Info;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class Vision {
     private String ip;
     private ArrayList<CameraWebsocketClient> camClientList = new ArrayList<CameraWebsocketClient>();
-    private HashMap<String, Integer> apriltagAngles;
+    private HashMap<String, Integer[]> apriltagPoses; // Hashmap of [angle, x, y] where angle is the angle of the tag in rads, where 
 
     private PIDController turnPID = new PIDController(0.1, 0.0, 0.0);
     private PIDController movePID = new PIDController(0.1, 0.0, 0.0);
     
-    public Vision(String ipAddress, int[] cameraRotation, HashMap<String, Integer> apriltagAngles) {
+    public Vision(String ipAddress, int[] cameraRotation, HashMap<String, Integer[]> apriltagPoses) {
         // This constructor is not ideal but it works for the example. IRL you would want to use the other constructor so you can still have a list of cameras outside of the Interface.
         // Maybe I will make this the only class that you need to use with the cameras then it will be fine.
         // Camera Rotation is the rotation of each camera in degrees. 0 is the default rotation.
         // Apriltag Angles is a hashmap of the apriltag id to the angle of the tag in degrees. 0 is facing the camera.
 
         this.ip = ipAddress;
-        this.apriltagAngles = apriltagAngles;
+        this.apriltagPoses = apriltagPoses;
         boolean failed = false;
         int i = 0;
         while(!failed) {
@@ -49,8 +52,8 @@ public class Vision {
 
     }
 
-    public Vision(CameraWebsocketClient[] camList, HashMap<String, Integer> apriltagAngles) {
-        this.apriltagAngles = apriltagAngles;
+    public Vision(CameraWebsocketClient[] camList, HashMap<String, Integer[]> apriltagPoses) {
+        this.apriltagPoses = apriltagPoses;
         for(CameraWebsocketClient newCam : camList) {
             if(newCam.isConnected()) {
                 camClientList.add(newCam);
@@ -81,7 +84,8 @@ public class Vision {
             System.out.println(tags.size());
 
             for (CameraWebsocketClient.Apriltag tag : tags) {
-                int tagAngle = apriltagAngles.getOrDefault(tag.tagId, 0);
+                Integer[] tagAngleArray = apriltagPoses.getOrDefault(tag.tagId, new Integer[]{0, 0, 0});
+                int tagAngle = tagAngleArray[0];
                 ZAngle += tagAngle * (180/Math.PI) + cam.getRotation() + tag.orientation[1];
                 numTags++;
                 if(numTags == maxTags) {
@@ -130,27 +134,31 @@ public class Vision {
      * @param tagId - the apriltag ID to search for, null if no preference
      * @return speeds - the ChassisSpeeds object for the robot to take
      */
-    public ChassisSpeeds alignTagSpeeds(int camIndex, String tagId) {
+    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, double cameraHorizontalAngle, double xOffset, double yOffset) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
 
         Apriltag tag;
-        if (tagId != null) tag = decideTag(camIndex, tagId);
+        if (tagIds != null) tag = decideTag(camIndex, tagIds);
         else tag = decideTag(camIndex);
         if(tag == null) return null;
 
-        double turnSpeed = turnPID.calculate(tag.orientation[1]); // This seems to be fine it may need to be negative but idk
+        double turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
         double moveSpeed = movePID.calculate(tag.distance); // I do not know if this is correct - it makes some sense but idk
 
         // Look at this! Max is doing a weird normalization thing again!
-        double xMove = (tag.position[2] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        double yMove = (tag.position[0] / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
+        double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
+        double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         
         return new ChassisSpeeds(
             DriverConstants.highDriveSpeed * xMove,
             DriverConstants.highDriveSpeed * yMove,
             turnSpeed
         );
+    }
+
+    public ChassisSpeeds getTagDrive(int camIndex) {
+        return getTagDrive(camIndex, null, 0, 0, 0);
     }
 
     public ChassisSpeeds getPieceDrive(int camIndex){
@@ -160,11 +168,23 @@ public class Vision {
         if(piece == null) {
             return null;
         }
+        
+        // TODO: Make Astrolabe use rads on piece angle estimation
+        double driveAngleModifier;
+        if (piece.angle > VisionConstants.maxIntakeAngle) {
+            driveAngleModifier = VisionConstants.misallignedPieceOffset / piece.distance; 
+            // This math works in my head. Make the angle larger if the piece is closer, and less when it is farther. 
+            //Asymptotic to 0, so it will always theoretically adjust.
+        } else if (piece.angle < -VisionConstants.maxIntakeAngle) {
+            driveAngleModifier = -VisionConstants.misallignedPieceOffset / piece.distance;
+        } else {
+            driveAngleModifier = 0;
+        }
 
         double turnSpeed = turnPID.calculate(piece.angle);
         double moveSpeed = movePID.calculate(piece.distance);
 
-        double moveDirection = Math.tan(piece.angle + 0.25 * piece.pieceAngle); // The constant part is a guess
+        double moveDirection = Math.tan(piece.angle + cam.getRotation() + driveAngleModifier); 
 
         if (moveDirection == 0) {
             return new ChassisSpeeds(0, moveSpeed, turnSpeed);
@@ -181,6 +201,10 @@ public class Vision {
             DriverConstants.highDriveSpeed * yMove,
             turnSpeed
         );
+    }
+
+    public ChassisSpeeds getPieceDrive(){
+        return getPieceDrive(VisionConstants.pieceDetectionCamIndex);
     }
 
     private Apriltag decideTag(int camIndex) {
@@ -209,26 +233,21 @@ public class Vision {
         return tag;
     }
 
+    private Apriltag decideTag(int camIndex, String tagIds[]) {
+        CameraWebsocketClient cam = camClientList.get(camIndex);
+        List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
+        List<String> tagIdList = Arrays.asList(tagIds);
+        Apriltag bestTag = null;
+        for (Apriltag t : tags) { // This is a weird way to do this but it works - I need to make this more efficient
+            if(tagIdList.contains(t.tagId) && t.distance < bestTag.distance) {
+                bestTag = t;
+            }
+        }
+
+        return bestTag;
+    }
+
     public Info getInfo() {
         return camClientList.get(0).getInfo();
-    }
-
-    public static void main(String[] args){
-        // probably cant use this main function on the bot but I used it to test
-        HashMap<String, Integer> apriltagAngles = new HashMap<>();
-        apriltagAngles.put("tag1", 30);
-        apriltagAngles.put("tag2", 45);
-        apriltagAngles.put("tag3", 60);
-        apriltagAngles.put("tag4", 90);
-
-        int[] cameraRotation = {0, 90, 180, 270};
-
-        Vision robotInterface = new Vision("ws://10.42.0.118", cameraRotation, apriltagAngles);
-
-        while (true) {
-            robotInterface.alignTagSpeeds(0, "13");
-            //System.out.println(Interface.getZAngle());
-        }
-    }
-        
+    }        
 }

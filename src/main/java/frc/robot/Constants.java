@@ -161,7 +161,10 @@ public final class Constants {
         public static final String ipAddress = "ws://10.42.0.123";
         public static final int[] CameraRotations = {0};
         public static HashMap<String, Integer> apriltagAngles = new HashMap<>();
-        
+        public static final double maxIntakeAngle = Math.PI/6;
+        public static final double misallignedPieceOffset = Math.PI/12; // This is the angle to go at when the piece is misaligned and 1m away. It will be adjusted automatically for different angles.
+        public static final int pieceDetectionCamIndex = 0; // Default camera index for piece detection
+
         /** Constructs apriltags angles hashmap. */
         public VisionConstants() {
             apriltagAngles.put("13", 0);
