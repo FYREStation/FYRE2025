@@ -139,7 +139,7 @@ public class Swerve extends SubsystemBase {
 
         switch (status) {
             case ALIGN_TAG: // lines the robot up with the tag
-                speeds = visionSystem.alignTagSpeeds(0, null); 
+                speeds = visionSystem.getTagDrive(0);
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
                 ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(
