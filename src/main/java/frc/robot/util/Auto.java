@@ -26,7 +26,7 @@ public class Auto {
 			swerve::getPose,
 			swerve::resetOdometry, 
             swerve::followTrajectory, 
-            true, 
+            false, 
             swerve
         );
     }
