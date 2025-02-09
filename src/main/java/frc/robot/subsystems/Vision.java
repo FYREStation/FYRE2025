@@ -45,9 +45,9 @@ public class Vision {
             }
         }
 
-        turnPID.disableContinuousInput();
+        turnPID.enableContinuousInput(-180, 180);
         turnPID.setSetpoint(0);
-        movePID.disableContinuousInput();
+        movePID.enableContinuousInput(-180, 180);
         movePID.setSetpoint(0);
 
     }
@@ -61,9 +61,9 @@ public class Vision {
         }
 
         // Erm, what the sigma? IS this corect? I think it is but I am not sure
-        turnPID.disableContinuousInput();
+        turnPID.enableContinuousInput(-180, 180);
         turnPID.setSetpoint(0);
-        movePID.disableContinuousInput();
+        movePID.enableContinuousInput(-180, 180);
         movePID.setSetpoint(0);
     }
 
@@ -203,7 +203,7 @@ public class Vision {
         );
     }
 
-    public ChassisSpeeds getPieceDrive(){
+    public ChassisSpeeds getPieceDrive() {
         return getPieceDrive(VisionConstants.pieceDetectionCamIndex);
     }
 
