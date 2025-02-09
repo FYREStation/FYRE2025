@@ -305,7 +305,7 @@ public class CameraWebsocketClient {
     }
 
     private Piece getPieceFromString(String pMessage) {
-        if (pMessage == null) return null;
+        if (pMessage == null || pMessage.contains("error")) return null;
 
         try {
             JsonObject json = new Gson().fromJson(pMessage, JsonObject.class);

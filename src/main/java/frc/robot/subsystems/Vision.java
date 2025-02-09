@@ -195,7 +195,7 @@ public class Vision {
         }
         double xMove = moveDirection/(moveDirection + 1/moveDirection) * moveSpeed;
         double yMove = (1/moveDirection)/(moveDirection + 1/moveDirection) * moveSpeed;
-        
+        System.out.printf("%f: %f\n", xMove, yMove); 
         return new ChassisSpeeds(
             DriverConstants.highDriveSpeed * xMove,
             DriverConstants.highDriveSpeed * yMove,

@@ -122,11 +122,6 @@ public class Swerve extends SubsystemBase {
         currentPose = poseEstimator.updateWithTime(
             startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
 
-        System.out.println(currentPose.toString());
-        //System.out.println(gyroAhrs.getRotation2d().toString());
-
-        //System.out.println(swerveModules[0].getSwerveModulePosition());
-
         if (setupComplete) {
             swerveDrive(chooseDriveMode());
         } else setupCheck();

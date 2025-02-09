@@ -39,7 +39,7 @@ public class RobotContainer {
     Vision visionSystem = new Vision(
         Constants.VisionConstants.ipAddress, 
         Constants.VisionConstants.CameraRotations, 
-        Constants.VisionConstants.apriltagAngles); 
+        null); 
 
     public Swerve swerve = new Swerve(controller, visionSystem);
 

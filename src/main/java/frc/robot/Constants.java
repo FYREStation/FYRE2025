@@ -158,7 +158,7 @@ public final class Constants {
 
     /** A set of constants relating to vision. */
     public static class VisionConstants {
-        public static final String ipAddress = "ws://10.42.0.123";
+        public static final String ipAddress = "ws://10.54.80.123";
         public static final int[] CameraRotations = {0};
         public static HashMap<String, Integer> apriltagAngles = new HashMap<>();
         public static final double maxIntakeAngle = Math.PI/6;
