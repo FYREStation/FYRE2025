@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -63,7 +64,7 @@ public class Swerve extends SubsystemBase {
         this.visionSystem = visionSystem;
 
         // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
+        this.currentPose = new Pose2d(1.8, 6.3, new Rotation2d(0));
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
@@ -71,8 +72,8 @@ public class Swerve extends SubsystemBase {
         gyroAhrs.reset();
         gyroAhrs.configureVelocity(
             false,
-            true,
-            true,
+            false,
+            false,
             true
         );
 
@@ -87,7 +88,7 @@ public class Swerve extends SubsystemBase {
             currentPose 
         );
 
-        turnPID.enableContinuousInput(-180, 180);
+        turnPID.enableContinuousInput(-Math.PI, Math.PI);
         turnPID.setSetpoint(0);
     }
 
@@ -100,7 +101,7 @@ public class Swerve extends SubsystemBase {
             startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
 
         if (setupComplete) {
-            swerveDrive(chooseDriveMode());
+            //swerveDrive(chooseDriveMode());
         } else setupCheck();
     }
      
@@ -258,8 +259,10 @@ public class Swerve extends SubsystemBase {
             sample.vx + xController.calculate(pose.getX(), sample.x),
             sample.vy + yController.calculate(pose.getY(), sample.y),
             sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
-            Rotation2d.fromDegrees(gyroAhrs.getAngle())
+            gyroAhrs.getRotation2d()
         );
+
+        System.out.println(speeds.omegaRadiansPerSecond);
 
         swerveDrive(speeds);
     }

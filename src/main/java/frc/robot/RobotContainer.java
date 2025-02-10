@@ -66,7 +66,7 @@ public class RobotContainer {
 
         autoChooser.select("MiniFigure8");
 
-        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        //RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 
         // Configure the trigger bindings
         configureBindings();
@@ -99,6 +99,6 @@ public class RobotContainer {
 	 */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return autoChooser.selectedCommand();
+        return autoChooser.selectedCommandScheduler();
     }
 }

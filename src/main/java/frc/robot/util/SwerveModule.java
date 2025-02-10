@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.DriveConstants;
@@ -153,7 +154,9 @@ public class SwerveModule {
     }
 
     public double getAbsolutePosition() {
-        return (swerveEncoderAbsolute.get() * 360);
+        double absolutePosition = (swerveEncoderAbsolute.get() * 360);
+        if (absolutePosition == 0 || absolutePosition == 360) System.out.printf("Module %d's absolute encoder is not connected!\n", index);
+        return absolutePosition;
     }
 
     /**
@@ -175,7 +178,7 @@ public class SwerveModule {
      */
     public SwerveModulePosition getSwerveModulePosition() {
         return new SwerveModulePosition(
-            driveEncoder.getPosition() * DriveConstants.metersPerRotation,
+            -driveEncoder.getPosition() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }

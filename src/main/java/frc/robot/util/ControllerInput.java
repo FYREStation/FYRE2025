@@ -72,9 +72,7 @@ public class ControllerInput extends SubsystemBase {
         if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
         else if (controller.getLeftTriggerAxis() > 0.75) visionStatus = VisionStatus.LOCKON;
         else if (controller.getAButton()) visionStatus = VisionStatus.GET_CORAL;
-        else
-        
-        visionStatus = VisionStatus.NONE;
+        else visionStatus = VisionStatus.NONE;
     }
 
     /**
@@ -86,10 +84,10 @@ public class ControllerInput extends SubsystemBase {
         double turnSpeed = 0;
 
         if (Math.abs(theta) > 0.05) {
-            turnTarget = currentAngle.getDegrees() + -theta * 30;
+            turnTarget = currentAngle.getRadians() + -theta;
         }
 
-        turnSpeed = turnPID.calculate(currentAngle.getDegrees(), turnTarget);
+        turnSpeed = turnPID.calculate(currentAngle.getRadians(), turnTarget);
 
         ChassisSpeeds chassisSpeeds;
 
