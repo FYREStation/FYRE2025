@@ -161,7 +161,7 @@ public class Vision {
         return getTagDrive(camIndex, null, 0, 0, 0);
     }
 
-    public ChassisSpeeds getPieceDrive(int camIndex){
+    public ChassisSpeeds getPieceDrive(int camIndex, double cameraOffsetAngle, double xOffset, double yOffset) {
         CameraWebsocketClient cam = camClientList.get(camIndex);
         CameraWebsocketClient.Piece piece = cam.getPiece();
         
@@ -169,7 +169,6 @@ public class Vision {
             return null;
         }
         
-        // TODO: Make Astrolabe use rads on piece angle estimation
         double driveAngleModifier;
         if (piece.angle > VisionConstants.maxIntakeAngle) {
             driveAngleModifier = VisionConstants.misallignedPieceOffset / piece.distance; 
@@ -181,20 +180,14 @@ public class Vision {
             driveAngleModifier = 0;
         }
 
-        double turnSpeed = turnPID.calculate(piece.angle);
+        double turnSpeed = turnPID.calculate(piece.angle-cameraOffsetAngle);
         double moveSpeed = movePID.calculate(piece.distance);
 
-        double moveDirection = Math.tan(piece.angle + cam.getRotation() + driveAngleModifier); 
+        double moveDirection = piece.angle + cam.getRotation() + driveAngleModifier; 
 
-        if (moveDirection == 0) {
-            return new ChassisSpeeds(0, moveSpeed, turnSpeed);
-        }
+        double xMove = Math.cos(moveDirection) * moveSpeed;
+        double yMove = Math.sin(moveDirection) * moveSpeed;
 
-        if (Math.abs(moveDirection) > 1000){
-            return new ChassisSpeeds(moveSpeed * Math.signum(moveDirection), 0, turnSpeed);
-        }
-        double xMove = moveDirection/(moveDirection + 1/moveDirection) * moveSpeed;
-        double yMove = (1/moveDirection)/(moveDirection + 1/moveDirection) * moveSpeed;
         System.out.printf("%f: %f\n", xMove, yMove); 
         return new ChassisSpeeds(
             DriverConstants.highDriveSpeed * xMove,
@@ -204,7 +197,7 @@ public class Vision {
     }
 
     public ChassisSpeeds getPieceDrive() {
-        return getPieceDrive(VisionConstants.pieceDetectionCamIndex);
+        return getPieceDrive(VisionConstants.pieceDetectionCamIndex, 0, 0, 0);
     }
 
     private Apriltag decideTag(int camIndex) {
