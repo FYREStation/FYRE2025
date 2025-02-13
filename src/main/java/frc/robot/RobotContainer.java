@@ -32,8 +32,8 @@ import frc.robot.util.ControllerInput;
  */
 public class RobotContainer {
 	
-    Joystick joystick = new Joystick(OperatorConstants.driverControllerPort);
-    XboxController xboxController = new XboxController(1);
+    Joystick joystick = new Joystick(OperatorConstants.operatorControllerPort);
+    XboxController xboxController = new XboxController(OperatorConstants.driverControllerPort);
 
     ControllerInput controller = new ControllerInput(xboxController);
     Vision visionSystem = new Vision(
