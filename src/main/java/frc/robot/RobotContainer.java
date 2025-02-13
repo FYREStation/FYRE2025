@@ -20,6 +20,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
 import frc.robot.util.Auto;
 import frc.robot.util.ControllerInput;
+import frc.robot.Dasboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -62,7 +63,7 @@ public class RobotContainer {
         autoChooser.addRoutine("Figure8", auto::figure8);
         autoChooser.addRoutine("MiniFigure8", auto::miniFigure8);
 
-        SmartDashboard.putData(autoChooser);
+        Dasboard dashboard = new Dasboard(swerve, autoChooser);
 
         //autoChooser.select("MiniFigure8");
 
