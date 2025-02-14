@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ClimberControl;
 import frc.robot.commands.IntakeControl;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Vision;
@@ -33,7 +35,7 @@ import frc.robot.util.ControllerInput;
 public class RobotContainer {
 	
     Joystick joystick = new Joystick(OperatorConstants.operatorControllerPort);
-    XboxController xboxController = new XboxController(OperatorConstants.driverControllerPort);
+    CommandXboxController xboxController = new CommandXboxController(OperatorConstants.driverControllerPort);
 
     ControllerInput controller = new ControllerInput(xboxController);
     Vision visionSystem = new Vision(
@@ -43,12 +45,14 @@ public class RobotContainer {
 
     public Swerve swerve = new Swerve(controller, visionSystem);
 
-    // public Intake intake = new Intake();
-    // public IntakeControl intakeControl = new IntakeControl(intake);
+    public Intake intake = new Intake();
+    public IntakeControl intakeControl = new IntakeControl(intake);
+
+    public Climber climber = new Climber();
+    public ClimberControl climberControl = new ClimberControl(climber);
 
     Auto auto = new Auto(swerve);
     final AutoChooser autoChooser;
-
 
     /**
 	 * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -90,6 +94,25 @@ public class RobotContainer {
 	 */
     private void configureBindings() {
 
+        xboxController.a()
+            .onTrue(intakeControl.intakeDown)
+            .onFalse(intakeControl.intakeStop);
+
+        xboxController.y()
+            .onTrue(intakeControl.intakeUp)
+            .onFalse(intakeControl.intakeStop);
+
+        xboxController.b()
+            .onTrue(intakeControl.intakeCoral)
+            .onFalse(intakeControl.stopWheels);
+
+        xboxController.leftBumper()
+            .onTrue(climberControl.release)
+            .onFalse(climberControl.stopClimber);
+
+        xboxController.rightBumper()
+            .onTrue(climberControl.pinch)
+            .onFalse(climberControl.stopClimber);
     }
 
     /**

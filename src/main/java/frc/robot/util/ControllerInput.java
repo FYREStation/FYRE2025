@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriverConstants;
 
 /**
@@ -29,9 +30,9 @@ public class ControllerInput extends SubsystemBase {
 
     private VisionStatus visionStatus;
 
-    private XboxController controller;
+    private CommandXboxController controller;
 
-    public ControllerInput(XboxController controller) {
+    public ControllerInput(CommandXboxController controller) {
         this.controller = controller;
         this.visionStatus = VisionStatus.NONE;
     }
@@ -59,10 +60,10 @@ public class ControllerInput extends SubsystemBase {
         nos = controller.getRightTriggerAxis() > 0.75;
 
         // field relative :)
-        fieldRelative = !controller.getRightBumperButton();
+        //fieldRelative = !controller.getRightBumperButton();
 
         // This is just a basic thing - we can make it more complex if we want for auto or smth
-        alignWithTag = controller.getLeftBumperButton();
+        //alignWithTag = controller.getLeftBumperButton();
 
         /*
         if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
