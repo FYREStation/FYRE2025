@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.DriverConstants;
@@ -193,6 +194,10 @@ public class Vision {
         }
 
         return tag;
+    }
+
+    public int getNumTags(int camIndex) {
+        return camClientList.get(camIndex).getApriltags().size();
     }
 
     private Apriltag decideTag(int camIndex, String tagId) {
