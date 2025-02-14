@@ -22,20 +22,11 @@ public class Claw extends SubsystemBase {
         ClawConstants.clawMotorPort, 
         SparkLowLevel.MotorType.kBrushed
     );
-    private final SparkMax clawWheelMotor = new SparkMax(
-        ClawConstants.clawWheelMotorPort, 
-        SparkLowLevel.MotorType.kBrushed
-    );
-
-    private double rotationsToBottom = ClawConstants.rotationsToBottom;
 
     private final RelativeEncoder clawEncoder = clawMotor.getEncoder();
 
-    private final SparkMaxConfig clawMotorConfig = new SparkMaxConfig();
+    private final SparkMaxConfig clawConfig = new SparkMaxConfig();
 
-    private final RelativeEncoder clawWheelEncoder = clawMotor.getEncoder();
-
-    private final SparkMaxConfig clawWheelMotorConfig = new SparkMaxConfig();
     /**
      * Constructs the claw subsystem and initializes the motor and encoder.
      */
@@ -43,39 +34,23 @@ public class Claw extends SubsystemBase {
         setUpMotor();
 
         clawMotor.configure(
-            clawMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        clawWheelMotor.configure(
-            clawWheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            clawConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     private void setUpMotor() {
         clawEncoder.setPosition(0);
-        // clawWheelEncoder.setPosition(0);  // This position doesn't really matter at all ¯\_(ツ)_/¯ If i'm wrong, uncomment :)
     }
 
-    /* Actuates the claw at a given speed (pinches) */
-    public void pinch(double speed) {
+    /* Runs the intake wheels at the given speed.*/
+    public void intake(double speed) {
         clawMotor.set(speed);
     }
 
-    /* Actuates the claw at a given speed (releases) */
-    public void release(double speed) {
-        clawMotor.set(-speed);
-    }
-    
-    public void stopClaw() {
-        clawMotor.set(0);
-    }
-    /* Runs the intake wheels at the given speed.*/
-    public void intake(double speed) {
-        clawWheelMotor.set(speed);
-    }
-
     public void output(double speed) {
-        clawWheelMotor.set(-speed);
+        clawMotor.set(-speed);
     }
 
     public void stopWheels() {
-        clawWheelMotor.set(0);
+        clawMotor.set(0);
     }
 }

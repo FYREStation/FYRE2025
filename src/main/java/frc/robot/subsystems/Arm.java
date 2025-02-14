@@ -25,7 +25,7 @@ public class Arm extends SubsystemBase {
     private final SparkMaxConfig armMotorConfig = new SparkMaxConfig();
 
     private final RelativeEncoder armEncoder = armMotor.getEncoder();
-// 187.5
+
     private final ArmFeedforward armFeedForward = new ArmFeedforward(
         ArmConstants.staticGain,
         ArmConstants.gravityGain,
@@ -78,8 +78,8 @@ public class Arm extends SubsystemBase {
             // set the setpoint to the controller
             armMotor.set(
                 armController.calculate(
-                    getEncoderDistances(),
-                    armController.getGoal().position
+                    getEncoderDistance(),
+                    armController.getGoal()
                 )
             );
         }
@@ -94,6 +94,7 @@ public class Arm extends SubsystemBase {
 
         armMotor.configure(
             armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     }
 
     public void goToTop() {
@@ -109,16 +110,19 @@ public class Arm extends SubsystemBase {
         armMotor.stopMotor();
     }
 
-    public double getEncoderDistances() {
-        return (armEncoder.getPosition());
-
+    public double getEncoderDistance() {
+        return armEncoder.getPosition();
     }
 
     private void resetEncoders() {
         armEncoder.setPosition(0.0);
-  
     }
 
+    /**
+     * Returns the top state of the arm.
+
+     * @return topState - the top state of the arm
+     */
     public TrapezoidProfile.State getUpState() {
         return topState;
     }
@@ -130,7 +134,6 @@ public class Arm extends SubsystemBase {
      */
     public TrapezoidProfile.State getDownState() {
         return bottomState;
-
     }
 
     /**
@@ -159,6 +162,6 @@ public class Arm extends SubsystemBase {
      */
     protected double getMeasurement() {
         // possibly add an offset here? 
-        return getEncoderDistances();
+        return getEncoderDistance();
     }
 }
