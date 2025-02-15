@@ -77,7 +77,7 @@ public class RobotContainer {
 
         SmartDashboard.putData(autoChooser);
 
-        //autoChooser.select("MiniFigure8");
+        autoChooser.select("MiniFigure8");
 
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 

@@ -18,7 +18,8 @@ public class ControllerInput extends SubsystemBase {
     public enum VisionStatus {
         NONE,
         ALIGN_TAG,
-        LOCKON
+        LOCKON,
+        GET_CORAL
     }
 
     private double x, y, theta;
@@ -34,6 +35,9 @@ public class ControllerInput extends SubsystemBase {
 
     private CommandXboxController controller;
 
+    // the angle the robot should try to face
+    private double turnTarget = 0;
+  
     public ControllerInput(CommandXboxController controller) {
         this.controller = controller;
         this.visionStatus = VisionStatus.NONE;
@@ -65,7 +69,6 @@ public class ControllerInput extends SubsystemBase {
         //fieldRelative = !controller.getRightBumperButton();
 
         // This is just a basic thing - we can make it more complex if we want for auto or smth
-        //alignWithTag = controller.getLeftBumperButton();
 
         if (alignWithTag) visionStatus = VisionStatus.ALIGN_TAG;
         else if (lockOn) visionStatus = VisionStatus.LOCKON;
@@ -77,31 +80,29 @@ public class ControllerInput extends SubsystemBase {
 
      * @return chassisSpeeds - the spped of the robot calclated by the controller
      */
-    public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, double currentAngle) {
+    public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, Rotation2d currentAngle) {
         double turnSpeed = 0;
-        if (Math.abs(theta) < 0.01) {
-            double error = currentAngle;
-            turnPID.setSetpoint(0);
-            if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
-            turnSpeed = 0;
-        } else  {
-            turnSpeed = theta * 2;
+
+        if (Math.abs(theta) > 0.05) {
+            turnTarget = currentAngle.getDegrees() + -theta * 30;
         }
+
+        turnSpeed = turnPID.calculate(currentAngle.getDegrees(), turnTarget);
 
         ChassisSpeeds chassisSpeeds;
 
         if (fieldRelative) {
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                DriverConstants.highDriveSpeed * y,
-                -DriverConstants.highDriveSpeed * x,
+                -DriveConstants.highDriveSpeed * y,
+                -DriveConstants.highDriveSpeed * x,
                 turnSpeed,
-                Rotation2d.fromDegrees(currentAngle)
+                currentAngle
             );
         } else {
             // If we are not in field relative mode, we are in robot relative mode
             chassisSpeeds = new ChassisSpeeds(
-                DriverConstants.highDriveSpeed * y,
-                -DriverConstants.highDriveSpeed * x,
+                -DriveConstants.highDriveSpeed * y,
+                -DriveConstants.highDriveSpeed * x,
                 turnSpeed
             );
         }
@@ -124,7 +125,6 @@ public class ControllerInput extends SubsystemBase {
     public Command toggleLockOn = Commands.runOnce(() -> {
         lockOn = !lockOn;
     });
-
 
     public boolean nos() {return nos;}
     public VisionStatus visionStatus() {return visionStatus;}
