@@ -37,8 +37,12 @@ public class IntakeControl extends Command {
         intake.goUp(0);
     });
 
-    public Command intakeCoral = Commands.runOnce(() -> {
+    public Command suck = Commands.runOnce(() -> {
         intake.intakeCoral(IntakeConstants.intakeWheelThrottle);
+    });
+
+    public Command spit = Commands.runOnce(() -> {
+        intake.intakeCoral(-IntakeConstants.intakeWheelThrottle);
     });
 
     public Command stopWheels = Commands.runOnce(() -> {
