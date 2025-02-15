@@ -9,7 +9,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -79,8 +78,8 @@ public class Arm extends SubsystemBase {
             // set the setpoint to the controller
             armMotor.set(
                 armController.calculate(
-                    getEncoderDistances(),
-                    armController.getGoal().position
+                    getEncoderDistance(),
+                    armController.getGoal()
                 )
             );
         }
@@ -88,6 +87,14 @@ public class Arm extends SubsystemBase {
 
     private void setUpMotors() {
         resetEncoders();
+
+        armMotorConfig.encoder
+            .positionConversionFactor(ArmConstants.motorToArmRatio)
+            .velocityConversionFactor(ArmConstants.motorToArmRatio);
+
+        armMotor.configure(
+            armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     }
 
     public void goToTop() {
@@ -103,16 +110,19 @@ public class Arm extends SubsystemBase {
         armMotor.stopMotor();
     }
 
-    public double getEncoderDistances() {
-        return (armEncoder.getPosition());
-
+    public double getEncoderDistance() {
+        return armEncoder.getPosition();
     }
 
     private void resetEncoders() {
         armEncoder.setPosition(0.0);
-  
     }
 
+    /**
+     * Returns the top state of the arm.
+
+     * @return topState - the top state of the arm
+     */
     public TrapezoidProfile.State getUpState() {
         return topState;
     }
@@ -124,7 +134,6 @@ public class Arm extends SubsystemBase {
      */
     public TrapezoidProfile.State getDownState() {
         return bottomState;
-
     }
 
     /**
@@ -153,6 +162,6 @@ public class Arm extends SubsystemBase {
      */
     protected double getMeasurement() {
         // possibly add an offset here? 
-        return getEncoderDistances();
+        return getEncoderDistance();
     }
 }

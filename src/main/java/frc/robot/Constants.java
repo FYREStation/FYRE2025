@@ -122,35 +122,34 @@ public final class Constants {
 
     /** A set of constants relating to the elevator. */
     public static class ElevatorLiftConstants {
-        public static final int elevatorMotor1Port = -1234567890;
-        public static final int elevatorMotor2Port = -123456789;
-        public static final double maxRotations = -1234567890;
+        public static final int elevatorMotorPort = 11;
+        public static final double rotationsToTop = 10;
         public static final double staticGain = -1234567890;
         public static final double gravityGain = -1234567890;
         public static final double velocityGain = -1234567890;
-        public static final int bottomLimitSwitchPort = -1234567890;
-        public static final int topLimitSwitchPort = -1234567890;
         public static final double kP = -1234567890;
         public static final double kI = -1234567890;
         public static final double kD = -1234567890;
         public static final double maxAcceleration = -1234567890;
         public static final double maxVelocity = -1234567890;
         public static final double elvevatorThrottle = -1234567890;
-        public static final double leadercanID = -1234567890;
-
     }
 
     /** A set of constants relating to the intake. */
     public static class IntakeConstants {
-        public static final int intakeWheelPort = -1234567890;
-        public static final int intakeActuationPort = 12;
-        public static final double rotationsToBottom = -1234567890;
-        public static final int intakeEncoderA = -1234567890;
+        public static final int intakeWheelPort = 9;
+        public static final int intakeActuationPort = 10;
+        public static final double motorToIntakeRatio = 1 / 88;
+        public static final int intakeEncoderA = 8;
+        public static final int intakeEncoderB = 9;
+
+        public static final double intakeActuationThrottle = 0.5;
+        public static final double intakeWheelThrottle = 0.5;
     }
 
     /** A set of constants relating to the arm. */
     public static class ArmConstants {
-        public static final int armPort = -1234567890;
+        public static final int armPort = 12;
         public static final double staticGain = -1234567890;
         public static final double gravityGain = -1234567890;
         public static final double velocityGain = -1234567890;
@@ -161,24 +160,30 @@ public final class Constants {
         public static final double maxVelocity = -1234567890;
         public static final double maxAcceleration = -1234567890;
 
+        public static final double motorToArmRatio = 1 / 187.5;
+
     }
 
     /** A set of constants relating to the claw. */
     public static class ClawConstants {
-        public static final int clawMotorPort = -1234567890;
-        public static final int clawWheelMotorPort = -1234567890;
-        public static final double rotationsToBottom = -1234567890;
+        public static final int clawMotorPort = 13;
+
+        public static final double clawMotorSpeed = 0.5;
     }
 
     /** A set of constants relating to the climber. */
     public static class ClimberConstants {
-        public static final int climberMotorPort = -1234567890;
-        public static final double rotationsToBottom = -1234567890;
+        public static final int climberMotorPort = 14;
+
+        public static final double motorToClimberRatio = 1 / 80;
+
+        public static final double climberThrottle = 0.5;
     }
 
     /** A set of constants relating to operator controls. */
     public static class OperatorConstants {
-        public static final int driverControllerPort = 0;
+        public static final int driverControllerPort = 1;
+        public static final int operatorControllerPort = 0;
     }
 
     /** A set of constants relating to vision. */

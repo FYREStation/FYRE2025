@@ -10,14 +10,6 @@ public class ElevatorLift extends Command {
     // The elevator subsystem
     private Elevator elevator;
 
-    // The state of the calibration sequence
-    private boolean isCalibrating = false;
-
-    // sets the elevator calibation states
-    boolean step1 = false;
-    boolean step2 = false;
-    boolean step3 = false;
-
     /**
      * Creates a new elevator command.
 
@@ -32,32 +24,7 @@ public class ElevatorLift extends Command {
      * Called repeatedly when a command is scheduled.
      */
     @Override
-    public void execute() {
-        if (isCalibrating) {
-            if (!step1) {
-                step1 = elevator.calibrateStep1();
-            } else if (step1 && !step2) {
-                step2 = elevator.calibrateStep2();
-            } else if (step2 && !step3) {
-                step3 = elevator.calibrateStep3();
-            }
-            isCalibrating = !step3;
-            elevator.setCalibrating(isCalibrating);
-        }
-    }
-
-    /**
-     * Calibrates the elevator.
-     */
-    public Command calibrateLiftBounds = Commands.runOnce(() -> {
-        isCalibrating = true;
-        elevator.setCalibrating(isCalibrating);
-    });
-
-    public Command stopCalibration = Commands.runOnce(() -> {
-        isCalibrating = false;
-        elevator.setCalibrating(isCalibrating);
-    });
+    public void execute() {}
 
     /**
      * Sends the elevator to top using PID.
@@ -65,7 +32,6 @@ public class ElevatorLift extends Command {
     public Command goToTop = Commands.runOnce(() -> {
         elevator.goToTop();
     });
-
 
     /**
      * Sends the elevator to the bottom using PID.

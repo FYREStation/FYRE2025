@@ -3,9 +3,11 @@ package frc.robot.util;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.DriverConstants;
 
 /**
  * A controller object to handle everything involving user input.
@@ -25,17 +27,18 @@ public class ControllerInput extends SubsystemBase {
     // enables / disables "full throttle" on the drive wheels
     private boolean nos;
 
-    private boolean fieldRelative;
+    private boolean fieldRelative = true;
     private boolean alignWithTag;
+    private boolean lockOn;
 
     private VisionStatus visionStatus;
 
-    private XboxController controller;
+    private CommandXboxController controller;
 
     // the angle the robot should try to face
     private double turnTarget = 0;
-
-    public ControllerInput(XboxController controller) {
+  
+    public ControllerInput(CommandXboxController controller) {
         this.controller = controller;
         this.visionStatus = VisionStatus.NONE;
     }
@@ -47,7 +50,7 @@ public class ControllerInput extends SubsystemBase {
         y = controller.getLeftY();
 
         // simple deadzone, we can change this to be a circle instead of a square but it doesn't really matter
-        if (Math.abs(x) < 0.15 && Math.abs(y) < 0.05) {
+        if (Math.abs(x) < 0.05 && Math.abs(y) < 0.05) {
             x = 0;
             y = 0;
         }
@@ -63,18 +66,13 @@ public class ControllerInput extends SubsystemBase {
         nos = controller.getRightTriggerAxis() > 0.75;
 
         // field relative :)
-        fieldRelative = !controller.getRightBumperButton();
+        //fieldRelative = !controller.getRightBumperButton();
 
         // This is just a basic thing - we can make it more complex if we want for auto or smth
-        alignWithTag = controller.getLeftBumperButton();
 
-        
-        if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
-        else if (controller.getLeftTriggerAxis() > 0.75) visionStatus = VisionStatus.LOCKON;
-        else if (controller.getAButton()) visionStatus = VisionStatus.GET_CORAL;
-        else
-        
-        visionStatus = VisionStatus.NONE;
+        if (alignWithTag) visionStatus = VisionStatus.ALIGN_TAG;
+        else if (lockOn) visionStatus = VisionStatus.LOCKON;
+        else visionStatus = VisionStatus.NONE;
     }
 
     /**
@@ -112,12 +110,22 @@ public class ControllerInput extends SubsystemBase {
         return chassisSpeeds;
     }
 
-    public double getMagnitude() {return Math.sqrt(x * x + y * y);}
-    public double x() {return x;}
-    public double y() {return y;}
-    public double theta() {return theta;}
+    public Command toggleNos = Commands.runOnce(() -> {
+        nos = !nos;
+    });
+
+    public Command toggleFeildRelative = Commands.runOnce(() -> {
+        fieldRelative = !fieldRelative;
+    });
+
+    public Command toggleAlignTag = Commands.runOnce(() -> {
+        alignWithTag = !alignWithTag;
+    });
+
+    public Command toggleLockOn = Commands.runOnce(() -> {
+        lockOn = !lockOn;
+    });
+
     public boolean nos() {return nos;}
-    public boolean fieldRelative() {return fieldRelative;}
-    public boolean alignWithTag() {return alignWithTag;}
     public VisionStatus visionStatus() {return visionStatus;}
 }
