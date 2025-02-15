@@ -180,15 +180,18 @@ public class Vision {
             driveAngleModifier = 0;
         }
 
+        // TODO: Make sure the negation stuff
+
+        double x = Math.cos(piece.angle + cam.getRotation() + driveAngleModifier) * piece.distance - xOffset;
+        double y = Math.sin(piece.angle + cam.getRotation() + driveAngleModifier) * piece.distance - yOffset;
+        
+
         double turnSpeed = turnPID.calculate(piece.angle-cameraOffsetAngle);
         double moveSpeed = movePID.calculate(piece.distance);
 
-        double moveDirection = piece.angle + cam.getRotation() + driveAngleModifier; 
+        double xMove = (x / Math.sqrt(x*x + y*y)) * moveSpeed;
+        double yMove = (y / Math.sqrt(x*x + y*y)) * moveSpeed;
 
-        double xMove = Math.cos(moveDirection) * moveSpeed;
-        double yMove = Math.sin(moveDirection) * moveSpeed;
-
-        System.out.printf("%f: %f\n", xMove, yMove); 
         return new ChassisSpeeds(
             DriverConstants.highDriveSpeed * xMove,
             DriverConstants.highDriveSpeed * yMove,
@@ -242,5 +245,19 @@ public class Vision {
 
     public Info getInfo() {
         return camClientList.get(0).getInfo();
-    }        
+    }
+    @Override
+    protected void finalize() throws Throwable {
+        // Not sure if this is right
+        // Especially the finalize part
+        try {
+            for (CameraWebsocketClient cam : camClientList) {
+                if (cam.isConnected()) {
+                    cam.disconnect();
+                }
+            }
+        } finally {
+            super.finalize();
+        }
+    }
 }

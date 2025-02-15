@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
@@ -93,7 +94,8 @@ public class CameraWebsocketClient {
                     .buildAsync(URI.create(ip), new WebSocketListener(this))
                     .join();
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            System.out.println("Failed to connect to " + ip);
             return false;
         }
         return isConnected();
@@ -304,6 +306,15 @@ public class CameraWebsocketClient {
         }
     }
 
+    private double parseJsonElementAsDouble(JsonElement element) {
+        // TODO: Implement this with other functions
+        if (element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+            return element.getAsDouble();
+        } else {
+            return Double.NaN;
+        }
+    }
+
     private Piece getPieceFromString(String pMessage) {
         if (pMessage == null || pMessage.contains("error")) return null;
 
@@ -312,18 +323,18 @@ public class CameraWebsocketClient {
             Piece piece = new Piece();
 
             if (json != null && json.size() > 0) {
-                piece.distance = json.get("distance").getAsDouble();
-                piece.angle = json.get("angle").getAsDouble();
+                piece.distance = parseJsonElementAsDouble(json.get("distance"));
+                piece.angle = parseJsonElementAsDouble(json.get("angle"));
                 piece.center = new double[] {
-                    json.get("center").getAsJsonArray().get(0).getAsDouble(),
-                    json.get("center").getAsJsonArray().get(1).getAsDouble()
+                    parseJsonElementAsDouble(json.get("center").getAsJsonArray().get(0)),
+                    parseJsonElementAsDouble(json.get("center").getAsJsonArray().get(1))
                 };
-                piece.pieceAngle = json.get("piece_angle").getAsDouble();
+                piece.pieceAngle = parseJsonElementAsDouble(json.get("piece_angle"));
                 return piece;
             } else return null;
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return new Piece();
         }
     }
 
@@ -364,7 +375,12 @@ public class CameraWebsocketClient {
             return new ArrayList<>();
         }
     }
-
+    public void disconnect() {
+        if (webSocket != null) {
+            webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "Disconnecting")
+                    .thenRun(() -> System.out.println("WebSocket closed"));
+        }
+    }
     private static class WebSocketListener implements Listener {
         private final CameraWebsocketClient client;
 
