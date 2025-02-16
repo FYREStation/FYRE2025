@@ -74,7 +74,7 @@ public class SwerveModule {
 
         // configure the swerve motor
         swerveConfig
-            .inverted(false)
+            .inverted(true)
             .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(15);
 
@@ -163,7 +163,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getSwerveModuleState() {
         return new SwerveModuleState(
-            driveEncoder.getVelocity() * DriveConstants.metersPerRotation,
+            -driveEncoder.getVelocity() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }
@@ -175,13 +175,13 @@ public class SwerveModule {
      */
     public SwerveModulePosition getSwerveModulePosition() {
         return new SwerveModulePosition(
-            driveEncoder.getPosition() * DriveConstants.metersPerRotation,
+            -driveEncoder.getPosition() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }
 
     public boolean setupCheck() {
-        return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 1.5;
+        return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 6.0;
     }
 
     /**
@@ -245,11 +245,15 @@ public class SwerveModule {
         double currentAngle = swerveEncoder.getPosition();
         double targetAngle = moduleState.angle.getDegrees();
 
+        //System.out.printf("%d: %f\n", index, targetAngle);
+
         SwerveAngleSpeed absoluteTarget = getAbsoluteTarget(targetAngle, currentAngle);
 
         if (rotate) {
             swervePID.setReference(absoluteTarget.targetAngle, SparkMax.ControlType.kPosition);
         }
+
+        //System.out.printf("%d: %f\n", index, absoluteTarget.targetAngle);
 
         setMotorSpeed(
             absoluteTarget.multiplier
@@ -271,7 +275,7 @@ public class SwerveModule {
             ? 0
             : (velocity - lastMotorSpeed) / (time - lastMotorSetTime);
 
-        double ffv = DriveConstants.driveFeedForward[index].calculateWithVelocities(velocity, 0);
+        double ffv = DriveConstants.driveFeedForward[index].calculate(velocity);
         driveMotor.setVoltage(ffv);
         lastMotorSpeed = velocity;
         lastMotorSetTime = time;

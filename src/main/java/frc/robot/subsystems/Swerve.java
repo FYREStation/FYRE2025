@@ -14,7 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -75,8 +75,8 @@ public class Swerve extends SubsystemBase {
         gyroAhrs.reset();
         gyroAhrs.configureVelocity(
             false,
-            true,
-            true,
+            false,
+            false,
             true
         );
 
@@ -91,8 +91,7 @@ public class Swerve extends SubsystemBase {
             currentPose 
         );
 
-        turnPID.enableContinuousInput(-180, 180);
-        turnPID.setSetpoint(0);
+        turnPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     @Override
@@ -189,6 +188,7 @@ public class Swerve extends SubsystemBase {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
             if (swerveModules[i].setupCheck()) {
+                //System.out.printf("%d: %f\n", i, swerveModules[i].getSwervePosition() - DriveConstants.absoluteOffsets[i]);
                 return;
             }
         }
@@ -262,7 +262,7 @@ public class Swerve extends SubsystemBase {
             sample.vx + xController.calculate(pose.getX(), sample.x),
             sample.vy + yController.calculate(pose.getY(), sample.y),
             sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
-            Rotation2d.fromDegrees(gyroAhrs.getAngle())
+            gyroAhrs.getRotation2d()
         );
 
         swerveDrive(speeds);

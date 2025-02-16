@@ -14,10 +14,12 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ArmControl;
+import frc.robot.commands.ClawControl;
 import frc.robot.commands.ClimberControl;
 import frc.robot.commands.ElevatorLift;
 import frc.robot.commands.IntakeControl;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
@@ -56,6 +58,9 @@ public class RobotContainer {
 
     public Arm arm = new Arm();
     public ArmControl armControl = new ArmControl(arm);
+
+    public Claw claw = new Claw();
+    public ClawControl clawControl = new ClawControl(claw);
 
     public Climber climber = new Climber();
     public ClimberControl climberControl = new ClimberControl(climber);
@@ -115,6 +120,14 @@ public class RobotContainer {
         xboxController.leftBumper()
             .onChange(controller.toggleLockOn);
 
+        xboxController.y()
+            .onTrue(clawControl.intake)
+            .onFalse(clawControl.stopWheels);
+
+        xboxController.a()
+            .onTrue(clawControl.output)
+            .onFalse(clawControl.stopWheels);
+
         
         // manipulator bindings
         joystick.button(1)
@@ -123,7 +136,7 @@ public class RobotContainer {
 
         joystick.button(2)
             .onTrue(intakeControl.spit)
-            .onFalse(intakeControl.intakeStop);
+            .onFalse(intakeControl.stopWheels);
        
         joystick.button(5)
             .onTrue(intakeControl.intakeUp)
@@ -134,16 +147,20 @@ public class RobotContainer {
             .onFalse(intakeControl.intakeStop);
 
         joystick.button(7)
-            .onTrue(elevatorControl.goToTop);
+            .onTrue(elevatorControl.runMotorForward)
+            .onFalse(elevatorControl.stopMotors);
         
         joystick.button(11)
-            .onTrue(elevatorControl.goToBottom);
+            .onTrue(elevatorControl.runMotorReverse)
+            .onFalse(elevatorControl.stopMotors);
 
         joystick.button(8)
-            .onTrue(armControl.goToTop);
+            .onTrue(armControl.runMotorForwards)
+            .onFalse(armControl.stopMotors);
 
         joystick.button(12)
-            .onTrue(armControl.goToBottom);
+            .onTrue(armControl.runMotorBackward)
+            .onFalse(armControl.stopMotors);
 
         joystick.button(6)
             .onTrue(climberControl.pinch)

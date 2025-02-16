@@ -37,6 +37,14 @@ public class ArmControl extends Command {
         arm.goToBottom();
     });
 
+    public Command runMotorForwards = Commands.runOnce(() -> {
+        arm.runMotorForward();
+    });
+
+    public Command runMotorBackward = Commands.runOnce(() -> {
+        arm.runMotorBackward();
+    });
+
     /**
      * Stops motors using the PID stop and the motor stop.
      */

@@ -3,11 +3,12 @@ package frc.robot.util;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.DriveConstants;
 
 /**
  * A controller object to handle everything involving user input.
@@ -63,7 +64,7 @@ public class ControllerInput extends SubsystemBase {
         }
 
         // NOS :)
-        nos = controller.getRightTriggerAxis() > 0.75;
+        //nos = controller.getRightTriggerAxis() > 0.75;
 
         // field relative :)
         //fieldRelative = !controller.getRightBumperButton();
@@ -84,10 +85,11 @@ public class ControllerInput extends SubsystemBase {
         double turnSpeed = 0;
 
         if (Math.abs(theta) > 0.05) {
-            turnTarget = currentAngle.getDegrees() + -theta * 30;
+            turnTarget = currentAngle.getRadians() + -theta;
         }
 
-        turnSpeed = turnPID.calculate(currentAngle.getDegrees(), turnTarget);
+        turnSpeed = turnPID.calculate(currentAngle.getRadians(), turnTarget);
+        //System.out.println(turnSpeed);
 
         ChassisSpeeds chassisSpeeds;
 

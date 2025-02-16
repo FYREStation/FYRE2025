@@ -105,6 +105,28 @@ public class Arm extends SubsystemBase {
     public void goToBottom() {
         armController.setGoal(bottomState);
     }
+    
+    /**
+     * Runs the motor forward or "up" at the given constant speed.
+     */
+    public void runMotorForward() {
+        if (canMoveUp) {
+            armMotor.set(ArmConstants.armThrottle);
+        } else {
+            armMotor.stopMotor();
+        }
+    }
+
+    /**
+     * Runs the motor backward or "down" at the given constant speed.
+     */
+    public void runMotorBackward() {
+        if (canMoveDown) {
+            armMotor.set(-ArmConstants.armThrottle);
+        } else {
+            armMotor.stopMotor();
+        }
+    }
 
     public void stopMotor() {
         armMotor.stopMotor();
