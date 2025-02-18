@@ -65,19 +65,22 @@ public final class Constants {
         };
 
         public static final double[] absoluteOffsets = {
-            /*
+            /* MK4 module positions
             40.5,
             256.0,
             11.5,
             344.5
             */
+            // MK4i module positions
             13.5,
             253.2,
             280.9,
             71.2
         };
 
-        public static final double metersFromRobotCenter = 0.27305;
+        public static final double inchesFromRobotCenter = 11.75;
+        public static final double metersFromRobotCenter = 
+            Units.inchesToMeters(inchesFromRobotCenter);
 
         public static final Translation2d frontLeft = new Translation2d(
             metersFromRobotCenter, metersFromRobotCenter);
@@ -97,7 +100,7 @@ public final class Constants {
         public static final double xyI = 0;
         public static final double xyD = 0;
 
-        public static final double turnP = 2.048;
+        public static final double turnP = 8.192; // 16384
         public static final double turnI = 0.00000;
         public static final double turnD = 0.0008;
         public static final double turnR = 0.02;
@@ -115,7 +118,7 @@ public final class Constants {
 
 
         public static final double highDriveSpeed = 5.18;
-        public static final double speedModifier = 0.45;
+        public static final double speedModifier = 0.65;
 
         public static final double inchesPerRotation = Math.PI * 3.875;
         public static final double metersPerRotation = Units.inchesToMeters(inchesPerRotation);
@@ -123,19 +126,19 @@ public final class Constants {
         public static final double swerveRotationToDegrees = 360.0 / (150.0 / 7.0);
         public static final double driveMotorToWheel = 1 / 6.12;
 
-        public static final double nosBooster = 2.25;
+        public static final double nosBooster = 5.25;
     }
 
     /** A set of constants relating to the elevator. */
     public static class ElevatorLiftConstants {
         public static final int elevatorMotorPort = 11;
         public static final double rotationsToTop = 58; // could increase, hypothetically can go to 60.5
-        public static final double staticGain = 1;
-        public static final double gravityGain = 1;
-        public static final double velocityGain = 1;
-        public static final double kP = 1;
-        public static final double kI = 1;
-        public static final double kD = 1;
+        public static final double staticGain = 0;
+        public static final double gravityGain = 0;
+        public static final double velocityGain = 0;
+        public static final double kP = 0;
+        public static final double kI = 0;
+        public static final double kD = 0;
         public static final double maxAcceleration = 1;
         public static final double maxVelocity = 1;
         public static final double elvevatorThrottle = 0.5;
@@ -157,14 +160,14 @@ public final class Constants {
     public static class ArmConstants {
         public static final int armPort = 12;
         public static final double staticGain = 1;
-        public static final double gravityGain = 1;
-        public static final double velocityGain = 1;
+        public static final double gravityGain = 3.65;
+        public static final double velocityGain = 0.02;
         public static final double kP = 1;
-        public static final double kI = 1;
-        public static final double kD = 1;
-        public static final double maxRotations = 1;
-        public static final double maxVelocity = 1;
-        public static final double maxAcceleration = 1;
+        public static final double kI = 0.5;
+        public static final double kD = 0.1;
+        public static final double maxRotations = 0.5;
+        public static final double maxVelocity = 3;
+        public static final double maxAcceleration = 5;
 
         public static final double armThrottle = 0.35;
 

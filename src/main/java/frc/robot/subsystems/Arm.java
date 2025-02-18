@@ -47,7 +47,7 @@ public class Arm extends SubsystemBase {
         0
     );
 
-    private boolean manualOverride = false;
+    private boolean manualOverride = true;
     private boolean canMoveUp = true;
     private boolean canMoveDown = true;
 
@@ -66,8 +66,6 @@ public class Arm extends SubsystemBase {
      */
     public Arm() {
         setUpMotors();
-        armMotor.configure(
-            armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);    
     }
 
     @Override
@@ -87,6 +85,9 @@ public class Arm extends SubsystemBase {
 
     private void setUpMotors() {
         resetEncoders();
+
+        armMotorConfig
+            .inverted(true);
 
         armMotorConfig.encoder
             .positionConversionFactor(ArmConstants.motorToArmRatio)

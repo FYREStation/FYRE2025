@@ -6,6 +6,7 @@ package frc.robot;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
@@ -50,8 +51,10 @@ public class RobotContainer {
 
     public Swerve swerve = new Swerve(controller, visionSystem);
 
+    /*
     public Intake intake = new Intake();
     public IntakeControl intakeControl = new IntakeControl(intake);
+    */
 
     public Elevator elevator = new Elevator();
     public ElevatorLift elevatorControl = new ElevatorLift(elevator);
@@ -111,40 +114,23 @@ public class RobotContainer {
         xboxController.rightTrigger(0.75)
             .onChange(controller.toggleNos);
 
-        xboxController.rightBumper()
-            .onChange(controller.toggleAlignTag);
-
         xboxController.leftTrigger(0.75)
             .onChange(controller.toggleFeildRelative);
 
-        xboxController.leftBumper()
+        xboxController.a()
             .onChange(controller.toggleLockOn);
 
-        xboxController.y()
+        xboxController.b()
+            .onChange(controller.toggleAlignTag);
+
+        // manipulator bindings
+        joystick.button(1)
             .onTrue(clawControl.intake)
             .onFalse(clawControl.stopWheels);
 
-        xboxController.a()
+        joystick.button(2)
             .onTrue(clawControl.output)
             .onFalse(clawControl.stopWheels);
-
-        
-        // manipulator bindings
-        joystick.button(1)
-            .onTrue(intakeControl.suck)
-            .onFalse(intakeControl.stopWheels);
-
-        joystick.button(2)
-            .onTrue(intakeControl.spit)
-            .onFalse(intakeControl.stopWheels);
-       
-        joystick.button(5)
-            .onTrue(intakeControl.intakeUp)
-            .onFalse(intakeControl.intakeStop);
-
-        joystick.button(3)
-            .onTrue(intakeControl.intakeDown)
-            .onFalse(intakeControl.intakeStop);
 
         joystick.button(7)
             .onTrue(elevatorControl.runMotorForward)
@@ -154,11 +140,11 @@ public class RobotContainer {
             .onTrue(elevatorControl.runMotorReverse)
             .onFalse(elevatorControl.stopMotors);
 
-        joystick.button(8)
+        joystick.button(5)
             .onTrue(armControl.runMotorForwards)
             .onFalse(armControl.stopMotors);
 
-        joystick.button(12)
+        joystick.button(3)
             .onTrue(armControl.runMotorBackward)
             .onFalse(armControl.stopMotors);
 

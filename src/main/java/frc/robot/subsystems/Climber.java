@@ -31,6 +31,7 @@ public class Climber extends SubsystemBase {
         setUpMotor();
 
         climberMotorConfig
+            .inverted(true)
             .idleMode(IdleMode.kBrake);
 
         climberMotorConfig.encoder

@@ -63,14 +63,6 @@ public class ControllerInput extends SubsystemBase {
             theta = 0;
         }
 
-        // NOS :)
-        //nos = controller.getRightTriggerAxis() > 0.75;
-
-        // field relative :)
-        //fieldRelative = !controller.getRightBumperButton();
-
-        // This is just a basic thing - we can make it more complex if we want for auto or smth
-
         if (alignWithTag) visionStatus = VisionStatus.ALIGN_TAG;
         else if (lockOn) visionStatus = VisionStatus.LOCKON;
         else visionStatus = VisionStatus.NONE;
