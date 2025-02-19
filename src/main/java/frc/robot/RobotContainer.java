@@ -111,7 +111,7 @@ public class RobotContainer {
     private void configureBindings() {
 
         // driver bindings 
-        xboxController.rightTrigger(0.75)
+        xboxController.start()
             .onChange(controller.toggleNos);
 
         xboxController.leftTrigger(0.75)

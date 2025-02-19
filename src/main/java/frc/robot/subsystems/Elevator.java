@@ -83,8 +83,11 @@ public class Elevator extends SubsystemBase {
         // check if the controller is not yet at it's goal and the manual override is not active
         if (!(controller.atGoal() || manualOverride)) { 
             // set the setpoint to the controller
-            elevatorMotor.set(
-                controller.calculate(
+            elevatorMotor.setVoltage(
+                elevatorFeedForward.calculate(
+                    getEncoderDistances(),
+                    controller.getGoal().position) 
+                + controller.calculate(
                     getEncoderDistances(),
                     controller.getGoal()
                 )
@@ -98,6 +101,10 @@ public class Elevator extends SubsystemBase {
 
         elevatorMotorConfig
             .inverted(true);
+
+        elevatorMotorConfig.encoder
+            .positionConversionFactor(ElevatorLiftConstants.motorToElevatorRatio)
+            .velocityConversionFactor(ElevatorLiftConstants.motorToElevatorRatio);
 
         elevatorMotor.configure(
             elevatorMotorConfig, 

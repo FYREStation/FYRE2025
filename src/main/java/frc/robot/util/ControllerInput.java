@@ -23,7 +23,7 @@ public class ControllerInput extends SubsystemBase {
         GET_CORAL
     }
 
-    private double x, y, theta;
+    private double x, y, theta, throttle;
 
     // enables / disables "full throttle" on the drive wheels
     private boolean nos;
@@ -61,6 +61,13 @@ public class ControllerInput extends SubsystemBase {
 
         if (Math.abs(theta) < 0.05) {
             theta = 0;
+        }
+
+        // controls the speed at which the robot moves
+        throttle = controller.getRightTriggerAxis();
+
+        if (throttle < 0.1) {
+            //throttle = 0.1;
         }
 
         if (alignWithTag) visionStatus = VisionStatus.ALIGN_TAG;
@@ -121,5 +128,6 @@ public class ControllerInput extends SubsystemBase {
     });
 
     public boolean nos() {return nos;}
+    public double throttle() {return throttle;}
     public VisionStatus visionStatus() {return visionStatus;}
 }

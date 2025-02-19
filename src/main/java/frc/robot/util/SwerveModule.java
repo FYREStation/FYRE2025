@@ -240,8 +240,9 @@ public class SwerveModule {
      * @param moduleState - the module state for this module to use
      * @param rotate - whether or not we need to try to rotate
      * @param nos - if NOS (high drive mode) is enabled
+     * @param throttle - the speed at which the modules should drive
      */
-    public void driveModule(SwerveModuleState moduleState, boolean rotate, boolean nos) {
+    public void driveModule(SwerveModuleState moduleState, boolean rotate, boolean nos, double throttle) {
         double currentAngle = swerveEncoder.getPosition();
         double targetAngle = moduleState.angle.getDegrees();
 
@@ -259,6 +260,7 @@ public class SwerveModule {
             absoluteTarget.multiplier
             * moduleState.speedMetersPerSecond
             * DriveConstants.speedModifier
+            * throttle
             * (nos ? DriveConstants.nosBooster : 1)
         );
     }

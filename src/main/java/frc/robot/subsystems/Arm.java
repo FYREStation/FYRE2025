@@ -74,8 +74,11 @@ public class Arm extends SubsystemBase {
         // check if the controller is not yet at it's goal and the manual override is not active
         if (!(armController.atGoal() || manualOverride)) { 
             // set the setpoint to the controller
-            armMotor.set(
-                armController.calculate(
+            armMotor.setVoltage(
+                armFeedForward.calculate(
+                    getEncoderDistance(),
+                    armController.getGoal().position)
+                + armController.calculate(
                     getEncoderDistance(),
                     armController.getGoal()
                 )

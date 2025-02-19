@@ -153,7 +153,7 @@ public class Swerve extends SubsystemBase {
 
         for (int i = 0; i < 4; i++) {
             SwerveModuleState targetState = moduleState[i];
-            swerveModules[i].driveModule(targetState, rotate, controllerInput.nos());
+            swerveModules[i].driveModule(targetState, rotate, controllerInput.nos(), controllerInput.throttle());
         }
     }
 
