@@ -52,7 +52,7 @@ public class Elevator extends SubsystemBase {
     );
     
     // variable to control if the driver needs to manually ovveride the elevator
-    private boolean manualOverride = true;
+    private boolean manualOverride = false;
 
     // variables to keep track of if elevator can move up and down
     private boolean canMoveUp = true;
@@ -92,7 +92,12 @@ public class Elevator extends SubsystemBase {
                     controller.getGoal()
                 )
             );
+        } else {
+            elevatorMotor.set(0);
         }
+
+        System.out.println(getEncoderDistances());
+
     }
 
     //sets up the motors at the beginning of the program

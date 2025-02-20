@@ -82,10 +82,11 @@ public class RobotContainer {
 
         autoChooser.addRoutine("Figure8", auto::figure8);
         autoChooser.addRoutine("MiniFigure8", auto::miniFigure8);
+        autoChooser.addRoutine("Dummy1", auto::real);
 
         SmartDashboard.putData(autoChooser);
 
-        autoChooser.select("MiniFigure8");
+        autoChooser.select("Dummy1");
 
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 
@@ -133,20 +134,24 @@ public class RobotContainer {
             .onFalse(clawControl.stopWheels);
 
         joystick.button(7)
-            .onTrue(elevatorControl.runMotorForward)
-            .onFalse(elevatorControl.stopMotors);
+            .onTrue(elevatorControl.goToTop);
+            // .onTrue(elevatorControl.runMotorForward)
+            // .onFalse(elevatorControl.stopMotors);
         
         joystick.button(11)
-            .onTrue(elevatorControl.runMotorReverse)
-            .onFalse(elevatorControl.stopMotors);
+            .onTrue(elevatorControl.goToBottom);
+            // .onTrue(elevatorControl.runMotorReverse)
+            // .onFalse(elevatorControl.stopMotors);
 
         joystick.button(5)
-            .onTrue(armControl.runMotorForwards)
-            .onFalse(armControl.stopMotors);
+            .onTrue(armControl.goToTop);
+            // .onTrue(armControl.runMotorForwards)
+            // .onFalse(armControl.stopMotors);
 
         joystick.button(3)
-            .onTrue(armControl.runMotorBackward)
-            .onFalse(armControl.stopMotors);
+            .onFalse(armControl.goToBottom);
+            // .onTrue(armControl.runMotorBackward)
+            // .onFalse(armControl.stopMotors);
 
         joystick.button(6)
             .onTrue(climberControl.pinch)

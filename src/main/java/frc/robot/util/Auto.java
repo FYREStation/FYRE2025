@@ -31,12 +31,28 @@ public class Auto {
         );
     }
 
+    // runs the dummy minifigure8 routine
+    public AutoRoutine real() {
+        AutoRoutine figure8 = autoFactory.newRoutine("dummy1");
+
+        AutoTrajectory figure8Trajectory = figure8.trajectory("Dummy 1");
+
+        figure8.active().onTrue(
+            Commands.sequence(
+                figure8Trajectory.resetOdometry(),
+                figure8Trajectory.cmd()
+            )
+        );
+
+        return figure8;
+    }
+
     
     // runs the dummy minifigure8 routine
     public AutoRoutine miniFigure8() {
-        AutoRoutine figure8 = autoFactory.newRoutine("miniFigure8");
+        AutoRoutine figure8 = autoFactory.newRoutine("simpleMini8");
 
-        AutoTrajectory figure8Trajectory = figure8.trajectory("MiniFigure8");
+        AutoTrajectory figure8Trajectory = figure8.trajectory("SimpleMini8");
 
         figure8.active().onTrue(
             Commands.sequence(

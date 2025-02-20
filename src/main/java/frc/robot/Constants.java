@@ -96,7 +96,7 @@ public final class Constants {
         public static final double swerveD = 0.015;
         public static final double swerveFF = 0.0;
 
-        public static final double xyP = 10;
+        public static final double xyP = 10.05;
         public static final double xyI = 0;
         public static final double xyD = 0;
 
@@ -118,7 +118,7 @@ public final class Constants {
 
 
         public static final double highDriveSpeed = 5.18;
-        public static final double speedModifier = 0.65;
+        public static final double speedModifier = 1;//0.65;
 
         public static final double inchesPerRotation = Math.PI * 3.875;
         public static final double metersPerRotation = Units.inchesToMeters(inchesPerRotation);
@@ -132,20 +132,18 @@ public final class Constants {
     /** A set of constants relating to the elevator. */
     public static class ElevatorLiftConstants {
         public static final int elevatorMotorPort = 11;
-        public static final double rotationsToTop = 6.82;
-        public static final double staticGain = 0;
-        public static final double gravityGain = 0;
-        public static final double velocityGain = 0;
-        public static final double kP = 0;
+        public static final double rotationsToTop = 4;//6.82;
+        public static final double staticGain = 0.50;
+        public static final double gravityGain = 0.71;
+        public static final double velocityGain = 1.338;
+        public static final double kP = 2.5;
         public static final double kI = 0;
         public static final double kD = 0;
-        public static final double maxAcceleration = 1;
-        public static final double maxVelocity = 1;
+        public static final double maxAcceleration = 15;
+        public static final double maxVelocity = 3;
         public static final double elvevatorThrottle = 0.2;
 
         public static final double motorToElevatorRatio = 22.0 / (12.0 * 16.0);
-        // 12 : 1
-        // 16 : 22
     }
 
     /** A set of constants relating to the intake. */
@@ -163,15 +161,15 @@ public final class Constants {
     /** A set of constants relating to the arm. */
     public static class ArmConstants {
         public static final int armPort = 12;
-        public static final double staticGain = 1;
-        public static final double gravityGain = 3.65;
-        public static final double velocityGain = 0.02;
-        public static final double kP = 1;
-        public static final double kI = 0.5;
-        public static final double kD = 0.1;
+        public static final double staticGain = 0.30;
+        public static final double gravityGain = 0.20;
+        public static final double velocityGain = 3.65;
+        public static final double kP = 6.4;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
         public static final double maxRotations = 0.5;
-        public static final double maxVelocity = 3;
-        public static final double maxAcceleration = 5;
+        public static final double maxVelocity = 78;
+        public static final double maxAcceleration = 25;
 
         public static final double armThrottle = 0.35;
 

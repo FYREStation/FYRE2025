@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
@@ -67,7 +68,7 @@ public class Swerve extends SubsystemBase {
         this.visionSystem = visionSystem;
 
         // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
+        this.currentPose = new Pose2d(7.001, 2.542, new Rotation2d(0));
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
@@ -102,8 +103,11 @@ public class Swerve extends SubsystemBase {
         currentPose = poseEstimator.updateWithTime(
             startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
 
+        //System.out.println(currentPose.toString());
+
         if (setupComplete) {
-            swerveDrive(chooseDriveMode());
+            if (!DriverStation.isAutonomousEnabled())
+                swerveDrive(chooseDriveMode());
         } else setupCheck();
     }
      

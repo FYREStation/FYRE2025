@@ -163,7 +163,7 @@ public class SwerveModule {
      */
     public SwerveModuleState getSwerveModuleState() {
         return new SwerveModuleState(
-            -driveEncoder.getVelocity() * DriveConstants.metersPerRotation,
+            driveEncoder.getVelocity() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }
@@ -175,7 +175,7 @@ public class SwerveModule {
      */
     public SwerveModulePosition getSwerveModulePosition() {
         return new SwerveModulePosition(
-            -driveEncoder.getPosition() * DriveConstants.metersPerRotation,
+            driveEncoder.getPosition() * DriveConstants.metersPerRotation,
             Rotation2d.fromDegrees(swerveEncoder.getPosition())
         );
     }
@@ -260,7 +260,7 @@ public class SwerveModule {
             absoluteTarget.multiplier
             * moduleState.speedMetersPerSecond
             * DriveConstants.speedModifier
-            * throttle
+            //* throttle
             * (nos ? DriveConstants.nosBooster : 1)
         );
     }
