@@ -33,6 +33,10 @@ public class ClawControl extends Command {
         claw.output(ClawConstants.clawMotorSpeed);
     });
 
+    public Command slowHold = Commands.runOnce(() -> {
+        claw.intake(0.25*ClawConstants.clawMotorSpeed);
+    });
+
     public Command stopWheels = Commands.runOnce(() -> {
         claw.stopWheels();
     });

@@ -133,6 +133,10 @@ public class RobotContainer {
             .onTrue(clawControl.output)
             .onFalse(clawControl.stopWheels);
 
+        joystick.button(12)
+            .onTrue(clawControl.slowHold)
+            .onFalse(clawControl.stopWheels);
+
         joystick.button(7)
             .onTrue(elevatorControl.goToTop);
             // .onTrue(elevatorControl.runMotorForward)
