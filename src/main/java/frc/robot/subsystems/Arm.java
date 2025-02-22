@@ -47,7 +47,7 @@ public class Arm extends SubsystemBase {
         0
     );
 
-    private boolean manualOverride = false;
+    private boolean manualOverride = true;
     private boolean canMoveUp = true;
     private boolean canMoveDown = true;
 
@@ -84,7 +84,7 @@ public class Arm extends SubsystemBase {
                 )
             );
         } else {
-            armMotor.set(0);
+            //armMotor.set(0);
         }
     }
 

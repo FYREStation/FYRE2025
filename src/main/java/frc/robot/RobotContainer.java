@@ -138,20 +138,23 @@ public class RobotContainer {
             // .onTrue(elevatorControl.runMotorForward)
             // .onFalse(elevatorControl.stopMotors);
         
+        joystick.button(9)
+            .onFalse(elevatorControl.goToMid);
+        
         joystick.button(11)
             .onTrue(elevatorControl.goToBottom);
             // .onTrue(elevatorControl.runMotorReverse)
             // .onFalse(elevatorControl.stopMotors);
 
         joystick.button(5)
-            .onTrue(armControl.goToTop);
-            // .onTrue(armControl.runMotorForwards)
-            // .onFalse(armControl.stopMotors);
+            // .onTrue(armControl.goToTop);
+            .onTrue(armControl.runMotorForwards)
+            .onFalse(armControl.stopMotors);
 
         joystick.button(3)
-            .onFalse(armControl.goToBottom);
-            // .onTrue(armControl.runMotorBackward)
-            // .onFalse(armControl.stopMotors);
+            // .onFalse(armControl.goToBottom);
+            .onTrue(armControl.runMotorBackward)
+            .onFalse(armControl.stopMotors);
 
         joystick.button(6)
             .onTrue(climberControl.pinch)

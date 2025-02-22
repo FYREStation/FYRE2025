@@ -132,9 +132,10 @@ public final class Constants {
     /** A set of constants relating to the elevator. */
     public static class ElevatorLiftConstants {
         public static final int elevatorMotorPort = 11;
-        public static final double rotationsToTop = 4;//6.82;
+        public static final double rotationsToTop = 6.82;
+        public static final double rotationsToMid = 5;
         public static final double staticGain = 0.50;
-        public static final double gravityGain = 0.71;
+        public static final double gravityGain = 0.41;
         public static final double velocityGain = 1.338;
         public static final double kP = 2.5;
         public static final double kI = 0;

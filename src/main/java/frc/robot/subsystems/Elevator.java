@@ -14,6 +14,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorLiftConstants;
 
 /**
@@ -46,6 +47,12 @@ public class Elevator extends SubsystemBase {
         0,
         0
     );
+
+    private TrapezoidProfile.State middleState = new TrapezoidProfile.State(
+        ElevatorLiftConstants.rotationsToMid,
+        0
+    );
+
     private TrapezoidProfile.State topState = new TrapezoidProfile.State(
         rotationsToTop,
         0
@@ -81,7 +88,7 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(controller.atGoal() || manualOverride)) { 
+        if (!(Math.abs(getEncoderDistances() - controller.getGoal().position) > 0.05|| manualOverride)) { 
             // set the setpoint to the controller
             elevatorMotor.setVoltage(
                 elevatorFeedForward.calculate(
@@ -121,6 +128,10 @@ public class Elevator extends SubsystemBase {
     //sets the goal to the top state of the elevator
     public void goToTop() {
         controller.setGoal(topState);
+    }
+
+    public void goToMid() {
+        controller.setGoal(middleState);
     }
     
     //sets the goal to the bottom state of the elevator
