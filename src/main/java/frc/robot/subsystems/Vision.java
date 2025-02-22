@@ -146,7 +146,6 @@ public class Vision {
         double turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
         double moveSpeed = movePID.calculate(tag.distance); // I do not know if this is correct - it makes some sense but idk
 
-        // Look at this! Max is doing a weird normalization thing again!
         double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         
@@ -189,6 +188,7 @@ public class Vision {
         double turnSpeed = turnPID.calculate(piece.angle-cameraOffsetAngle);
         double moveSpeed = movePID.calculate(piece.distance);
 
+        // Chat I did alg 1 level math lets goooo
         double xMove = (x / Math.sqrt(x*x + y*y)) * moveSpeed;
         double yMove = (y / Math.sqrt(x*x + y*y)) * moveSpeed;
 
