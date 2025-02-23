@@ -7,11 +7,13 @@ import java.util.List;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.Robot;
 import frc.robot.Constants.DriverConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.CameraWebsocketClient;
 import frc.robot.util.CameraWebsocketClient.Apriltag;
 import frc.robot.util.CameraWebsocketClient.Info;
+
 
 public class Vision {
     public static enum Side {FRONT, LEFT, BACK, RIGHT}
@@ -22,6 +24,40 @@ public class Vision {
 
     private PIDController turnPID = new PIDController(0.1, 0.0, 0.0);
     private PIDController movePID = new PIDController(0.1, 0.0, 0.0);
+    public static class CameraPair{
+        public int cam1;
+        public int cam2;
+
+        public double cam1Angle;
+        public double cam2Angle;
+
+        public double cam1XOffset;
+        public double cam1YOffset;
+
+        public double cam2XOffset;
+        public double cam2YOffset;
+        public CameraPair(int cam1, int cam2, double cam1Angle, double cam2Angle, double cam1XOffset, double cam1YOffset, double cam2XOffset, double cam2YOffset) {
+            this.cam1 = cam1;
+            this.cam2 = cam2;
+            this.cam1Angle = cam1Angle;
+            this.cam2Angle = cam2Angle;
+            this.cam1XOffset = cam1XOffset;
+            this.cam1YOffset = cam1YOffset;
+            this.cam2XOffset = cam2XOffset;
+            this.cam2YOffset = cam2YOffset;
+        }
+    }
+    public static class RobotPositionOffset{
+        public double xOffset;
+        public double yOffset;
+        public double angleOffset;
+
+        public RobotPositionOffset(double xOffset, double yOffset, double angleOffset) {
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+            this.angleOffset = angleOffset;
+        }
+    }
     
     public Vision(String ipAddress, int[] cameraRotation, HashMap<String, Integer[]> apriltagPoses) {
         // This constructor is not ideal but it works for the example. IRL you would want to use the other constructor so you can still have a list of cameras outside of the Interface.
@@ -164,6 +200,7 @@ public class Vision {
         double turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
         double moveSpeed = movePID.calculate(tag.distance); // I do not know if this is correct - it makes some sense but idk
 
+        // Look at this! Max is doing a weird normalization thing again!
         double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         
@@ -175,6 +212,30 @@ public class Vision {
 
     public ChassisSpeeds getTagDrive(int camIndex) {
         return getTagDrive(camIndex, null, Side.BACK, 0, 0, 0);
+    }
+
+    public ChassisSpeeds getTagDrive(CameraPair cams, String[] tagIds, Side side, RobotPositionOffset offsets) {
+        // The position is returned as a 3 element array of doubles in the form [x, y, z]
+        // The position is in meters.
+
+        double angleOffset = offsets.angleOffset;
+        double xOffset = offsets.xOffset;
+        double yOffset = offsets.yOffset;
+
+        ChassisSpeeds cam1Speed = getTagDrive(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
+        ChassisSpeeds cam2Speed = getTagDrive(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
+        if (cam1Speed == null){
+            return cam2Speed;
+        }
+        if (cam2Speed == null){
+            return cam1Speed;
+        }
+        
+        return new ChassisSpeeds(
+            (cam1Speed.vxMetersPerSecond + cam2Speed.vxMetersPerSecond) / 2,
+            (cam1Speed.vyMetersPerSecond + cam2Speed.vyMetersPerSecond) / 2,
+            (cam1Speed.omegaRadiansPerSecond + cam2Speed.omegaRadiansPerSecond) / 2
+        );
     }
 
     public ChassisSpeeds getPieceDrive(int camIndex, double cameraOffsetAngle, double xOffset, double yOffset) {
@@ -203,7 +264,6 @@ public class Vision {
         double turnSpeed = turnPID.calculate(piece.angle-cameraOffsetAngle);
         double moveSpeed = movePID.calculate(piece.distance);
 
-        // Chat I did alg 1 level math lets goooo
         double xMove = (x / Math.sqrt(x*x + y*y)) * moveSpeed;
         double yMove = (y / Math.sqrt(x*x + y*y)) * moveSpeed;
 
@@ -254,7 +314,10 @@ public class Vision {
         CameraWebsocketClient cam = camClientList.get(camIndex);
         List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
         List<String> tagIdList = Arrays.asList(tagIds);
-        Apriltag bestTag = tags.get(1);
+        if (tags.size() == 0) {
+            return null;
+        }
+        Apriltag bestTag = tags.getFirst();
         for (Apriltag t : tags) { // This is a weird way to do this but it works - I need to make this more efficient
             if(tagIdList.contains(t.tagId) && t.distance <= bestTag.distance) {
                 bestTag = t;

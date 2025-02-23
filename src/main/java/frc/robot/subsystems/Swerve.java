@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DriverConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.Vision.Side;
 import frc.robot.util.ControllerInput;
 import frc.robot.util.ControllerInput.VisionStatus;
 import frc.robot.util.SwerveModule;
@@ -133,10 +135,18 @@ public class Swerve extends SubsystemBase {
         ChassisSpeeds speeds;
 
         switch (status) {
-            case ALIGN_TAG: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(0);
+            case LEFT_POSITION: // lines the robot up with the tag
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Side.LEFT, VisionConstants.leftOffset);
+                break;
+            case RIGHT_POSITION: // lines the robot up with the tag
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Side.LEFT, VisionConstants.rightOffset);
+                break;
+            case STRAIGHT_POSITION: // lines the robot up with the tag
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Side.LEFT, VisionConstants.straightOffset);
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
+
+                // TODO: lock on with both cameras
                 ChassisSpeeds controllerSpeeds = controllerInput.controllerChassisSpeeds(
                     turnPID, gyroAhrs.getRotation2d());
                 ChassisSpeeds lockonSpeeds = visionSystem.lockonTagSpeeds(0, null);
@@ -146,8 +156,8 @@ public class Swerve extends SubsystemBase {
                     lockonSpeeds.omegaRadiansPerSecond
                 );
                 break;
-            case GET_CORAL:
-                speeds = visionSystem.getPieceDrive();
+            // case GET_CORAL:
+            //     speeds = visionSystem.getPieceDrive();
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
                 break;

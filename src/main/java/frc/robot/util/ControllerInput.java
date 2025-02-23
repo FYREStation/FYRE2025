@@ -15,9 +15,10 @@ public class ControllerInput extends SubsystemBase {
     /** Enumeration to represent what the robot should be doing with vision. */
     public enum VisionStatus {
         NONE,
-        ALIGN_TAG,
+        LEFT_POSITION,
+        RIGHT_POSITION,
+        STRAIGHT_POSITION,
         LOCKON,
-        GET_CORAL
     }
 
     private double x, y, theta;
@@ -60,18 +61,17 @@ public class ControllerInput extends SubsystemBase {
         nos = controller.getRightTriggerAxis() > 0.75;
 
         // field relative :)
-        fieldRelative = !controller.getRightBumperButton();
+        fieldRelative = !(controller.getLeftTriggerAxis() > 0.75);
 
         // This is just a basic thing - we can make it more complex if we want for auto or smth
         alignWithTag = controller.getLeftBumperButton();
 
         
-        if (controller.getLeftBumperButton()) visionStatus = VisionStatus.ALIGN_TAG;
-        else if (controller.getLeftTriggerAxis() > 0.75) visionStatus = VisionStatus.LOCKON;
-        else if (controller.getAButton()) visionStatus = VisionStatus.GET_CORAL;
-        else
-        
-        visionStatus = VisionStatus.NONE;
+        if (controller.getLeftBumperButton() && controller.getRightBumperButton()) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        else if (controller.getRightBumperButton()) visionStatus = VisionStatus.RIGHT_POSITION;
+        else if (controller.getLeftBumperButton()) visionStatus = VisionStatus.LEFT_POSITION;
+        else if (controller.getAButton()) visionStatus = VisionStatus.LOCKON;
+        else visionStatus = VisionStatus.NONE;
     }
 
     /**
@@ -80,15 +80,11 @@ public class ControllerInput extends SubsystemBase {
      * @return chassisSpeeds - the spped of the robot calclated by the controller
      */
     public ChassisSpeeds controllerChassisSpeeds(PIDController turnPID, Rotation2d currentAngle) {
-        double turnSpeed = 0;
-        if (false) {
-            // double error = currentAngle;
-            // turnPID.setSetpoint(0);
-            // if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
-            // turnSpeed = 0;
-        } else  {
-            turnSpeed = -theta * 2;//turnPID.calculate(currentAngle, 0);
-        }
+        double turnSpeed = -theta * 2;
+        // double error = currentAngle;
+        // turnPID.setSetpoint(0);
+        // if (Math.abs(error) > 2) turnSpeed = turnPID.calculate(error);
+        // turnSpeed = 0;
 
         ChassisSpeeds chassisSpeeds;
 

@@ -88,6 +88,8 @@ public class CameraWebsocketClient {
      * @return isConnected - whether or not there was a successful connection
      */
     public boolean setupConnection() {
+        // This function sets up the connection to the websocket server. It returns true if the connection was successful and false if it was not.
+        // Call this at any time if you want to reconnect to the server.
         try {
             HttpClient client = HttpClient.newHttpClient();
             webSocket = client.newWebSocketBuilder()
@@ -122,7 +124,7 @@ public class CameraWebsocketClient {
      * @param newMessage - the message from the server
      */
     public void onMessage(String newMessage) {
-        System.out.println("Received message: " + newMessage);
+        // System.out.println("Received message: " + newMessage);
         this.latestReply = newMessage;
         messageLatch.countDown();
     }
@@ -352,14 +354,14 @@ public class CameraWebsocketClient {
                     JsonObject apriltagObject = apriltagJson.getAsJsonObject();
                     apriltag.tagId = apriltagObject.get("tag_id").getAsString();
                     apriltag.position = new double[]{
-                            apriltagObject.get("position").getAsJsonArray().get(0).getAsDouble(),
-                            apriltagObject.get("position").getAsJsonArray().get(1).getAsDouble(),
-                            apriltagObject.get("position").getAsJsonArray().get(2).getAsDouble()
+                            parseJsonElementAsDouble(apriltagObject.get("position").getAsJsonArray().get(0)),
+                            parseJsonElementAsDouble(apriltagObject.get("position").getAsJsonArray().get(1)),
+                            parseJsonElementAsDouble(apriltagObject.get("position").getAsJsonArray().get(2))
                     };
                     apriltag.orientation = new double[]{
-                            apriltagObject.get("orientation").getAsJsonArray().get(0).getAsDouble(),
-                            apriltagObject.get("orientation").getAsJsonArray().get(1).getAsDouble(),
-                            apriltagObject.get("orientation").getAsJsonArray().get(2).getAsDouble()
+                            parseJsonElementAsDouble(apriltagObject.get("orientation").getAsJsonArray().get(0)),
+                            parseJsonElementAsDouble(apriltagObject.get("orientation").getAsJsonArray().get(1)),
+                            parseJsonElementAsDouble(apriltagObject.get("orientation").getAsJsonArray().get(2))
                     };
                     apriltag.distance = apriltagObject.get("distance").getAsDouble();
                     apriltag.horizontalAngle = apriltagObject.get("horizontal_angle").getAsDouble();
@@ -386,6 +388,20 @@ public class CameraWebsocketClient {
 
         public WebSocketListener(CameraWebsocketClient client) {
             this.client = client;
+            startKeepAlivePing();
+        }
+
+        private void startKeepAlivePing() {
+            new Thread(() -> {
+                while (client.isConnected()) {
+                    try {
+                        client.sendMessage("ping");
+                        Thread.sleep(10 * 1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
 
         @Override
@@ -408,7 +424,12 @@ public class CameraWebsocketClient {
         @Override
         public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
             System.out.println("WebSocket closed with status " + statusCode + " and reason " + reason);
+            if (statusCode != WebSocket.NORMAL_CLOSURE) {
+                client.setupConnection();
+            }
             return Listener.super.onClose(webSocket, statusCode, reason);
         }
     }
+
+    // There are a lot more functions I can write but I think this is enough for the meeting. I can write more if you want.
 }
