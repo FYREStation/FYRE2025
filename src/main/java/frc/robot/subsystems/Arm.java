@@ -74,7 +74,7 @@ public class Arm extends SubsystemBase {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
         System.out.println(armController.atGoal() + " " + manualOverride);
-        if (!(armController.atGoal() || manualOverride)) {
+        if (!(manualOverride)) {    
             // set the setpoint to the controller
             armMotor.setVoltage(
                 // armFeedForward.calculate(
