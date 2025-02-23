@@ -105,6 +105,7 @@ public class Arm extends SubsystemBase {
 
     public void goToTop() {
         armController.setGoal(topState);
+        manualOverride = false;
     }
     
     //sets the goal to the bottom state of the arm
@@ -118,6 +119,7 @@ public class Arm extends SubsystemBase {
     public void runMotorForward() {
         if (canMoveUp) {
             armMotor.set(ArmConstants.armThrottle);
+            manualOverride = true;
         } else {
             armMotor.stopMotor();
         }
@@ -129,6 +131,7 @@ public class Arm extends SubsystemBase {
     public void runMotorBackward() {
         if (canMoveDown) {
             armMotor.set(-ArmConstants.armThrottle);
+            manualOverride = true;
         } else {
             armMotor.stopMotor();
         }

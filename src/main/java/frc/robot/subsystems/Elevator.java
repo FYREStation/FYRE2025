@@ -99,6 +99,7 @@ public class Elevator extends SubsystemBase {
             );
         } else {
             //elevatorMotor.set(0);
+            
         }
 
         //System.out.println(getEncoderDistances());

@@ -160,6 +160,9 @@ public class RobotContainer {
             .onTrue(armControl.runMotorBackward)
             .onFalse(armControl.stopMotors);
 
+        joystick.button(10)
+            .onTrue(armControl.goToTop);
+
         joystick.button(6)
             .onTrue(climberControl.pinch)
             .onFalse(climberControl.stopClimber);
