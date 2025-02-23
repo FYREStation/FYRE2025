@@ -118,6 +118,12 @@ public class RobotContainer {
         xboxController.leftTrigger(0.75)
             .onChange(controller.toggleFeildRelative);
 
+        xboxController.rightBumper()
+            .onTrue(controller.upShift);
+        
+        xboxController.leftBumper()
+            .onTrue(controller.downShift);
+
         xboxController.a()
             .onChange(controller.toggleLockOn);
 

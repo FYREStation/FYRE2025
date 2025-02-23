@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -72,13 +73,14 @@ public class Arm extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(armController.atGoal() || manualOverride)) { 
+        System.out.println(armController.atGoal() + " " + manualOverride);
+        if (!(armController.atGoal() || manualOverride)) {
             // set the setpoint to the controller
             armMotor.setVoltage(
-                armFeedForward.calculate(
-                    getEncoderDistance(),
-                    armController.getGoal().position)
-                + armController.calculate(
+                // armFeedForward.calculate(
+                //     getEncoderDistance(),
+                //     armController.getGoal().position)
+                armController.calculate(
                     getEncoderDistance(),
                     armController.getGoal()
                 )
@@ -121,7 +123,7 @@ public class Arm extends SubsystemBase {
             armMotor.set(ArmConstants.armThrottle);
             manualOverride = true;
         } else {
-            armMotor.stopMotor();
+            armMotor.set(0.1 * Math.cos(Units.rotationsToRadians(armEncoder.getPosition())));
         }
     }
 
@@ -133,7 +135,7 @@ public class Arm extends SubsystemBase {
             armMotor.set(-ArmConstants.armThrottle);
             manualOverride = true;
         } else {
-            armMotor.stopMotor();
+            armMotor.set(0.1 * Math.cos(Units.rotationsToRadians(armEncoder.getPosition())));
         }
     }
 
