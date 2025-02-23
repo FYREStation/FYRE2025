@@ -75,7 +75,7 @@ public class SwerveModule {
 
         // configure the swerve motor
         swerveConfig
-            .inverted(false)
+            .inverted(true)
             .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(15);
 
@@ -182,7 +182,7 @@ public class SwerveModule {
     }
 
     public boolean setupCheck() {
-        return Math.abs(swerveEncoder.getPosition() - DriverConstants.absoluteOffsets[index]) > 1.5;
+        return Math.abs(swerveEncoder.getPosition() - DriverConstants.absoluteOffsets[index]) > 0.5;
     }
 
     /**
@@ -194,23 +194,6 @@ public class SwerveModule {
      */
     public SwerveAngleSpeed getAbsoluteTarget(double targetAngle, double currentAngle) {
         
-        double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
-
-        if (angleDiff > 180) {
-            angleDiff -= 360;
-        } else if (angleDiff < -180) {
-            angleDiff += 360;
-        }
-
-        SwerveAngleSpeed speed = new SwerveAngleSpeed();
-        speed.targetAngle = currentAngle + angleDiff;
-        speed.multiplier = 1;
-
-        return speed;
-
-        // targetAngle += 180;
-        // int multiplier = 1;
-
         // double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
 
         // if (angleDiff > 180) {
@@ -219,19 +202,37 @@ public class SwerveModule {
         //     angleDiff += 360;
         // }
 
-        // if (angleDiff < -90){
-        //     angleDiff += 180;
-        //     multiplier = -1;
-        // } else if (angleDiff > 90){
-        //     angleDiff -= 180;
-        //     multiplier = -1;
-        // }
+        // SwerveAngleSpeed speed = new SwerveAngleSpeed();
+        // speed.targetAngle = currentAngle + angleDiff;
+        // speed.multiplier = 1;
 
-        // SwerveAngleSpeed absoluteTarget = new SwerveAngleSpeed();
-        // absoluteTarget.multiplier = multiplier;
-        // absoluteTarget.targetAngle = currentAngle + angleDiff;
+        // return speed;
+
+        // targetAngle += 180;
+
+        int multiplier = 1;
+
+        double angleDiff = targetAngle - doubleMod(doubleMod(currentAngle, 360) + 360, 360);
+
+        if (angleDiff > 180) {
+            angleDiff -= 360;
+        } else if (angleDiff < -180) {
+            angleDiff += 360;
+        }
+
+        if (angleDiff < -90){
+            angleDiff += 180;
+            multiplier = -1;
+        } else if (angleDiff > 90){
+            angleDiff -= 180;
+            multiplier = -1;
+        }
+
+        SwerveAngleSpeed absoluteTarget = new SwerveAngleSpeed();
+        absoluteTarget.multiplier = multiplier;
+        absoluteTarget.targetAngle = currentAngle + angleDiff;
         
-        // return absoluteTarget;
+        return absoluteTarget;
     }
 
     /**
@@ -240,10 +241,13 @@ public class SwerveModule {
      * @param moduleState - the module state for this module to use
      * @param rotate - whether or not we need to try to rotate
      * @param nos - if NOS (high drive mode) is enabled
+     * @param throttle - the speed at which the modules should drive
      */
-    public void driveModule(SwerveModuleState moduleState, boolean rotate, boolean nos) {
+    public void driveModule(SwerveModuleState moduleState, boolean rotate, boolean nos, double throttle) {
         double currentAngle = swerveEncoder.getPosition();
         double targetAngle = moduleState.angle.getDegrees();
+
+        //System.out.printf("%d: %f\n", index, targetAngle);
 
         SwerveAngleSpeed absoluteTarget = getAbsoluteTarget(targetAngle, currentAngle);
 
@@ -251,11 +255,14 @@ public class SwerveModule {
             swervePID.setReference(absoluteTarget.targetAngle, SparkMax.ControlType.kPosition);
         }
 
+        //System.out.printf("%d: %f\n", index, absoluteTarget.targetAngle);
+
         setMotorSpeed(
             absoluteTarget.multiplier
             * moduleState.speedMetersPerSecond
             * DriverConstants.speedModifier
-            * (nos ? 2.25 : 1)
+            * throttle
+            * (nos ? DriverConstants.nosBooster : 1)
         );
     }
     
@@ -271,7 +278,7 @@ public class SwerveModule {
             ? 0
             : (velocity - lastMotorSpeed) / (time - lastMotorSetTime);
 
-        double ffv = DriverConstants.driveFeedForward[index].calculateWithVelocities(velocity, 0);
+        double ffv = DriverConstants.driveFeedForward[index].calculate(velocity);
         driveMotor.setVoltage(ffv);
         lastMotorSpeed = velocity;
         lastMotorSetTime = time;

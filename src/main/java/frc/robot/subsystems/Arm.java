@@ -9,7 +9,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 
@@ -48,7 +47,7 @@ public class Arm extends SubsystemBase {
         0
     );
 
-    private boolean manualOverride = false;
+    private boolean manualOverride = true;
     private boolean canMoveUp = true;
     private boolean canMoveDown = true;
 
@@ -67,8 +66,6 @@ public class Arm extends SubsystemBase {
      */
     public Arm() {
         setUpMotors();
-        armMotor.configure(
-            armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);    
     }
 
     @Override
@@ -77,17 +74,33 @@ public class Arm extends SubsystemBase {
         // check if the controller is not yet at it's goal and the manual override is not active
         if (!(armController.atGoal() || manualOverride)) { 
             // set the setpoint to the controller
-            armMotor.set(
-                armController.calculate(
-                    getEncoderDistances(),
-                    armController.getGoal().position
+            armMotor.setVoltage(
+                armFeedForward.calculate(
+                    getEncoderDistance(),
+                    armController.getGoal().position)
+                + armController.calculate(
+                    getEncoderDistance(),
+                    armController.getGoal()
                 )
             );
+        } else {
+            //armMotor.set(0);
         }
     }
 
     private void setUpMotors() {
         resetEncoders();
+
+        armMotorConfig
+            .inverted(true);
+
+        armMotorConfig.encoder
+            .positionConversionFactor(ArmConstants.motorToArmRatio)
+            .velocityConversionFactor(ArmConstants.motorToArmRatio);
+
+        armMotor.configure(
+            armMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     }
 
     public void goToTop() {
@@ -98,21 +111,46 @@ public class Arm extends SubsystemBase {
     public void goToBottom() {
         armController.setGoal(bottomState);
     }
+    
+    /**
+     * Runs the motor forward or "up" at the given constant speed.
+     */
+    public void runMotorForward() {
+        if (canMoveUp) {
+            armMotor.set(ArmConstants.armThrottle);
+        } else {
+            armMotor.stopMotor();
+        }
+    }
+
+    /**
+     * Runs the motor backward or "down" at the given constant speed.
+     */
+    public void runMotorBackward() {
+        if (canMoveDown) {
+            armMotor.set(-ArmConstants.armThrottle);
+        } else {
+            armMotor.stopMotor();
+        }
+    }
 
     public void stopMotor() {
         armMotor.stopMotor();
     }
 
-    public double getEncoderDistances() {
-        return (armEncoder.getPosition());
-
+    public double getEncoderDistance() {
+        return armEncoder.getPosition();
     }
 
     private void resetEncoders() {
         armEncoder.setPosition(0.0);
-  
     }
 
+    /**
+     * Returns the top state of the arm.
+
+     * @return topState - the top state of the arm
+     */
     public TrapezoidProfile.State getUpState() {
         return topState;
     }
@@ -124,7 +162,6 @@ public class Arm extends SubsystemBase {
      */
     public TrapezoidProfile.State getDownState() {
         return bottomState;
-
     }
 
     /**
@@ -153,6 +190,6 @@ public class Arm extends SubsystemBase {
      */
     protected double getMeasurement() {
         // possibly add an offset here? 
-        return getEncoderDistances();
+        return getEncoderDistance();
     }
 }

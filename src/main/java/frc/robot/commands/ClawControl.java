@@ -2,24 +2,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.ClawConstants;
 import frc.robot.subsystems.Claw;
 
 /**
  * Contains all control mechanisms for the intake.
  */
 public class ClawControl extends Command {
-    /**
-     * Rotates the intake at the given speed for the given ammount of seconds.
-
-     * @param seconds - the amount of seconds to run the intake
-     * @param time - the amount of time the intake has been running 
-     * @param speed - the speed to rotate the actuation
-     * @param wheelSpeed - the speed to rotate flywheels
-     */
-    
-    //PLACEHOLDER VALUES
-    int speed = -1234567890;
-    int wheelSpeed = -1234567890;
 
     private Claw claw;
 
@@ -34,26 +23,20 @@ public class ClawControl extends Command {
     }
 
     @Override
-    public void execute() {
+    public void execute() {}
 
-    }
-
-
-    public Command pinch = Commands.runOnce(() -> {
-        claw.pinch(speed);
-    });
-    public Command release = Commands.runOnce(() -> {
-        claw.release(speed);
-    });
-    public Command stopClaw = Commands.runOnce(() -> {
-        claw.stopClaw();
-    });
     public Command intake = Commands.runOnce(() -> {
-        claw.intake(wheelSpeed); //TODO: probably need to pinch the claw by some amount to ensure adequate friction
+        claw.intake(ClawConstants.clawMotorSpeed);
     });
+    
     public Command output = Commands.runOnce(() -> {
-        claw.output(wheelSpeed); //TODO: probably need to release the claw by some amount
+        claw.output(ClawConstants.clawMotorSpeed);
     });
+
+    public Command slowHold = Commands.runOnce(() -> {
+        claw.intake(0.25 * ClawConstants.clawMotorSpeed);
+    });
+
     public Command stopWheels = Commands.runOnce(() -> {
         claw.stopWheels();
     });

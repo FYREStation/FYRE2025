@@ -3,7 +3,6 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Elevator;
 
 /** The elevator lifting functionality for our arm. */
 public class ArmControl extends Command {
@@ -38,8 +37,12 @@ public class ArmControl extends Command {
         arm.goToBottom();
     });
 
-    public Command toggleManualOverride = Commands.runOnce(() -> {
-        arm.toggleManualOverride();
+    public Command runMotorForwards = Commands.runOnce(() -> {
+        arm.runMotorForward();
+    });
+
+    public Command runMotorBackward = Commands.runOnce(() -> {
+        arm.runMotorBackward();
     });
 
     /**
@@ -47,5 +50,9 @@ public class ArmControl extends Command {
      */
     public Command stopMotors = Commands.runOnce(() -> {
         arm.stopMotor();
+    });
+
+    public Command toggleManualOverride = Commands.runOnce(() -> {
+        arm.toggleManualOverride();
     });
 }

@@ -6,6 +6,8 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -20,7 +22,7 @@ import frc.robot.Constants.IntakeConstants;
 public class Intake extends SubsystemBase {
 
     private final SparkMax intakeWheels = new SparkMax(
-        11,//IntakeConstants.intakeWheelPort, 
+        IntakeConstants.intakeWheelPort, 
         SparkLowLevel.MotorType.kBrushed
     );
 
@@ -30,34 +32,18 @@ public class Intake extends SubsystemBase {
         SparkLowLevel.MotorType.kBrushed
     );
 
-    private double rotationsToBottom = IntakeConstants.rotationsToBottom;
+    private final Encoder intakeActuationEncoder = new Encoder(
+        IntakeConstants.intakeEncoderA, IntakeConstants.intakeEncoderB);
 
-    public boolean canintakeDecend = true; //may need to be changed to false in code
-
-    public boolean canintakeAscend = true; //may need to be changed to false in code
-
-    private final Encoder intakeEncoderActuation = new Encoder(8, 9);
-
-    private final RelativeEncoder intakeEncoderWheels = intakeWheels.getEncoder();
-
-    private final SparkMaxConfig intakeActuatioConfig = new SparkMaxConfig();
+    private final SparkMaxConfig intakeActuationConfig = new SparkMaxConfig();
 
     private final SparkMaxConfig intakeWheelsConfig = new SparkMaxConfig();
-
 
     /**
      * Constructs the elevator subsystem and inializes motors, controllers, and the like.
      */
     public Intake() {
-
         setUpMotors();
-
-        intakeActuation.configure(
-            intakeActuatioConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        intakeWheels.configure(
-            intakeWheelsConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
     }
 
     @Override
@@ -66,8 +52,20 @@ public class Intake extends SubsystemBase {
     }
 
     private void setUpMotors() {
-        intakeEncoderActuation.reset(); 
-        intakeEncoderWheels.setPosition(0);
+        intakeActuationEncoder.reset(); 
+
+        intakeActuationEncoder
+            .setDistancePerPulse(IntakeConstants.motorToIntakeRatio);
+
+        intakeActuationConfig
+            .idleMode(IdleMode.kBrake);
+
+        intakeActuation.configure(
+            intakeActuationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        intakeWheels.configure(
+            intakeWheelsConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     }
 
     /**
@@ -76,11 +74,7 @@ public class Intake extends SubsystemBase {
      * @param speed - the speed at which to raise the intake
      */
     public void goUp(double speed) {
-        if (canintakeAscend) {
-            intakeActuation.set(speed);
-        } else {
-            intakeActuation.set(0);
-        }
+        intakeActuation.set(speed);
     }
 
     /**
@@ -89,11 +83,7 @@ public class Intake extends SubsystemBase {
      * @param speed - the speed at which to lower the intake
      */
     public void goDown(double speed) {
-        if (canintakeDecend) {
-            intakeActuation.set(-speed);
-        } else {
-            intakeActuation.set(0);
-        }
+        intakeActuation.set(-speed);
     }
 
     /**

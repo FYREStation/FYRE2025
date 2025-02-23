@@ -1,17 +1,8 @@
 package frc.robot.subsystems;
 
 import choreo.trajectory.SwerveSample;
-import com.revrobotics.REVLibError;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.math.controller.PIDController;
@@ -22,7 +13,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriverConstants;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -88,7 +81,7 @@ public class Swerve extends SubsystemBase {
         this.visionSystem = visionSystem;
 
         // TODO: change this dynamically depending on the starting pose of the robot
-        this.currentPose = new Pose2d(0, 0, new Rotation2d(0));
+        this.currentPose = new Pose2d(7.001, 2.542, new Rotation2d(0));
 
         // define the gyro
         gyroAhrs = new AHRS(NavXComType.kMXP_SPI);
@@ -96,8 +89,8 @@ public class Swerve extends SubsystemBase {
         gyroAhrs.reset();
         gyroAhrs.configureVelocity(
             false,
-            true,
-            true,
+            false,
+            false,
             true
         );
 
@@ -113,7 +106,6 @@ public class Swerve extends SubsystemBase {
         );
 
         turnPID.enableContinuousInput(-Math.PI, Math.PI);
-        turnPID.setSetpoint(0);
     }
 
     @Override
@@ -124,8 +116,11 @@ public class Swerve extends SubsystemBase {
         currentPose = poseEstimator.updateWithTime(
             startTime - Timer.getTimestamp(), gyroAhrs.getRotation2d(), getSwerveModulePositions());
 
+        //System.out.println(currentPose.toString());
+
         if (setupComplete) {
-            swerveDrive(chooseDriveMode());
+            if (!DriverStation.isAutonomousEnabled())
+                swerveDrive(chooseDriveMode());
         } else setupCheck();
     }
      
@@ -182,7 +177,7 @@ public class Swerve extends SubsystemBase {
 
         for (int i = 0; i < 4; i++) {
             SwerveModuleState targetState = moduleState[i];
-            swerveModules[i].driveModule(targetState, rotate, controllerInput.nos());
+            swerveModules[i].driveModule(targetState, rotate, controllerInput.nos(), controllerInput.throttle());
         }
     }
 
@@ -217,6 +212,7 @@ public class Swerve extends SubsystemBase {
         visionSystem.clear();
         for (int i = 0; i < 4; i++) {
             if (swerveModules[i].setupCheck()) {
+                //System.out.printf("%d: %f\n", i, swerveModules[i].getSwervePosition() - DriveConstants.absoluteOffsets[i]);
                 return;
             }
         }
@@ -291,7 +287,7 @@ public class Swerve extends SubsystemBase {
             sample.vx + xController.calculate(pose.getX(), sample.x),
             sample.vy + yController.calculate(pose.getY(), sample.y),
             sample.omega + turnPID.calculate(pose.getRotation().getRadians(), sample.heading),
-            Rotation2d.fromDegrees(gyroAhrs.getAngle())
+            gyroAhrs.getRotation2d()
         );
 
         swerveDrive(speeds);
