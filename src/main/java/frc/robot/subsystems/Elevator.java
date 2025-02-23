@@ -14,7 +14,6 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorLiftConstants;
 
 /**
@@ -88,28 +87,29 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         // This method will be called once per scheduler run
         // check if the controller is not yet at it's goal and the manual override is not active
-        if (!(Math.abs(getEncoderDistances() - controller.getGoal().position) > 0.05|| manualOverride)) { 
+        if (!(manualOverride)) { 
             // set the setpoint to the controller
             elevatorMotor.setVoltage(
-                elevatorFeedForward.calculate(
-                    getEncoderDistances(),
-                    controller.getGoal().position) 
-                + controller.calculate(
+                // elevatorFeedForward.calculate(
+                //     controller.getGoal().velocity) 
+                controller.calculate(
                     getEncoderDistances(),
                     controller.getGoal()
                 )
             );
         } else {
-            elevatorMotor.set(0);
+            //elevatorMotor.set(0);
         }
 
-        System.out.println(getEncoderDistances());
+        //System.out.println(getEncoderDistances());
 
     }
 
     //sets up the motors at the beginning of the program
     private void setUpMotors() {
         resetEncoders();
+        
+        controller.setTolerance(0.05);
 
         elevatorMotorConfig
             .inverted(true);

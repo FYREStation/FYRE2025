@@ -72,10 +72,10 @@ public final class Constants {
             344.5
             */
             // MK4i module positions
-            13.5,
-            253.2,
-            280.9,
-            71.2
+            13.3,
+            252.5,
+            278.5,
+            71.8
         };
 
         public static final double inchesFromRobotCenter = 11.75;
@@ -132,10 +132,10 @@ public final class Constants {
     /** A set of constants relating to the elevator. */
     public static class ElevatorLiftConstants {
         public static final int elevatorMotorPort = 11;
-        public static final double rotationsToTop = 6.82;
-        public static final double rotationsToMid = 5;
+        public static final double rotationsToTop = 7.62;
+        public static final double rotationsToMid = 4.5;
         public static final double staticGain = 0.50;
-        public static final double gravityGain = 0.41;
+        public static final double gravityGain = 0.71;
         public static final double velocityGain = 1.338;
         public static final double kP = 2.5;
         public static final double kI = 0;

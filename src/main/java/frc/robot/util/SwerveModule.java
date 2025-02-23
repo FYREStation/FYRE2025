@@ -181,7 +181,7 @@ public class SwerveModule {
     }
 
     public boolean setupCheck() {
-        return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 6.0;
+        return Math.abs(swerveEncoder.getPosition() - DriveConstants.absoluteOffsets[index]) > 0.5;
     }
 
     /**
