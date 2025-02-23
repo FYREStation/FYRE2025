@@ -14,6 +14,8 @@ import frc.robot.util.CameraWebsocketClient.Apriltag;
 import frc.robot.util.CameraWebsocketClient.Info;
 
 public class Vision {
+    public static enum Side {FRONT, LEFT, BACK, RIGHT}
+
     private String ip;
     private ArrayList<CameraWebsocketClient> camClientList = new ArrayList<CameraWebsocketClient>();
     private HashMap<String, Integer[]> apriltagPoses; // Hashmap of [angle, x, y] where angle is the angle of the tag in rads, where 
@@ -71,6 +73,22 @@ public class Vision {
         for(CameraWebsocketClient cam : camClientList) {
             cam.clear();
         }
+    }
+
+    public ChassisSpeeds frontToSide(ChassisSpeeds inSpeeds, Side side){
+        switch(side) {
+            case FRONT:
+                return inSpeeds;
+            case LEFT:
+                return new ChassisSpeeds(-inSpeeds.vyMetersPerSecond, inSpeeds.vxMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
+            case RIGHT:
+                return new ChassisSpeeds(inSpeeds.vyMetersPerSecond, -inSpeeds.vxMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
+            case BACK:
+                return new ChassisSpeeds(-inSpeeds.vxMetersPerSecond, -inSpeeds.vyMetersPerSecond, inSpeeds.omegaRadiansPerSecond);
+            default:
+                return inSpeeds;
+          }
+          
     }
 
     public double getZAngle(int maxTags) {
@@ -134,7 +152,7 @@ public class Vision {
      * @param tagId - the apriltag ID to search for, null if no preference
      * @return speeds - the ChassisSpeeds object for the robot to take
      */
-    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, double cameraHorizontalAngle, double xOffset, double yOffset) {
+    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
 
@@ -149,15 +167,14 @@ public class Vision {
         double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         
-        return new ChassisSpeeds(
+        return frontToSide(new ChassisSpeeds(
             DriverConstants.highDriveSpeed * xMove,
             DriverConstants.highDriveSpeed * yMove,
-            turnSpeed
-        );
+            turnSpeed), side);
     }
 
     public ChassisSpeeds getTagDrive(int camIndex) {
-        return getTagDrive(camIndex, null, 0, 0, 0);
+        return getTagDrive(camIndex, null, Side.BACK, 0, 0, 0);
     }
 
     public ChassisSpeeds getPieceDrive(int camIndex, double cameraOffsetAngle, double xOffset, double yOffset) {
@@ -178,8 +195,6 @@ public class Vision {
         } else {
             driveAngleModifier = 0;
         }
-
-        // TODO: Make sure the negation stuff
 
         double x = Math.cos(piece.angle + cam.getRotation() + driveAngleModifier) * piece.distance - xOffset;
         double y = Math.sin(piece.angle + cam.getRotation() + driveAngleModifier) * piece.distance - yOffset;
@@ -209,7 +224,13 @@ public class Vision {
         Apriltag tag = null;
 
         if (tags.size() > 0) {
-            tag = tags.get(0);
+            Apriltag bestTag = tags.get(0);
+            for (Apriltag t : tags) { // This is a weird way to do this but it works - I need to make this more efficient
+                if(t.distance < bestTag.distance) {
+                    tag = t;
+                    break;
+                }
+            }
         }
 
         return tag;
@@ -233,9 +254,9 @@ public class Vision {
         CameraWebsocketClient cam = camClientList.get(camIndex);
         List<CameraWebsocketClient.Apriltag> tags = cam.getApriltags();
         List<String> tagIdList = Arrays.asList(tagIds);
-        Apriltag bestTag = null;
+        Apriltag bestTag = tags.get(1);
         for (Apriltag t : tags) { // This is a weird way to do this but it works - I need to make this more efficient
-            if(tagIdList.contains(t.tagId) && t.distance < bestTag.distance) {
+            if(tagIdList.contains(t.tagId) && t.distance <= bestTag.distance) {
                 bestTag = t;
             }
         }
@@ -248,8 +269,6 @@ public class Vision {
     }
     @Override
     protected void finalize() throws Throwable {
-        // Not sure if this is right
-        // Especially the finalize part
         try {
             for (CameraWebsocketClient cam : camClientList) {
                 if (cam.isConnected()) {
