@@ -198,7 +198,7 @@ public class Vision {
         if(tag == null) return null;
 
         double turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
-        double moveSpeed = movePID.calculate(tag.distance); // I do not know if this is correct - it makes some sense but idk
+        double moveSpeed = movePID.calculate(Math.sqrt(Math.pow(tag.position[2] - xOffset, 2) + Math.pow(tag.position[0] - yOffset, 2))); // I do not know if this is correct - it makes some sense but idk
 
         // Look at this! Max is doing a weird normalization thing again!
         double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
