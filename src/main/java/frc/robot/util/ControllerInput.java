@@ -18,9 +18,10 @@ public class ControllerInput extends SubsystemBase {
     /** Enumeration to represent what the robot should be doing with vision. */
     public enum VisionStatus {
         NONE,
-        ALIGN_TAG,
+        LEFT_POSITION,
+        RIGHT_POSITION,
+        STRAIGHT_POSITION,
         LOCKON,
-        GET_CORAL
     }
 
     private double x, y, theta;
@@ -31,7 +32,8 @@ public class ControllerInput extends SubsystemBase {
     private boolean nos;
 
     private boolean fieldRelative = true;
-    private boolean alignWithTag;
+    private boolean leftBumper;
+    private boolean rightBumper;
     private boolean lockOn;
 
     private VisionStatus visionStatus;
@@ -66,8 +68,9 @@ public class ControllerInput extends SubsystemBase {
         }
 
 
-        if (alignWithTag) visionStatus = VisionStatus.ALIGN_TAG;
-        else if (lockOn) visionStatus = VisionStatus.LOCKON;
+        if (rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
+        else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
         else visionStatus = VisionStatus.NONE;
     }
 
@@ -125,8 +128,12 @@ public class ControllerInput extends SubsystemBase {
         fieldRelative = !fieldRelative;
     });
 
-    public Command toggleAlignTag = Commands.runOnce(() -> {
-        alignWithTag = !alignWithTag;
+    public Command toggleRightBumper = Commands.runOnce(() -> {
+        rightBumper = !rightBumper;
+    });
+
+    public Command toggleLeftBumper = Commands.runOnce(() -> {
+        leftBumper = !leftBumper;
     });
 
     public Command toggleLockOn = Commands.runOnce(() -> {
