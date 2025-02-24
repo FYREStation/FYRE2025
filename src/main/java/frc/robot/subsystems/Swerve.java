@@ -115,7 +115,7 @@ public class Swerve extends SubsystemBase {
     private ChassisSpeeds chooseDriveMode() {
 
         VisionStatus status = controllerInput.visionStatus();
-        ChassisSpeeds speeds;
+        ChassisSpeeds speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
 
         switch (status) {
             case LEFT_POSITION: // lines the robot up with the tag
@@ -126,6 +126,7 @@ public class Swerve extends SubsystemBase {
                 break;
             case STRAIGHT_POSITION: // lines the robot up with the tag
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.straightOffset);
+                
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
 
@@ -147,6 +148,9 @@ public class Swerve extends SubsystemBase {
             
             
         }
+        if (speeds == null) speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
+
+
         return speeds;
     }
 

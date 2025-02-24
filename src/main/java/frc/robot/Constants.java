@@ -204,7 +204,7 @@ public final class Constants {
     /** A set of constants relating to vision. */
     public static class VisionConstants {
         public static final String ipAddress = "ws://10.54.80.123";
-        public static final int[] CameraRotations = {0};
+        public static final int[] CameraRotations = {0, 0};
         public static final String[] tagIDs = {"6", "7", "8", "9", "10", "11", "17", "18", "19", "20", "21", "22"};
         public static HashMap<String, Integer> apriltagAngles = new HashMap<>();
         public static final double maxIntakeAngle = Math.PI/6;
@@ -214,7 +214,7 @@ public final class Constants {
         public static Vision.RobotPositionOffset leftOffset = new Vision.RobotPositionOffset(0, 0, 0);
         public static Vision.RobotPositionOffset rightOffset = new Vision.RobotPositionOffset(0, 0, 0);
 
-        public static Vision.CameraPair cameraPair = new Vision.CameraPair(0, 1, -Math.PI/6, Math.PI/6, 0.3, -0.03, -0.3, 0.03);
+        public static Vision.CameraPair cameraPair = new Vision.CameraPair(1, 0, -Math.PI/6, Math.PI/6, 0.15, -0.03, -0.15, 0.03);
         /** Constructs apriltags angles hashmap. */
         public VisionConstants() {
             apriltagAngles.put("13", 0);

@@ -34,7 +34,7 @@ public class ControllerInput extends SubsystemBase {
     private boolean fieldRelative = true;
     private boolean leftBumper;
     private boolean rightBumper;
-    private boolean lockOn;
+    private boolean lockOn = false;
 
     private VisionStatus visionStatus;
 
@@ -137,7 +137,7 @@ public class ControllerInput extends SubsystemBase {
     });
 
     public Command toggleLockOn = Commands.runOnce(() -> {
-        lockOn = !lockOn;
+        // lockOn = !lockOn;
     });
 
     public boolean nos() {return nos;}

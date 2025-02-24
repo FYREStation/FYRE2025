@@ -22,8 +22,8 @@ public class Vision {
     private ArrayList<CameraWebsocketClient> camClientList = new ArrayList<CameraWebsocketClient>();
     private HashMap<String, Integer[]> apriltagPoses; // Hashmap of [angle, x, y] where angle is the angle of the tag in rads, where 
 
-    private PIDController turnPID = new PIDController(0.1, 0.0, 0.0);
-    private PIDController movePID = new PIDController(0.1, 0.0, 0.0);
+    private PIDController turnPID = new PIDController(8.192, 0.0, 0.0008);
+    private PIDController movePID = new PIDController(10.05, 0.0, 0.0);
     public static class CameraPair{
         public int cam1;
         public int cam2;
@@ -205,7 +205,7 @@ public class Vision {
         double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         
         return frontToSide(new ChassisSpeeds(
-            DriveConstants.highDriveSpeed * xMove,
+            -DriveConstants.highDriveSpeed * xMove,
             DriveConstants.highDriveSpeed * yMove,
             turnSpeed), side);
     }
