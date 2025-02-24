@@ -317,7 +317,7 @@ public class Vision {
         if (tags.size() == 0) {
             return null;
         }
-        Apriltag bestTag = tags.getFirst();
+        Apriltag bestTag = tags.get(0);
         for (Apriltag t : tags) { // This is a weird way to do this but it works - I need to make this more efficient
             if(tagIdList.contains(t.tagId) && t.distance <= bestTag.distance) {
                 bestTag = t;
