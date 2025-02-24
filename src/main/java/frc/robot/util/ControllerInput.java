@@ -30,9 +30,9 @@ public class ControllerInput extends SubsystemBase {
     private boolean nos;
 
     private boolean fieldRelative = true;
-    private boolean leftBumper;
-    private boolean rightBumper;
-    private boolean lockOn;
+    private boolean leftBumper = false;
+    private boolean rightBumper = false;
+    private boolean lockOn = false;
 
     private VisionStatus visionStatus;
 
@@ -71,10 +71,11 @@ public class ControllerInput extends SubsystemBase {
         if (throttle < 0.1) {
             //throttle = 0.1;
         }
-        if (rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
-        else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
-        else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
-        else visionStatus = VisionStatus.NONE;
+        // if (rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        // else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
+        // else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
+        // else 
+        visionStatus = VisionStatus.NONE;
     }
 
     /**

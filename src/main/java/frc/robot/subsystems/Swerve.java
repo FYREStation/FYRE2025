@@ -155,6 +155,7 @@ public class Swerve extends SubsystemBase {
             //     speeds = visionSystem.getPieceDrive();
             default: // if all else fails - revert to drive controls
                 speeds = controllerInput.controllerChassisSpeeds(turnPID, gyroAhrs.getRotation2d());
+                System.out.println("in the beninging");
                 break;
         }
 
