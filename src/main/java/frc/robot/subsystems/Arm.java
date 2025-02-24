@@ -12,6 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.util.ControllerInput;
 
 /**
  * All of the interfaces for the phyiscal arm.
@@ -33,11 +34,28 @@ public class Arm extends SubsystemBase {
         ArmConstants.velocityGain
     );
 
-    private double rotationsToTop = ArmConstants.maxRotations;
+    private double coralStat = ArmConstants.coralState;
+    private double lowerAlgaeStat = ArmConstants.lowerAlgaeState;
+    private double upperAlgaeStat = ArmConstants.upperAlgaeState;
+    private double bargeStat = ArmConstants.bargeState;
 
-    // Caden, may need to use something other than trapazoid
-    private TrapezoidProfile.State topState = new TrapezoidProfile.State(
-        rotationsToTop,
+    private TrapezoidProfile.State coralState = new TrapezoidProfile.State(
+        coralStat,
+        0
+    );
+
+    private TrapezoidProfile.State lowerAlgaeState = new TrapezoidProfile.State(
+        lowerAlgaeStat,
+        0
+    );
+
+    private TrapezoidProfile.State upperAlgaeState = new TrapezoidProfile.State(
+        upperAlgaeStat,
+        0
+    );
+
+    private TrapezoidProfile.State bargeState = new TrapezoidProfile.State(
+        bargeStat,
         0
     );
     
@@ -48,7 +66,7 @@ public class Arm extends SubsystemBase {
         0
     );
 
-    private boolean manualOverride = true;
+    private boolean manualOverride = false;
     private boolean canMoveUp = true;
     private boolean canMoveDown = true;
 
@@ -87,6 +105,7 @@ public class Arm extends SubsystemBase {
         } else {
             //armMotor.set(0);
         }
+        System.out.println(armEncoder.getPosition());
     }
 
     private void setUpMotors() {
@@ -104,14 +123,30 @@ public class Arm extends SubsystemBase {
 
     }
 
-    public void goToTop() {
-        armController.setGoal(topState);
+    public void goToCoral() {
+        armController.setGoal(coralState);
+        manualOverride = false;
+    }
+
+    public void goToLowerAlgae() {
+        armController.setGoal(lowerAlgaeState);
+        manualOverride = false;
+    }
+
+    public void goToUpperAlgae() {
+        armController.setGoal(upperAlgaeState);
+        manualOverride = false;
+    }
+
+    public void goToBarge() {
+        armController.setGoal(bargeState);
         manualOverride = false;
     }
     
     //sets the goal to the bottom state of the arm
     public void goToBottom() {
         armController.setGoal(bottomState);
+        manualOverride = false;
     }
     
     /**
@@ -150,23 +185,6 @@ public class Arm extends SubsystemBase {
         armEncoder.setPosition(0.0);
     }
 
-    /**
-     * Returns the top state of the arm.
-
-     * @return topState - the top state of the arm
-     */
-    public TrapezoidProfile.State getUpState() {
-        return topState;
-    }
-
-    /**
-     * Returns the bottoms state of the arm.
-
-     * @return bottomState - the bottom state of the arm
-     */
-    public TrapezoidProfile.State getDownState() {
-        return bottomState;
-    }
 
     /**
      * Toggles the manaul ovrride control of the arm.

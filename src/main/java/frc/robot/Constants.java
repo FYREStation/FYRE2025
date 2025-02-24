@@ -137,11 +137,11 @@ public final class Constants {
         public static final double staticGain = 0.50;
         public static final double gravityGain = 0.71;
         public static final double velocityGain = 1.338;
-        public static final double kP = 3.0;
+        public static final double kP = 4.5;
         public static final double kI = 0;
         public static final double kD = 0.0005;
-        public static final double maxAcceleration = 85;
-        public static final double maxVelocity = 50;
+        public static final double maxAcceleration = 100;
+        public static final double maxVelocity = 75;
         public static final double elvevatorThrottle = 0.2;
 
         public static final double motorToElevatorRatio = 22.0 / (12.0 * 16.0);
@@ -165,12 +165,17 @@ public final class Constants {
         public static final double staticGain = 0.30;
         public static final double gravityGain = 0.20;
         public static final double velocityGain = 3.65;
-        public static final double kP = 6.4;
+        public static final double kP = 64.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
-        public static final double maxRotations = 40 / 360;
+
+        public static final double coralState = 0.5035;
+        public static final double lowerAlgaeState = 0.085;
+        public static final double upperAlgaeState = 0.51;
+        public static final double bargeState = 0.38;
+
         public static final double maxVelocity = 78;
-        public static final double maxAcceleration = 25;
+        public static final double maxAcceleration = 20;
 
         public static final double armThrottle = 0.35;
 

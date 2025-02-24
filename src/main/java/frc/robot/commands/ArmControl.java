@@ -26,8 +26,20 @@ public class ArmControl extends Command {
     /**
      * Sends the arm, to top using PID.
      */
-    public Command goToTop = Commands.runOnce(() -> {
-        arm.goToTop();
+    public Command goToCoral = Commands.runOnce(() -> {
+        arm.goToCoral();
+    });
+
+    public Command goToLowerAlgae = Commands.runOnce(() -> {
+        arm.goToLowerAlgae();
+    });
+
+    public Command goToUpperAlgae = Commands.runOnce(() -> {
+        arm.goToUpperAlgae();
+    });
+
+    public Command goToBarge = Commands.runOnce(() -> {
+        arm.goToBarge();
     });
 
     /**

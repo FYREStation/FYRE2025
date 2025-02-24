@@ -43,7 +43,7 @@ public class RobotContainer {
     CommandJoystick joystick = new CommandJoystick(OperatorConstants.operatorControllerPort);
     CommandXboxController xboxController = new CommandXboxController(OperatorConstants.driverControllerPort);
 
-    ControllerInput controller = new ControllerInput(xboxController);
+    ControllerInput controller = new ControllerInput(xboxController, joystick);
     Vision visionSystem = new Vision(
         Constants.VisionConstants.ipAddress, 
         Constants.VisionConstants.CameraRotations, 
@@ -144,30 +144,47 @@ public class RobotContainer {
             .onFalse(clawControl.stopWheels);
 
         joystick.button(7)
-            .onTrue(elevatorControl.goToTop);
+            .onTrue(elevatorControl.goToTop)
+            .onTrue(armControl.goToCoral);
             // .onTrue(elevatorControl.runMotorForward)
             // .onFalse(elevatorControl.stopMotors);
+
+        joystick.button(8)
+            .onTrue(elevatorControl.goToTop)
+            .onTrue(armControl.goToBarge);
         
         joystick.button(9)
-            .onFalse(elevatorControl.goToMid);
+            .onTrue(elevatorControl.goToMid);
+
+        joystick.button(10)
+            .onTrue(elevatorControl.goToMid)
+            .onTrue(armControl.goToLowerAlgae);
         
         joystick.button(11)
             .onTrue(elevatorControl.goToBottom);
             // .onTrue(elevatorControl.runMotorReverse)
             // .onFalse(elevatorControl.stopMotors);
 
-        joystick.button(5)
-            // .onTrue(armControl.goToTop);
+        //joystick.button(5)
+            //.onTrue(armControl.goToTop);
+            // .onTrue(armControl.runMotorForwards)
+            // .onFalse(armControl.stopMotors);
+
+        joystick.button(3)
+            .onTrue(armControl.goToBottom);
+            // .onTrue(armControl.runMotorBackward)
+            // .onFalse(armControl.stopMotors);
+
+        joystick.povUp()
             .onTrue(armControl.runMotorForwards)
             .onFalse(armControl.stopMotors);
 
-        joystick.button(3)
-            // .onFalse(armControl.goToBottom);
+        joystick.povDown()
             .onTrue(armControl.runMotorBackward)
             .onFalse(armControl.stopMotors);
 
-        joystick.button(10)
-            .onTrue(armControl.goToTop);
+        // joystick.button(10)
+        //     .onTrue(armControl.goToTop);
 
         joystick.button(6)
             .onTrue(climberControl.pinch)
