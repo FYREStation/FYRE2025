@@ -13,6 +13,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.util.CameraWebsocketClient;
 import frc.robot.util.CameraWebsocketClient.Apriltag;
 import frc.robot.util.CameraWebsocketClient.Info;
+import edu.wpi.first.wpilibj.Timer;
 
 
 public class Vision {
@@ -21,9 +22,13 @@ public class Vision {
     private String ip;
     private ArrayList<CameraWebsocketClient> camClientList = new ArrayList<CameraWebsocketClient>();
     private HashMap<String, Integer[]> apriltagPoses; // Hashmap of [angle, x, y] where angle is the angle of the tag in rads, where 
+    private Timer timer = new Timer();
 
     private PIDController turnPID = new PIDController(8.192, 0.0, 0.0008);
     private PIDController movePID = new PIDController(10.05, 0.0, 0.0);
+    private ChassisSpeeds prevChassisSpeeds;
+    private double prevTime;
+
     public static class CameraPair{
         public int cam1;
         public int cam2;
@@ -87,7 +92,6 @@ public class Vision {
         turnPID.setSetpoint(0);
         movePID.enableContinuousInput(-180, 180);
         movePID.setSetpoint(0);
-
     }
 
     public Vision(CameraWebsocketClient[] camList, HashMap<String, Integer[]> apriltagPoses) {
@@ -188,22 +192,28 @@ public class Vision {
      * @param tagId - the apriltag ID to search for, null if no preference
      * @return speeds - the ChassisSpeeds object for the robot to take
      */
-    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset) {
+    public ChassisSpeeds getTagDrive(int camIndex, String[] tagIds, Side side, double cameraHorizontalAngle, double xOffset, double yOffset, PIDController turnPIDArg) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
-
+        double turnSpeed;
         Apriltag tag;
         if (tagIds != null) tag = decideTag(camIndex, tagIds);
-        else tag = decideTag(camIndex);
-        if(tag == null) return null;
+        else tag = decideTag(camIndex);        
+        if(tag == null)return null;
 
-        double turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
+        // if (turnPIDArg != null) turnSpeed = turnPIDArg.calculate(tag.orientation[0] + cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
+        // else 
+        turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle);   
         double moveSpeed = movePID.calculate(Math.sqrt(Math.pow(tag.position[2] - xOffset, 2) + Math.pow(tag.position[0] - yOffset, 2))); // I do not know if this is correct - it makes some sense but idk
 
         // Look at this! Max is doing a weird normalization thing again!
-        double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
-        
+        // double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
+        // double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
+
+        double xMove = Math.cos(tag.horizontalAngle - cameraHorizontalAngle) * moveSpeed;
+        double yMove = Math.sin(tag.horizontalAngle - cameraHorizontalAngle) * moveSpeed;
+
+
         return frontToSide(new ChassisSpeeds(
             -DriveConstants.highDriveSpeed * xMove,
             DriveConstants.highDriveSpeed * yMove,
@@ -211,10 +221,10 @@ public class Vision {
     }
 
     public ChassisSpeeds getTagDrive(int camIndex) {
-        return getTagDrive(camIndex, null, Side.BACK, 0, 0, 0);
+        return getTagDrive(camIndex, null, Side.BACK, 0, 0, 0, null);
     }
 
-    public ChassisSpeeds getTagDrive(CameraPair cams, String[] tagIds, Side side, RobotPositionOffset offsets) {
+    public ChassisSpeeds getTagDrive(CameraPair cams, String[] tagIds, Side side, RobotPositionOffset offsets, PIDController turnPidArg) {
         // The position is returned as a 3 element array of doubles in the form [x, y, z]
         // The position is in meters.
 
@@ -222,8 +232,8 @@ public class Vision {
         double xOffset = offsets.xOffset;
         double yOffset = offsets.yOffset;
 
-        ChassisSpeeds cam1Speed = getTagDrive(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset);
-        ChassisSpeeds cam2Speed = getTagDrive(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset);
+        ChassisSpeeds cam1Speed = getTagDrive(cams.cam1, tagIds, side, cams.cam1Angle + angleOffset, cams.cam1XOffset + xOffset, cams.cam1YOffset + yOffset, turnPidArg);
+        ChassisSpeeds cam2Speed = getTagDrive(cams.cam2, tagIds, side, cams.cam2Angle + angleOffset, cams.cam2XOffset + xOffset, cams.cam2YOffset + yOffset, turnPidArg);
         if (cam1Speed == null){
             return cam2Speed;
         }

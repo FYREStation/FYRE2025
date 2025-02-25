@@ -119,13 +119,13 @@ public class Swerve extends SubsystemBase {
 
         switch (status) {
             case LEFT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.leftOffset, turnPID);
                 break;
             case RIGHT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.rightOffset);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.rightOffset, turnPID);
                 break;
             case STRAIGHT_POSITION: // lines the robot up with the tag
-                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.straightOffset);
+                speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.straightOffset, turnPID);
                 
                 break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
