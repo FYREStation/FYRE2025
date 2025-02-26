@@ -4,12 +4,15 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.ElevatorLift;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
 
 /** Simple wrapper class to load routines. */
 public class Auto {
     
     Swerve swerve;
+    ElevatorLift elevator;
 
     AutoFactory autoFactory;
 
@@ -18,9 +21,10 @@ public class Auto {
 
      * @param swerve - the swerve object to be used
      */
-    public Auto(Swerve swerve) {
+    public Auto(Swerve swerve, ElevatorLift elevator) {
 
         this.swerve = swerve;
+        this.elevator = elevator;
 
         autoFactory = new AutoFactory(
 			swerve::getPose,
@@ -43,6 +47,9 @@ public class Auto {
                 figure8Trajectory.cmd()
             )
         );
+
+        figure8Trajectory.atTime("test")
+            .onTrue(elevator.goToMid);
 
         return figure8;
     }

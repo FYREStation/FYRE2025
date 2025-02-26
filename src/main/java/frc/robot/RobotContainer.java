@@ -68,7 +68,7 @@ public class RobotContainer {
     public Climber climber = new Climber();
     public ClimberControl climberControl = new ClimberControl(climber);
 
-    Auto auto = new Auto(swerve);
+    Auto auto = new Auto(swerve, elevatorControl);
     final AutoChooser autoChooser;
 
     /**
