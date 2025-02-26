@@ -140,8 +140,8 @@ public class RobotContainer {
             .onFalse(clawControl.stopWheels);
 
         joystick.button(12)
-            .onTrue(clawControl.slowHold)
-            .onFalse(clawControl.stopWheels);
+            .onTrue(elevatorControl.goToBottom)
+            .onFalse(armControl.goToBottom);
 
         joystick.button(7)
             .onTrue(elevatorControl.goToTop)
@@ -154,26 +154,31 @@ public class RobotContainer {
             .onTrue(armControl.goToBarge);
         
         joystick.button(9)
-            .onTrue(elevatorControl.goToMid);
+            .onTrue(elevatorControl.goToBottom)
+            .onTrue(armControl.goToCoral);
 
         joystick.button(10)
-            .onTrue(elevatorControl.goToMid)
-            .onTrue(armControl.goToLowerAlgae);
+            .onTrue(armControl.goToBottom)
+            .onTrue(elevatorControl.goToTop);
         
         joystick.button(11)
-            .onTrue(elevatorControl.goToBottom);
+            .onTrue(elevatorControl.goToMid)
+            .onTrue(armControl.goToLowerAlgae);
             // .onTrue(elevatorControl.runMotorReverse)
             // .onFalse(elevatorControl.stopMotors);
 
-        //joystick.button(5)
-            //.onTrue(armControl.goToTop);
-            // .onTrue(armControl.runMotorForwards)
-            // .onFalse(armControl.stopMotors);
+        joystick.button(5)
+            .onTrue(armControl.goToUpperAlgae);
 
         joystick.button(3)
-            .onTrue(armControl.goToBottom);
+            .onTrue(elevatorControl.goToMid)
+            .onTrue(armControl.goToLowerAlgae);
             // .onTrue(armControl.runMotorBackward)
             // .onFalse(armControl.stopMotors);
+
+        joystick.axisGreaterThan(3, 0.75)
+            .onTrue(clawControl.slowHold)
+            .onTrue(clawControl.stopWheels);
 
         joystick.povUp()
             .onTrue(armControl.runMotorForwards)

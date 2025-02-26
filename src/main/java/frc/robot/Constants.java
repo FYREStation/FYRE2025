@@ -100,7 +100,7 @@ public final class Constants {
         public static final double xyI = 0;
         public static final double xyD = 0;
 
-        public static final double turnP = 8.192; // 16384
+        public static final double turnP = 16.384;
         public static final double turnI = 0.00000;
         public static final double turnD = 0.0008;
         public static final double turnR = 0.02;

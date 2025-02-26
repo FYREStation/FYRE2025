@@ -105,7 +105,7 @@ public class Arm extends SubsystemBase {
         } else {
             //armMotor.set(0);
         }
-        System.out.println(armEncoder.getPosition());
+
     }
 
     private void setUpMotors() {
