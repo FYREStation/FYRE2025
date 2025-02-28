@@ -4,6 +4,8 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.commands.ArmControl;
+import frc.robot.commands.ClawControl;
 import frc.robot.commands.ElevatorLift;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Swerve;
@@ -13,6 +15,8 @@ public class Auto {
     
     Swerve swerve;
     ElevatorLift elevator;
+    ClawControl claw;
+    ArmControl arm;
 
     AutoFactory autoFactory;
 
@@ -21,10 +25,12 @@ public class Auto {
 
      * @param swerve - the swerve object to be used
      */
-    public Auto(Swerve swerve, ElevatorLift elevator) {
+    public Auto(Swerve swerve, ElevatorLift elevator, ClawControl claw, ArmControl arm) {
 
         this.swerve = swerve;
         this.elevator = elevator;
+        this.claw = claw;
+        this.arm = arm;
 
         autoFactory = new AutoFactory(
 			swerve::getPose,
@@ -37,9 +43,9 @@ public class Auto {
 
     // runs the dummy minifigure8 routine
     public AutoRoutine real() {
-        AutoRoutine figure8 = autoFactory.newRoutine("dummy1");
+        AutoRoutine figure8 = autoFactory.newRoutine("simpleRight");
 
-        AutoTrajectory figure8Trajectory = figure8.trajectory("Dummy 1");
+        AutoTrajectory figure8Trajectory = figure8.trajectory("SimpleRight");
 
         figure8.active().onTrue(
             Commands.sequence(
@@ -48,8 +54,25 @@ public class Auto {
             )
         );
 
-        figure8Trajectory.atTime("test")
-            .onTrue(elevator.goToMid);
+        figure8Trajectory.atTime("SlowWheels")
+            .onTrue(claw.slowHold);
+
+        figure8Trajectory.atTime("goToScore")
+            .onTrue(arm.goToCoral)
+            .onTrue(elevator.goToTop);
+
+        figure8Trajectory.atTime("release")
+            .onTrue(claw.output);
+        
+        figure8Trajectory.atTime("algae")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToUpperAlgae);
+
+        figure8Trajectory.atTime("down")
+            .onTrue(elevator.goToBottom)
+            .onTrue(arm.goToBottom);
+
+    
 
         return figure8;
     }

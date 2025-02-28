@@ -63,7 +63,7 @@ public class Arm extends SubsystemBase {
     
     private TrapezoidProfile.State bottomState = new TrapezoidProfile.State(
         0,
-        0
+        0.05
     );
 
     private boolean manualOverride = false;
@@ -213,5 +213,9 @@ public class Arm extends SubsystemBase {
     protected double getMeasurement() {
         // possibly add an offset here? 
         return getEncoderDistance();
+    }
+
+    public boolean atGoal() {
+        return armController.atGoal();
     }
 }

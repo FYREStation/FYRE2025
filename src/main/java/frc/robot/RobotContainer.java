@@ -68,7 +68,7 @@ public class RobotContainer {
     public Climber climber = new Climber();
     public ClimberControl climberControl = new ClimberControl(climber);
 
-    Auto auto = new Auto(swerve, elevatorControl);
+    Auto auto = new Auto(swerve, elevatorControl, clawControl, armControl);
     final AutoChooser autoChooser;
 
     /**
@@ -88,7 +88,7 @@ public class RobotContainer {
 
         autoChooser.select("Dummy1");
 
-        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        //RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 
         // Configure the trigger bindings
         configureBindings();
@@ -178,7 +178,7 @@ public class RobotContainer {
 
         joystick.axisGreaterThan(3, 0.75)
             .onTrue(clawControl.slowHold)
-            .onTrue(clawControl.stopWheels);
+            .onFalse(clawControl.stopWheels);
 
         joystick.povUp()
             .onTrue(armControl.runMotorForwards)
@@ -208,6 +208,6 @@ public class RobotContainer {
 	 */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return autoChooser.selectedCommand();
+        return autoChooser.selectedCommandScheduler();
     }
 }

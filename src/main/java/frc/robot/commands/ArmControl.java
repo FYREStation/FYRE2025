@@ -67,4 +67,10 @@ public class ArmControl extends Command {
     public Command toggleManualOverride = Commands.runOnce(() -> {
         arm.toggleManualOverride();
     });
+
+
+    @Override
+    public boolean isFinished() {
+        return arm.atGoal();
+    }
 }

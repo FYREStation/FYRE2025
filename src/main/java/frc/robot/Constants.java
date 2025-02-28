@@ -174,8 +174,8 @@ public final class Constants {
         public static final double upperAlgaeState = 0.51;
         public static final double bargeState = 0.38;
 
-        public static final double maxVelocity = 78;
-        public static final double maxAcceleration = 20;
+        public static final double maxVelocity = 70;
+        public static final double maxAcceleration = 15;
 
         public static final double armThrottle = 0.35;
 
