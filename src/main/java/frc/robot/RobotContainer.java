@@ -43,7 +43,7 @@ public class RobotContainer {
     CommandJoystick joystick = new CommandJoystick(OperatorConstants.operatorControllerPort);
     CommandXboxController xboxController = new CommandXboxController(OperatorConstants.driverControllerPort);
 
-    ControllerInput controller = new ControllerInput(xboxController);
+    ControllerInput controller = new ControllerInput(xboxController, joystick);
     Vision visionSystem = new Vision(
         Constants.VisionConstants.ipAddress, 
         Constants.VisionConstants.CameraRotations, 
@@ -68,7 +68,7 @@ public class RobotContainer {
     public Climber climber = new Climber();
     public ClimberControl climberControl = new ClimberControl(climber);
 
-    Auto auto = new Auto(swerve);
+    Auto auto = new Auto(swerve, elevatorControl, clawControl, armControl);
     final AutoChooser autoChooser;
 
     /**
@@ -88,7 +88,7 @@ public class RobotContainer {
 
         autoChooser.select("Dummy1");
 
-        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        //RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 
         // Configure the trigger bindings
         configureBindings();
@@ -143,34 +143,56 @@ public class RobotContainer {
             .onFalse(clawControl.stopWheels);
 
         joystick.button(12)
-            .onTrue(clawControl.slowHold)
-            .onFalse(clawControl.stopWheels);
+            .onTrue(elevatorControl.goToBottom)
+            .onFalse(armControl.goToBottom);
 
         joystick.button(7)
-            .onTrue(elevatorControl.goToTop);
+            .onTrue(elevatorControl.goToTop)
+            .onTrue(armControl.goToCoral);
             // .onTrue(elevatorControl.runMotorForward)
             // .onFalse(elevatorControl.stopMotors);
+
+        joystick.button(8)
+            .onTrue(elevatorControl.goToTop)
+            .onTrue(armControl.goToBarge);
         
         joystick.button(9)
-            .onFalse(elevatorControl.goToMid);
+            .onTrue(elevatorControl.goToBottom)
+            .onTrue(armControl.goToCoral);
+
+        joystick.button(10)
+            .onTrue(armControl.goToBottom)
+            .onTrue(elevatorControl.goToTop);
         
         joystick.button(11)
-            .onTrue(elevatorControl.goToBottom);
+            .onTrue(elevatorControl.goToMid)
+            .onTrue(armControl.goToLowerAlgae);
             // .onTrue(elevatorControl.runMotorReverse)
             // .onFalse(elevatorControl.stopMotors);
 
         joystick.button(5)
-            // .onTrue(armControl.goToTop);
+            .onTrue(armControl.goToUpperAlgae);
+
+        joystick.button(3)
+            .onTrue(elevatorControl.goToMid)
+            .onTrue(armControl.goToLowerAlgae);
+            // .onTrue(armControl.runMotorBackward)
+            // .onFalse(armControl.stopMotors);
+
+        joystick.axisGreaterThan(3, 0.75)
+            .onTrue(clawControl.slowHold)
+            .onFalse(clawControl.stopWheels);
+
+        joystick.povUp()
             .onTrue(armControl.runMotorForwards)
             .onFalse(armControl.stopMotors);
 
-        joystick.button(3)
-            // .onFalse(armControl.goToBottom);
+        joystick.povDown()
             .onTrue(armControl.runMotorBackward)
             .onFalse(armControl.stopMotors);
 
-        joystick.button(10)
-            .onTrue(armControl.goToTop);
+        // joystick.button(10)
+        //     .onTrue(armControl.goToTop);
 
         joystick.button(6)
             .onTrue(climberControl.pinch)
@@ -189,6 +211,6 @@ public class RobotContainer {
 	 */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return autoChooser.selectedCommand();
+        return autoChooser.selectedCommandScheduler();
     }
 }

@@ -7,6 +7,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 
@@ -24,7 +25,7 @@ public class ControllerInput extends SubsystemBase {
         LOCKON,
     }
 
-    private double x, y, theta;
+    private double x, y, theta, slider;
 
     private double throttle = 0.6;
 
@@ -39,12 +40,14 @@ public class ControllerInput extends SubsystemBase {
     private VisionStatus visionStatus;
 
     private CommandXboxController controller;
+    private CommandJoystick joystick;
 
     // the angle the robot should try to face
     private double turnTarget = 0;
   
-    public ControllerInput(CommandXboxController controller) {
+    public ControllerInput(CommandXboxController controller, CommandJoystick joystick) {
         this.controller = controller;
+        this.joystick = joystick;
         this.visionStatus = VisionStatus.NONE;
     }
 
@@ -67,6 +70,7 @@ public class ControllerInput extends SubsystemBase {
             theta = 0;
         }
 
+        slider = (joystick.getRawAxis(3) + 1) / 2;
 
         if (rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
         else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
@@ -83,7 +87,7 @@ public class ControllerInput extends SubsystemBase {
         double turnSpeed = 0;
 
         if (Math.abs(theta) > 0.05) {
-            turnTarget = currentAngle.getRadians() + -theta;
+            turnTarget = currentAngle.getRadians() + -theta / 2;
         }
 
         turnSpeed = turnPID.calculate(currentAngle.getRadians(), turnTarget);
@@ -143,4 +147,6 @@ public class ControllerInput extends SubsystemBase {
     public boolean nos() {return nos;}
     public double throttle() {return throttle;}
     public VisionStatus visionStatus() {return visionStatus;}
+
+    public double slider() {return slider;}
 }
