@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.net.http.WebSocket.Listener;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -89,7 +90,7 @@ public class CameraWebsocketClient {
     public boolean setupConnection() {
         try {
             HttpClient client = HttpClient.newHttpClient();
-            webSocket = client.newWebSocketBuilder()
+            webSocket = client.newWebSocketBuilder().connectTimeout(Duration.ofSeconds(5))
                     .buildAsync(URI.create(ip), new WebSocketListener(this))
                     .join();
         } catch (Exception e) {

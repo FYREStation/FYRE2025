@@ -80,15 +80,16 @@ public class RobotContainer {
 
         autoChooser = new AutoChooser();
 
-        autoChooser.addRoutine("Figure8", auto::figure8);
-        autoChooser.addRoutine("MiniFigure8", auto::miniFigure8);
-        autoChooser.addRoutine("Dummy1", auto::real);
+        autoChooser.addRoutine("FromLeft", auto::fromLeft);
+        autoChooser.addRoutine("FromMid", auto::fromMid);
+        autoChooser.addRoutine("FromRight", auto::fromRight);
 
         SmartDashboard.putData(autoChooser);
+        SmartDashboard.updateValues();
 
-        autoChooser.select("Dummy1");
+        autoChooser.select("FromMid");
 
-        //RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 
         // Configure the trigger bindings
         configureBindings();
@@ -133,11 +134,11 @@ public class RobotContainer {
         // manipulator bindings
         joystick.button(1)
             .onTrue(clawControl.intake)
-            .onFalse(clawControl.stopWheels);
+            .onFalse(clawControl.stopFast);
 
         joystick.button(2)
             .onTrue(clawControl.output)
-            .onFalse(clawControl.stopWheels);
+            .onFalse(clawControl.stopFast);
 
         joystick.button(12)
             .onTrue(elevatorControl.goToBottom)
@@ -177,7 +178,7 @@ public class RobotContainer {
             // .onFalse(armControl.stopMotors);
 
         joystick.axisGreaterThan(3, 0.75)
-            .onTrue(clawControl.slowHold)
+            .whileTrue(clawControl.slowHold)
             .onFalse(clawControl.stopWheels);
 
         joystick.povUp()
