@@ -124,14 +124,14 @@ public class RobotContainer {
         xboxController.leftBumper()
             .onTrue(controller.downShift);
 
-        // xboxController.a()
-        //     .onChange(controller.toggleLockOn);
-
         xboxController.b()
             .onChange(controller.toggleRightBumper);
         
         xboxController.x()
             .onChange(controller.toggleLeftBumper);
+        
+        xboxController.a()
+            .onChange(controller.a);
 
         // manipulator bindings
         joystick.button(1)

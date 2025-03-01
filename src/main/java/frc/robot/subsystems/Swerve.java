@@ -128,6 +128,10 @@ public class Swerve extends SubsystemBase {
                 speeds = visionSystem.getTagDrive(VisionConstants.cameraPair, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.straightOffset, turnPID);
                 
                 break;
+            case CORAL:
+                speeds = visionSystem.getTagDrive(VisionConstants.CoralCamIndex, VisionConstants.tagIDs, Vision.Side.LEFT, VisionConstants.CoralXOffset, VisionConstants.CoralYOffset, VisionConstants.CoralAngleOffset, null);
+                
+                break;
             case LOCKON: // allows the robot to move freely by user input but remains facing the tag
 
                 // TODO: lock on with both cameras

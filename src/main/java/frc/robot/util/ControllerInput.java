@@ -23,6 +23,7 @@ public class ControllerInput extends SubsystemBase {
         RIGHT_POSITION,
         STRAIGHT_POSITION,
         LOCKON,
+        CORAL,
     }
 
     private double x, y, theta, slider;
@@ -35,7 +36,7 @@ public class ControllerInput extends SubsystemBase {
     private boolean fieldRelative = true;
     private boolean leftBumper;
     private boolean rightBumper;
-    private boolean lockOn = false;
+    private boolean coral = false;
 
     private VisionStatus visionStatus;
 
@@ -71,11 +72,13 @@ public class ControllerInput extends SubsystemBase {
         }
 
         slider = (joystick.getRawAxis(3) + 1) / 2;
-
-        if (rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
-        else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
-        else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
+        
+        if (coral){visionStatus=VisionStatus.CORAL;}
         else visionStatus = VisionStatus.NONE;
+
+        // rightBumper && leftBumper) visionStatus = VisionStatus.STRAIGHT_POSITION;
+        // else if (rightBumper) visionStatus = VisionStatus.RIGHT_POSITION;
+        // else if (leftBumper) visionStatus = VisionStatus.LEFT_POSITION;
     }
 
     /**
@@ -143,6 +146,11 @@ public class ControllerInput extends SubsystemBase {
     public Command toggleLockOn = Commands.runOnce(() -> {
         // lockOn = !lockOn;
     });
+
+    public Command a = Commands.runOnce(() -> {
+        coral = !coral;
+    });
+
 
     public boolean nos() {return nos;}
     public double throttle() {return throttle;}

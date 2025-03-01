@@ -210,7 +210,7 @@ public final class Constants {
     public static class VisionConstants {
         public static final String ipAddress = "ws://10.54.80.123";
         public static final int[] CameraRotations = {0, 0};
-        public static final String[] tagIDs = {"6", "7", "8", "9", "10", "11", "17", "18", "19", "20", "21", "22"};
+        public static final String[] tagIDs = {"1", "2", "12", "13", "6", "7", "8", "9", "10", "11", "17", "18", "19", "20", "21", "22"};
         public static HashMap<String, Integer> apriltagAngles = new HashMap<>();
         public static final double maxIntakeAngle = Math.PI/6;
         public static final double misallignedPieceOffset = Math.PI/12; // This is the angle to go at when the piece is misaligned and 1m away. It will be adjusted automatically for different angles.
@@ -218,6 +218,11 @@ public final class Constants {
         public static Vision.RobotPositionOffset straightOffset = new Vision.RobotPositionOffset(0, 0, 0);
         public static Vision.RobotPositionOffset leftOffset = new Vision.RobotPositionOffset(0, 0, 0);
         public static Vision.RobotPositionOffset rightOffset = new Vision.RobotPositionOffset(0, 0, 0);
+        public static double CoralYOffset = 0;
+
+        public static double CoralXOffset = 0;
+        public static double CoralAngleOffset = 0;
+        public static int CoralCamIndex = 2;
 
         public static Vision.CameraPair cameraPair = new Vision.CameraPair(0, 1, Math.PI/6, -Math.PI/6, 0.3, -0.03, -0.3, 0.03);
         /** Constructs apriltags angles hashmap. */

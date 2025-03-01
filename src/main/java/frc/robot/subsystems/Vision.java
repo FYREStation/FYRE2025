@@ -201,17 +201,29 @@ public class Vision {
         else tag = decideTag(camIndex);        
         if(tag == null)return null;
 
+
+        double e; 
+        if (yOffset == 0) e = -Math.PI/2;
+        else e = Math.atan(-xOffset/(yOffset)) + (Math.PI * (Math.signum(yOffset)-1)/2);
+        double f = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
+
+        double xDist = tag.distance * Math.sin(tag.horizontalAngle) + Math.cos(cameraHorizontalAngle + e);
+        double yDist = tag.distance * Math.cos(tag.horizontalAngle) + Math.sin(cameraHorizontalAngle + e);
+
+        double totDist = Math.sqrt(xDist * xDist + yDist * yDist);
+
+
         // if (turnPIDArg != null) turnSpeed = turnPIDArg.calculate(tag.orientation[0] + cameraHorizontalAngle); // This seems to be fine it may need to be negative but idk
         // else 
         turnSpeed = turnPID.calculate(tag.orientation[1] - cameraHorizontalAngle);   
-        double moveSpeed = movePID.calculate(Math.sqrt(Math.pow(tag.position[2] - xOffset, 2) + Math.pow(tag.position[0] - yOffset, 2))); // I do not know if this is correct - it makes some sense but idk
+        double moveSpeed = movePID.calculate(totDist); // I do not know if this is correct - it makes some sense but idk
 
         // Look at this! Max is doing a weird normalization thing again!
         // double xMove = ((tag.position[2] - xOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
         // double yMove = ((tag.position[0] - yOffset) / (Math.abs(tag.position[0]) + Math.abs(tag.position[2]))) * moveSpeed;
 
-        double xMove = Math.cos(tag.horizontalAngle - cameraHorizontalAngle) * moveSpeed;
-        double yMove = Math.sin(tag.horizontalAngle - cameraHorizontalAngle) * moveSpeed;
+        double xMove = (xDist / totDist) * moveSpeed;
+        double yMove = (yDist / totDist) * moveSpeed;
 
 
         return frontToSide(new ChassisSpeeds(
