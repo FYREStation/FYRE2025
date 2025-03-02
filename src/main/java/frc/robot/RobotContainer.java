@@ -52,7 +52,6 @@ public class RobotContainer {
 
     public Swerve swerve = new Swerve(controller, visionSystem);
 
-    public DriveForTime simpleAuto = new DriveForTime(swerve);
 
     /*
     public Intake intake = new Intake();
@@ -92,7 +91,7 @@ public class RobotContainer {
 
         autoChooser.select("FromMid");
 
-        RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
+        //RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
 
         // Configure the trigger bindings
         configureBindings();
@@ -212,7 +211,6 @@ public class RobotContainer {
 	 */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return simpleAuto;
-        // return autoChooser.selectedCommandScheduler();
+        return new DriveForTime(swerve);
     }
 }

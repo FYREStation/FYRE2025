@@ -55,12 +55,12 @@ public class Auto {
             )
         );
 
-        midFromLeft.done().onTrue(midToScore.cmd());
-        midToScore.done().onTrue(scoreToCoral.cmd());
+        //midFromLeft.done().onTrue(midToScore.cmd());
+        // midToScore.done().onTrue(scoreToCoral.cmd());
 
         midToScore.atTime("goToScore")
-            .onTrue(elevator.goToTop)
-            .onTrue(arm.goToCoral);
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
 
         midToScore.atTime("spit")
             .onTrue(claw.output);
@@ -131,12 +131,9 @@ public class Auto {
             )
         );
 
-        midFromMid.done().onTrue(midToScore.cmd());
-        midToScore.done().onTrue(scoreToCoral.cmd());
-
         midToScore.atTime("goToScore")
-            .onTrue(elevator.goToTop)
-            .onTrue(arm.goToCoral);
+            .onTrue(elevator.goToMid)
+            .onTrue(arm.goToLowerAlgae);
 
         midToScore.atTime("spit")
             .onTrue(claw.output);
