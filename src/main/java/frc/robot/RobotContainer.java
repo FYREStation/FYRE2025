@@ -17,6 +17,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ArmControl;
 import frc.robot.commands.ClawControl;
 import frc.robot.commands.ClimberControl;
+import frc.robot.commands.DriveForTime;
 import frc.robot.commands.ElevatorLift;
 import frc.robot.commands.IntakeControl;
 import frc.robot.subsystems.Arm;
@@ -50,6 +51,8 @@ public class RobotContainer {
         Constants.VisionConstants.apriltagAngles); 
 
     public Swerve swerve = new Swerve(controller, visionSystem);
+
+    public DriveForTime simpleAuto = new DriveForTime(swerve);
 
     /*
     public Intake intake = new Intake();
@@ -209,6 +212,7 @@ public class RobotContainer {
 	 */
     public Command getAutonomousCommand() {
         // An example command will be run in autonomous
-        return autoChooser.selectedCommandScheduler();
+        return simpleAuto;
+        // return autoChooser.selectedCommandScheduler();
     }
 }
